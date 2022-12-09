@@ -5,6 +5,7 @@ This project was written using *Visual Studio 2022*.
 
 ### Requires:
  - A package manager (Im currently using VCPKG).
+   https://github.com/microsoft/vcpkg
  - Visual Studio 2022.
  
 ### Libs:
