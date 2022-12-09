@@ -10,6 +10,10 @@ This project was written using *Visual Studio 2022*.
  
 ### Libs:
  - GLFW3
+   https://github.com/glfw/glfw
  - GLEW
+   https://github.com/nigels-com/glew
  - GLM
- - FLEC
+   https://github.com/g-truc/glm
+ - FLECS
+   https://github.com/SanderMertens/flecs
