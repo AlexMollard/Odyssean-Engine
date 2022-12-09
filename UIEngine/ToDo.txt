@@ -1,0 +1,3 @@
+Add Classes for Meshes, Materials, and Textures.
+Setup flecs to use the new classes.
+Add Camera Class.
