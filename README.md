@@ -17,3 +17,5 @@ This project was written using *Visual Studio 2022*.
    https://github.com/g-truc/glm
  - FLECS
    https://github.com/SanderMertens/flecs
+ - FREE TYPE
+   https://github.com/freetype/freetype
