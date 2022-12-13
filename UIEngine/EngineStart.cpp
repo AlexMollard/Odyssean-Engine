@@ -27,6 +27,7 @@ int main()
 
 	// Load shaders
 	shaderManager.Load("Shaders/lit.vert", "Shaders/lit.frag");
+	shaderManager.Load("Shaders/font.vert", "Shaders/font.frag");
 
 	Services services(window.get());
 	services.SetShaderManager(&shaderManager);
@@ -46,20 +47,20 @@ int main()
 		// Update Window
 		window->Update_Window();
 		float dt = window->GetDeltaTime();
-		
+
 		stateMachine.update(dt);
 		stateMachine.render(*window);
 
 		timer += dt;
-		if (timer > 5.0f)
-		{
-			stateMachine.SetCurrentScene(&Secondscene);
-			timer = -5.0f;
-		}
-		else if (timer > 0.0f)
-		{
-			stateMachine.SetCurrentScene(&scene);
-		}
+		//if (timer > 5.0f)
+		//{
+		//	stateMachine.SetCurrentScene(&Secondscene);
+		//	timer = -5.0f;
+		//}
+		//else if (timer > 0.0f)
+		//{
+		//	stateMachine.SetCurrentScene(&scene);
+		//}
 	}
 
 	return 0;

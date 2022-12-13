@@ -37,7 +37,7 @@ int Window::Window_intit(int width, int height, std::string_view name)
 
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
-	glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
+	glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
