@@ -139,7 +139,7 @@ void TestingScene::Enter()
 			// bearing
 			glm::ivec2(face->glyph->bitmap_left, face->glyph->bitmap_top),
 			// advance
-			face->glyph->advance.x
+			(unsigned int)face->glyph->advance.x
 		};
 
 		charManager.AddCharacter(c, character);
@@ -228,7 +228,7 @@ void TestingScene::Draw(Window& window, const Services* services)
 	const Shader* fontShader = services->GetShaderManager()->Load("Shaders/font.vert").get();
 	glUseProgram(fontShader->GetID());
 
-	fontShader->setVec3("textColor", glm::vec3(0.0f, 1.0f, 0.0f));
+	fontShader->setVec3("textColor", glm::vec3(1.0f, 0.8f, 0.3f));
 	fontShader->setMat4("projection", glm::ortho(0.0f, width, 0.0f, height));
 
 	glBindVertexArray(textVAO);

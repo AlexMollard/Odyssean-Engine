@@ -40,7 +40,7 @@ int main()
 	stateMachine.AddScene(&Secondscene);
 	stateMachine.SetCurrentScene(&scene);
 
-	float timer = 0.0f;
+	//float timer = 0.0f;
 	// Engine Loop
 	while (!window->Window_shouldClose())
 	{
@@ -51,7 +51,7 @@ int main()
 		stateMachine.update(dt);
 		stateMachine.render(*window);
 
-		timer += dt;
+		//timer += dt;
 		//if (timer > 5.0f)
 		//{
 		//	stateMachine.SetCurrentScene(&Secondscene);

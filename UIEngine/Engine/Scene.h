@@ -27,4 +27,7 @@ public:
 	virtual void Update(float deltaTime, const Services* services){ /* Override This */ };
 	virtual void LateUpdate(float deltaTime){ /* Override This */ };
 	virtual void Draw(Window& window, const Services* services){ /* Override This */ };
+
+	// virtual destructor
+	virtual ~Scene() = default;
 };
