@@ -22,5 +22,5 @@ Texture::~Texture() {}
 
 void Texture::load(std::string dir) 
 {
-	//sail::image image(dir);
+	sail::image image(dir);
 }
