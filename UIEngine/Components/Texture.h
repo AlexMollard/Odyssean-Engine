@@ -9,22 +9,24 @@ class Texture
 {
 public:
 	Texture(std::string dir);
-	Texture(unsigned int* id);
-	Texture(){};
+	Texture( unsigned int* id);
+	Texture() = default;
 	~Texture();
 
-	void load(std::string dir);
-	void Bind() { glBindTexture(GL_TEXTURE_2D, m_TextureID); };
-	unsigned int GetID() { return m_TextureID; };
+	 unsigned char* loadImage( std::string& dir) ;
+	void Bind()  { glBindTexture(GL_TEXTURE_2D, m_TextureID); };
+	unsigned int GetID()  { return m_TextureID; };
 	void SetID(unsigned int newID) { m_TextureID = newID; };
 
-	int GetWidth() { return m_Width; };
-	int GetHeight() { return m_Height; };
+	unsigned int GetWidth()  { return m_Width; };
+	unsigned int GetHeight()  { return m_Height; };
 
-private:
+	void SetWidth(unsigned int newWidth) { m_Width = newWidth; };
+	void SetHeight(unsigned int newHeight) { m_Height = newHeight; };
+
 	unsigned int m_TextureID = 0;
-	int m_Width              = 0;
-	int m_Height             = 0;
-	//int m_NrChannels         = 4;
+	unsigned int m_Width      = 0;
+	unsigned int m_Height     = 0;
+	int m_NrChannels         = 4;
 };
 } // namespace components
