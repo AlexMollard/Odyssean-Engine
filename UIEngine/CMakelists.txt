@@ -1,0 +1,64 @@
+cmake_minimum_required(VERSION 3.10)
+
+set(CMAKE_TOOLCHAIN_FILE "C:/vcpkg/scripts/buildsystems/vcpkg.cmake" CACHE STRING "Vcpkg toolchain file")
+
+project(UIEngine VERSION 0.1.0 LANGUAGES C CXX)
+
+set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
+set(CMAKE_C_STANDARD 23)
+set(CMAKE_C_STANDARD_REQUIRED ON)
+set(CMAKE_C_EXTENSIONS OFF)
+
+## Blob all the source files into a variable
+file(GLOB_RECURSE UIEngine_SRC
+    "Engine/*.h"
+    "Engine/*.hpp"
+    "Engine/*.c"
+    "Engine/*.cpp"
+    "Game/*.h"
+    "Game/*.hpp"
+    "Game/*.c"
+    "Game/*.cpp"
+    "Components/*.h"
+    "Components/*.hpp"
+    "Components/*.c"
+    "Components/*.cpp"
+)
+
+## Create the executable
+add_executable(UIEngine ${UIEngine_SRC})
+
+target_include_directories(UIEngine PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/Engine
+    ${CMAKE_CURRENT_SOURCE_DIR}/Game
+    ${CMAKE_CURRENT_SOURCE_DIR}/Components
+)
+
+## Link the libraries
+
+#Sail
+find_package(SailC++ REQUIRED)
+target_link_libraries(UIEngine SAIL::sail-c++)
+
+#glm
+find_package(glm CONFIG REQUIRED)
+target_link_libraries(UIEngine glm::glm)
+
+#glfw
+find_package(glfw3 CONFIG REQUIRED)
+target_link_libraries(UIEngine glfw)
+
+#glew
+find_package(GLEW CONFIG REQUIRED)
+target_link_libraries(UIEngine GLEW::GLEW)
+
+#flecs
+find_package(flecs CONFIG REQUIRED)
+target_link_libraries(UIEngine flecs::flecs)
+
+#free type
+find_package(freetype CONFIG REQUIRED)
+target_link_libraries(UIEngine freetype)

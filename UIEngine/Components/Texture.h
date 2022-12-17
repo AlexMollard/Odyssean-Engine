@@ -25,6 +25,6 @@ private:
 	unsigned int m_TextureID = 0;
 	int m_Width              = 0;
 	int m_Height             = 0;
-	int m_NrChannels         = 4;
+	//int m_NrChannels         = 4;
 };
 } // namespace components
