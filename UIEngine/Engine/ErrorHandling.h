@@ -3,7 +3,7 @@
 #include <source_location>
 
 #if defined(_MSC_VER) && (!__clang__)
-// BreakPoint on line and output in console just in case
+// BreakPoint on line and output in console just in case using the printf format
 #define S_ASSERT(inValue, message)                                                                                  \
 	if (!(inValue))                                                                                                 \
 	{                                                                                                               \

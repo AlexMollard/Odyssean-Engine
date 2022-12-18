@@ -1,17 +1,25 @@
-#version 330 core
+#version 450
+
 layout(location = 0) in vec3 aPos;
-layout(location = 1) in vec3 aColour;
-layout (location = 2) in vec2 aTexCoord;
+layout(location = 1) in vec4 aColor;
+layout(location = 2) in vec2 aTexCoord;
+layout(location = 3) in float aTexIndex;
 
-uniform mat4 model;
-uniform mat4 view;
-uniform mat4 projection;
+uniform mat4 OrthoMatrix;
+uniform mat4 Model;
+uniform vec3 position;
 
+out vec4 Color;
 out vec2 TexCoord;
-out vec3 colour;
+out float TexIndex;
+
 void main()
 {
-	colour = aColour;
+	Color = aColor;
+	TexIndex = aTexIndex;
+
 	TexCoord = aTexCoord;
-	gl_Position = projection * view * model * vec4(aPos, 1.0);
+	TexCoord.y = -1 * TexCoord.y;
+
+	gl_Position = OrthoMatrix * Model * vec4(-aPos.xyz, 1.0);
 }

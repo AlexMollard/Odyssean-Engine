@@ -3,18 +3,21 @@
 #include "Renderer2D.h"
 
 #include "Shader.h"
+#include "Texture.h"
 #include <algorithm>
 #include <array>
 #include <iostream>
-
-std::vector<glm::vec2> Renderer2D::UVs;
-components::Camera* Renderer2D::camera;
-Shader* Renderer2D::basicShader;
+#include <map>
 
 static const size_t maxQuadCount   = 2000;
 static const size_t maxVertexCount = maxQuadCount * 4;
 static const size_t maxIndexCount  = maxQuadCount * 6;
 static const size_t maxTextures    = 31;
+
+static unsigned int m_TextVAO;
+static unsigned int m_TextVBO;
+
+static Shader* m_TextShader;
 
 struct Vertex
 {
@@ -42,19 +45,50 @@ struct RendererData
 	uint32_t textureSlotIndex                      = 1;
 };
 
+struct Character
+{
+	unsigned int texture;
+	glm::vec2 size;
+	glm::ivec2 bearing;
+	unsigned int advance;
+};
+
+// Static class to hold all the characters
+class CharacterManager
+{
+public:
+	static CharacterManager& Instance()
+	{
+		static CharacterManager instance;
+		return instance;
+	}
+
+	CharacterManager(CharacterManager const&) = delete;
+	void operator=(CharacterManager const&)   = delete;
+
+	void AddCharacter(char c, Character character) { Characters.insert(std::pair<char, Character>(c, character)); }
+
+	Character GetCharacter(char c) { return Characters[c]; }
+
+private:
+	CharacterManager() = default;
+	std::map<char, Character> Characters{};
+};
+
 static RendererData data;
 
 static glm::vec2 basicUVS[4] = { glm::vec2(0.0f, 0.0f), glm::vec2(1.0f, 0.0f), glm::vec2(1.0f, 1.0f), glm::vec2(0.0f, 1.0f) };
 
-Renderer2D::Renderer2D(components::Camera* inCamera)
+Renderer2D::Renderer2D(components::Camera* camera, Shader* basicShader, Shader* textShader)
 {
-	basicShader = new Shader("Basic Shader", "..\\Shaders\\BasicVertex.shader", "..\\Shaders\\BasicFragment.shader");
+	m_Camera = camera;
 
-	this->camera = inCamera;
+	m_BasicShader = basicShader;
+	m_TextShader  = textShader;
 
-	basicShader->Use();
+	m_BasicShader->Use();
 
-	auto loc = glGetUniformLocation(basicShader->GetID(), "Textures");
+	auto loc = glGetUniformLocation(m_BasicShader->GetID(), "Textures");
 	int samplers[maxTextures];
 	for (int i = 0; i < maxTextures; i++)
 		samplers[i] = i;
@@ -67,108 +101,37 @@ Renderer2D::Renderer2D(components::Camera* inCamera)
 Renderer2D::~Renderer2D()
 {
 	ShutDown();
-	for (int i = 0; i < texturePool.size(); i++)
+	for (auto& texture : texturePool)
 	{
-		delete texturePool[i];
-		texturePool[i] = nullptr;
+		delete texture;
+		texture = nullptr;
 	}
 
-	delete basicShader;
-	basicShader = nullptr;
-
-	delete camera;
-	camera = nullptr;
-}
-
-void Renderer2D::AddObject(components::Quad* newObject)
-{
-	//std::vector<components::Quad*>::iterator it = find(objectPool.begin(), objectPool.end(), newObject);
-
-	//if (it != objectPool.end())
-	//{
-	//	std::cout << "GameObject already in Renderer: " << *it << '\n';
-	//	return;
-	//}
-
-	//components::Quad* go = newObject;
-	//go->SetID(objectPool.size());
-	//go->SetShader(basicShader);
-
-	//if (objectPool.size() > 0)
-	//{
-	//	if (objectPool.back()->GetPos().z <= go->GetPos().z)
-	//	{
-	//		objectPool.push_back(go);
-	//		return;
-	//	}
-
-	//	for (int i = 0; i < objectPool.size(); i++)
-	//	{
-	//		if (objectPool[i]->GetPos().z >= go->GetPos().z)
-	//		{
-	//			objectPool.insert(objectPool.begin() + i, go);
-	//			return;
-	//		}
-	//	}
-	//}
-	//else
-	//	objectPool.push_back(go);
-}
-
-components::Texture* Renderer2D::LoadTexture(std::string dir)
-{
-	components::Texture* tempTex = new components::Texture(dir);
-
-	texturePool.push_back(tempTex);
-	return tempTex;
+	if (m_Camera)
+	{
+		delete m_Camera;
+		m_Camera = nullptr;
+	}
 }
 
 void Renderer2D::Draw()
 {
-	//BeginBatch();
+	m_BasicShader->Use();
+	float width  = 1920.0f;
+	float height = 1080.0f;
 
-	//basicShader->Use();
+	// Setup the projection matrix to be orthographic with 0 being bottom left
+	glm::mat4 projection = glm::ortho(0.0f, -width, 0.0f, -height, -100.0f, 100.0f);
 
-	//basicShader->setMat4("OrthoMatrix", camera->GetTransform());
-	//basicShader->setMat4("Model", glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f)));
-	//basicShader->setVec4("SunColor", glm::vec4(1.0f));
+	m_BasicShader->setMat4("OrthoMatrix", projection);
+	m_BasicShader->setMat4("Model", glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f)));
 
-	//glm::vec2 camPos = camera->GetPosition();
-
-	//float distanceFromCenter = -camera->GetAspectRatio().x + 6;
-
-	//for (int i = 0; i < objectPool.size(); i++)
-	//{
-	//	if (objectPool[i]->GetRender() == false)
-	//		continue;
-
-	//	if (glm::distance(camPos, glm::vec2(objectPool[i]->GetPos())) > distanceFromCenter)
-	//	{
-	//		continue;
-	//	}
-
-	//	if (objectPool[i]->GetTexture() == nullptr)
-	//	{
-	//		DrawQuad(objectPool[i]->GetPos(), objectPool[i]->GetScale(), { objectPool[i]->GetColor(), 1.0f });
-	//	}
-	//	else if (objectPool[i]->GetTexture() != nullptr)
-	//	{
-	//		DrawQuad(objectPool[i]->GetPos(), objectPool[i]->GetScale(), { objectPool[i]->GetColor(), 1.0f }, objectPool[i]->GetTexture(),
-	//			objectPool[i]->GetFrame(), objectPool[i]->GetSpriteWidth());
-	//	}
-	//}
-
-	//EndBatch();
-	//Flush();
-	//DrawUI();
+	EndBatch();
+	Flush();
+	BeginBatch();
 }
 
-Shader* Renderer2D::GetBasicShader()
-{
-	return basicShader;
-}
-
-void Renderer2D::DrawQuad(glm::vec3 position, glm::vec2 size, glm::vec4 color)
+void Renderer2D::DrawQuad(glm::vec2 position, glm::vec2 size, glm::vec4 color, glm::vec2 anchorPoint, const unsigned int texId)
 {
 	if (data.indexCount >= maxIndexCount)
 	{
@@ -177,121 +140,82 @@ void Renderer2D::DrawQuad(glm::vec3 position, glm::vec2 size, glm::vec4 color)
 		BeginBatch();
 	}
 
-	float textureIndex = 0.0f;
+	float xOffset = size.x / 2;
+	float yOffset = size.y / 2;
 
-	glm::vec3 positions[4] = { glm::vec3(position.x - size.x / 2, position.y - size.y / 2, position.z),
-		glm::vec3(position.x + size.x / 2, position.y - size.y / 2, position.z),
-		glm::vec3(position.x + size.x / 2, position.y + size.y / 2, position.z),
-		glm::vec3(position.x - size.x / 2, position.y + size.y / 2, position.z) };
+	glm::vec3 positions[4] = {
+		glm::vec3(position.x - xOffset, position.y - yOffset, 1), // Bottom Left
+		glm::vec3(position.x + xOffset, position.y - yOffset, 1), // Bottom Right
+		glm::vec3(position.x + xOffset, position.y + yOffset, 1), // Top Right
+		glm::vec3(position.x - xOffset, position.y + yOffset, 1)  // top Left
+	};
 
 	for (int i = 0; i < 4; i++)
 	{
 		data.quadBufferPtr->position  = positions[i];
 		data.quadBufferPtr->color     = color;
 		data.quadBufferPtr->texCoords = basicUVS[i];
-		data.quadBufferPtr->texIndex  = textureIndex;
+		data.quadBufferPtr->texIndex  = (float)texId;
 		data.quadBufferPtr++;
 	}
 
 	data.indexCount += 6;
 }
 
-void Renderer2D::DrawQuad(glm::vec3 position, glm::vec2 size, glm::vec4 color, components::Texture* texture, int frame, int spriteWidth)
+void Renderer2D::DrawText(std::string text, glm::vec2 position, glm::vec4 color, float scale, std::string font)
 {
-	if (data.indexCount >= maxIndexCount || data.textureSlotIndex >= maxTextures)
+	glUseProgram(m_TextShader->GetID());
+
+	m_TextShader->setVec3("textColor", color);
+	m_TextShader->setMat4("projection", glm::ortho(0.0f, 1920.0f, 0.0f, 1080.0f));
+
+	glBindVertexArray(m_TextVAO);
+	float x = position.x;
+	float y = position.y;
+
+	// Iterate through all characters
+	for (auto c : text)
 	{
-		EndBatch();
-		Flush();
-		BeginBatch();
+		Character ch = CharacterManager::Instance().GetCharacter(c);
+
+		float xpos = x + ch.bearing.x * scale;
+		float ypos = y - (ch.size.y - ch.bearing.y) * scale;
+
+		float w = ch.size.x * scale;
+		float h = ch.size.y * scale;
+		// Update VBO for each character
+		float vertices[6][4] = {
+			{    xpos, ypos + h, 0.0, 0.0},
+            {    xpos,     ypos, 0.0, 1.0},
+            {xpos + w,     ypos, 1.0, 1.0},
+
+			{    xpos, ypos + h, 0.0, 0.0},
+            {xpos + w,     ypos, 1.0, 1.0},
+            {xpos + w, ypos + h, 1.0, 0.0}
+		};
+
+		// bind the texture
+		glBindTexture(GL_TEXTURE_2D, ch.texture);
+
+		// Update content of VBO memory
+		glBindBuffer(GL_ARRAY_BUFFER, m_TextVBO);
+		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
+
+		// Render quad
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+
+		// Now advance cursors for next glyph (note that advance is number of 1/64 pixels)
+		x += (ch.advance >> 6) * scale; // Bitshift by 6 to get value in pixels (2^6 = 64)
 	}
 
-	float textureIndex = 0.0f;
-	for (uint32_t i = 1; i < data.textureSlotIndex; i++)
-	{
-		if (data.textureSlots[i] == texture->GetID())
-		{
-			textureIndex = (float)i;
-			break;
-		}
-	}
-
-	if (textureIndex == 0.0f)
-	{
-		textureIndex                             = (float)data.textureSlotIndex;
-		data.textureSlots[data.textureSlotIndex] = texture->GetID();
-		data.textureSlotIndex++;
-	}
-
-	static bool useBasicUVS = false;
-
-	if (texture->GetWidth() == 16)
-	{
-		useBasicUVS = true;
-	}
-	else
-	{
-		useBasicUVS = false;
-		setActiveRegion(texture, frame, spriteWidth);
-	}
-
-	glm::vec3 positions[4] = { glm::vec3(position.x - size.x / 2, position.y - size.y / 2, position.z),
-		glm::vec3(position.x + size.x / 2, position.y - size.y / 2, position.z),
-		glm::vec3(position.x + size.x / 2, position.y + size.y / 2, position.z),
-		glm::vec3(position.x - size.x / 2, position.y + size.y / 2, position.z) };
-
-	for (int i = 0; i < 4; i++)
-	{
-		data.quadBufferPtr->position  = positions[i];
-		data.quadBufferPtr->color     = color;
-		data.quadBufferPtr->texCoords = (useBasicUVS) ? basicUVS[i] : UVs[i];
-		data.quadBufferPtr->texIndex  = textureIndex;
-		data.quadBufferPtr++;
-	}
-
-	data.indexCount += 6;
-}
-
-void Renderer2D::RemoveQuad(components::Quad* object)
-{
-	objectPool.erase(objectPool.begin() + GetObjectIndex(object));
-}
-
-int Renderer2D::GetObjectIndex(components::Quad* object)
-{
-	for (int i = 0; i < objectPool.size(); i++)
-	{
-		if (objectPool[i] == object)
-		{
-			return i;
-		}
-	}
-	return -404;
-}
-
-void Renderer2D::setActiveRegion(components::Texture* texture, int regionIndex, int spriteWidth)
-{
-	UVs.clear();
-
-	//					  (int) textureSize / spriteWidth;
-	int numberOfRegions = texture->GetWidth() / spriteWidth;
-
-	float uv_x = (regionIndex % numberOfRegions) / (float)numberOfRegions;
-	float uv_y = (regionIndex / (float)numberOfRegions) * (float)numberOfRegions;
-
-	glm::vec2 uv_down_left  = glm::vec2(uv_x, uv_y);
-	glm::vec2 uv_down_right = glm::vec2(uv_x + 1.0f / numberOfRegions, uv_y);
-	glm::vec2 uv_up_right   = glm::vec2(uv_x + 1.0f / numberOfRegions, (uv_y + 1.0f));
-	glm::vec2 uv_up_left    = glm::vec2(uv_x, (uv_y + 1.0f));
-
-	UVs.push_back(uv_down_left);
-	UVs.push_back(uv_down_right);
-	UVs.push_back(uv_up_right);
-	UVs.push_back(uv_up_left);
+	glBindVertexArray(0);
+	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 void Renderer2D::Init()
 {
 	data.quadBuffer = new Vertex[maxVertexCount];
+	BeginBatch();
 
 	glCreateVertexArrays(1, &data.quadVA);
 	glBindVertexArray(data.quadVA);
@@ -346,6 +270,92 @@ void Renderer2D::Init()
 	{
 		data.textureSlots[i] = 0;
 	}
+
+	// Setup text rendering
+	// TEXT STUFF BELOW --------------
+	// Font stuff
+	FT_Library library;
+	FT_Face face; /* handle to face object */
+
+	int error = FT_Init_FreeType(&library);
+	S_ASSERT(!error, "Something went wrong")
+
+	error = FT_New_Face(library, "../Resources/Fonts/Manrope-Regular.ttf", 0, &face);
+	if (error == FT_Err_Unknown_File_Format)
+	{
+		S_ASSERT(false, "Font file could be opened and read, but it appears that its font format is unsupported");
+	}
+	else if (error)
+	{
+		S_ASSERT(false, "The font file could not be opened or read, or maybe it is broken");
+	}
+
+	// Set font size
+	error = FT_Set_Pixel_Sizes(face, 0, 32);
+	S_ASSERT(!error, "Something went wrong")
+
+	auto& charManager = CharacterManager::Instance();
+
+	// load all glyphs
+	for (unsigned char c = 0; c < 128; c++)
+	{
+		// load character glyph
+		if (FT_Load_Char(face, c, FT_LOAD_RENDER))
+		{
+			S_ASSERT(false, "ERROR::FREETYTPE: Failed to load Glyph");
+			continue;
+		}
+		// disable byte-alignment restriction
+		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+		// generate texture
+		unsigned int glyphTexture;
+		glGenTextures(1, &glyphTexture);
+		glBindTexture(GL_TEXTURE_2D, glyphTexture);
+		glTexImage2D(GL_TEXTURE_2D,
+			0,
+			GL_RED,
+			face->glyph->bitmap.width,
+			face->glyph->bitmap.rows,
+			0,
+			GL_RED,
+			GL_UNSIGNED_BYTE,
+			face->glyph->bitmap.buffer);
+
+		// set texture options
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+		// now store character for later use
+		Character character = { // texture
+			glyphTexture,
+			// size
+			glm::vec2(face->glyph->bitmap.width, face->glyph->bitmap.rows),
+			// bearing
+			glm::ivec2(face->glyph->bitmap_left, face->glyph->bitmap_top),
+			// advance
+			(unsigned int)face->glyph->advance.x
+		};
+
+		charManager.AddCharacter(c, character);
+	}
+
+	FT_Done_Face(face);
+	FT_Done_FreeType(library);
+
+	// Text buffer stuff
+	glGenVertexArrays(1, &m_TextVAO);
+	glGenBuffers(1, &m_TextVBO);
+	glBindVertexArray(m_TextVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, m_TextVBO);
+
+	// Create a the buffer data for 2 positions and 2 texture coordinates
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 6 * 4, nullptr, GL_DYNAMIC_DRAW);
+
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
 }
 
 void Renderer2D::ShutDown()

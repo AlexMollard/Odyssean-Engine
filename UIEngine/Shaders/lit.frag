@@ -1,12 +1,21 @@
-#version 330 core
-out vec4 FragColor;
+#version 450
 
-uniform sampler2D text;
+layout(location = 0) out vec4 FragColor;
 
+in vec4 Color;
 in vec2 TexCoord;
-//in vec3 colour;
+in float TexIndex;
+
+uniform sampler2D Textures[31];
+
+uniform vec3 color;
+
 void main()
 {
-    
-    FragColor = texture(text, TexCoord);
+	int index = int(TexIndex);
+
+	if (texture(Textures[index], TexCoord).a < 0.01)
+		discard;
+
+	FragColor = (texture(Textures[index], TexCoord) * Color);
 }

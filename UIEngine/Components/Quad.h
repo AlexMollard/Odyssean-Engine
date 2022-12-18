@@ -18,17 +18,22 @@ public:
 	void SetPosition(const glm::vec2& position) { m_Position = position; }
 	void SetSize(const glm::vec2& size) { m_Size = size; }
 	void SetColor(const glm::vec4& color) { m_Color = color; }
+	void SetAnchorPoint(const glm::vec2 anchorPoint) { m_AnchorPoint = anchorPoint; }
+	void SetTextureID(unsigned int id) { m_TextureID = id; }
 
 	// AABB stuff
 	const glm::vec2 GetTopLeft() const { return m_Position - m_Size / 2.0f; }
 	const glm::vec2 GetTopRight() const { return m_Position + glm::vec2(m_Size.x, -m_Size.y) / 2.0f; }
 	const glm::vec2 GetBottomLeft() const { return m_Position + glm::vec2(-m_Size.x, m_Size.y) / 2.0f; }
 	const glm::vec2 GetBottomRight() const { return m_Position + m_Size / 2.0f; }
+	const unsigned int GetTextureID() const { return m_TextureID; }
 
 private:
 	glm::vec2 m_Position;
 	glm::vec2 m_Size;
 	glm::vec4 m_Color;
 	glm::vec2 m_AnchorPoint = glm::vec2(0.0f, 0.0f);
+	
+	unsigned int m_TextureID = 0;
 };
 } // namespace components

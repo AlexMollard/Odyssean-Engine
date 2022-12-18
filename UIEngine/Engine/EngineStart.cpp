@@ -3,6 +3,7 @@
 #include "SceneStateMachine.h"
 #include "Services.h"
 #include "TestingScene.h"
+#include "ECS.h"
 
 int main()
 {
@@ -25,12 +26,19 @@ int main()
 	auto shaderManager = ResourceManager<Shader>();
 	shaderManager.Initialise("Shader Manager");
 
+	auto textureManager = ResourceManager<Texture>();
+	textureManager.Initialise("Texture Manager");
+
 	// Load shaders
-	shaderManager.Load("Shaders/lit.vert", "Shaders/lit.frag");
-	shaderManager.Load("Shaders/font.vert", "Shaders/font.frag");
+	Shader* basicShader = shaderManager.Load("Shaders/lit.vert", "Shaders/lit.frag").get();
+	Shader* fontShader = shaderManager.Load("Shaders/font.vert", "Shaders/font.frag").get();
+
+	Renderer2D renderer = Renderer2D(nullptr, basicShader, fontShader);
+	ECS::Instance()->Init(&renderer);
 
 	Services services(window.get());
 	services.SetShaderManager(&shaderManager);
+	services.SetTextureManager(&textureManager);
 
 	TestingScene scene("FirstScene");
 	TestingScene Secondscene("SecondScene");
@@ -51,17 +59,10 @@ int main()
 		stateMachine.update(dt);
 		stateMachine.render(*window);
 
-		//timer += dt;
-		//if (timer > 5.0f)
-		//{
-		//	stateMachine.SetCurrentScene(&Secondscene);
-		//	timer = -5.0f;
-		//}
-		//else if (timer > 0.0f)
-		//{
-		//	stateMachine.SetCurrentScene(&scene);
-		//}
+		ECS::Instance()->Update();
+		renderer.Draw();
 	}
-
+	
+	ECS::Instance()->Destroy();
 	return 0;
 }

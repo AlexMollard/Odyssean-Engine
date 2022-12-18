@@ -3,8 +3,6 @@
 #include <GLFW/glfw3.h>
 #include <string>
 
-namespace components
-{
 class Texture
 {
 public:
@@ -13,7 +11,6 @@ public:
 	Texture() = default;
 	~Texture();
 
-	 unsigned char* loadImage( std::string& dir) ;
 	void Bind()  { glBindTexture(GL_TEXTURE_2D, m_TextureID); };
 	unsigned int GetID()  { return m_TextureID; };
 	void SetID(unsigned int newID) { m_TextureID = newID; };
@@ -29,4 +26,3 @@ public:
 	unsigned int m_Height     = 0;
 	int m_NrChannels         = 4;
 };
-} // namespace components

@@ -1,6 +1,7 @@
 #pragma once
 #include "Components.h"
 #include "flecs.h"
+#include "Renderer2D.h"
 
 // Create the singleton ECS class
 class ECS
@@ -17,7 +18,7 @@ public:
 	}
 
 	// Initialize the ECS
-	void Init();
+	void Init(const Renderer2D* renderer);
 
 	// Update the ECS
 	void Update();
