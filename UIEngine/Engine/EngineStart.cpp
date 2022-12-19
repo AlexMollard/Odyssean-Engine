@@ -20,9 +20,6 @@ int main()
 		return -1;
 	}
 
-	// Disable backface culling for testing
-	glDisable(GL_CULL_FACE);
-
 	auto shaderManager = ResourceManager<Shader>();
 	shaderManager.Initialise("Shader Manager");
 
@@ -48,7 +45,6 @@ int main()
 	stateMachine.AddScene(&Secondscene);
 	stateMachine.SetCurrentScene(&scene);
 
-	//float timer = 0.0f;
 	// Engine Loop
 	while (!window->Window_shouldClose())
 	{

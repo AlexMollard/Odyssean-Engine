@@ -1,7 +1,7 @@
 #pragma once
 #include "Components.h"
-#include "flecs.h"
 #include "Renderer2D.h"
+#include "flecs.h"
 
 // Create the singleton ECS class
 class ECS
@@ -26,11 +26,19 @@ public:
 	// Destroy the ECS
 	void Destroy();
 
+	ecs_ftime_t delta_time() const;
+
 	// Create an entity
 	flecs::entity CreateEntity();
 
 	// Get the ECS world
 	flecs::world* GetWorld() { return &m_World; }
+
+	// Create a basic quad entity (quad, transform)
+	static flecs::entity CreateQuad(const glm::vec3& position, const glm::vec2& size, const glm::vec4& color);
+
+	// Create a basic text entity (texxt, transform)
+	static flecs::entity CreateText(const std::string& text, const glm::vec3& position, const glm::vec4& color);
 
 private:
 	// Private constructor
