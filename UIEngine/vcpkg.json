@@ -1,0 +1,13 @@
+{
+  "name": "ui-engine",
+  "version-string": "1.0.0",
+  "dependencies": [
+    "glfw3",
+    "glew",
+    "glm",
+    "soil2",
+    "flecs",
+    "opengl",
+    "freetype"
+  ]
+}

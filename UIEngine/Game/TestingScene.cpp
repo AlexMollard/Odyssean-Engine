@@ -11,7 +11,7 @@ void TestingScene::Enter()
 {
 	flecs::entity quad = ECS::Instance()->CreateEntity();
 	quad.set([](components::Quad& quad) {
-		quad.SetPosition(glm::vec2(400.0f, 400.0f));
+		quad.SetPosition(glm::vec2(600.0f, 800.0f));
 		quad.SetSize(glm::vec2(100.0f, 100.0f));
 		quad.SetColor(glm::vec4(0.2f, 0.8f, 0.8f, 1.0f));
 		quad.SetAnchorPoint(glm::vec2(0.5f, 0.5f));

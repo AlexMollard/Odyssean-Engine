@@ -28,6 +28,16 @@ bld/
 [Ll]ogs/
 
 # cmake
+CMakeCache.txt
+CMakeFiles/
+CMakeScripts/
+CTestTestfile.cmake
+Makefile
+*.cmake
+
+#vcpkg
+vcpkg/
+UIEngine/vcpkg_installed
 
 
 # Visual Studio 2015/2017 cache/options directory
@@ -394,3 +404,5 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+
+JSON/
