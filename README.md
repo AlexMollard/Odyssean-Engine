@@ -19,3 +19,5 @@ This project was written using *Visual Studio 2022*.
    https://github.com/SanderMertens/flecs
  - FREE TYPE
    https://github.com/freetype/freetype
+ - SOIL2
+   https://github.com/SpartanJ/SOIL2
