@@ -35,10 +35,10 @@ public:
 	flecs::world* GetWorld() { return &m_World; }
 
 	// Create a basic quad entity (quad, transform)
-	static flecs::entity CreateQuad(const glm::vec3& position, const glm::vec2& size, const glm::vec4& color);
+	static flecs::entity& CreateQuad(const glm::vec3& position, const glm::vec2& size, const glm::vec4& color);
 
-	// Create a basic text entity (texxt, transform)
-	static flecs::entity CreateText(const std::string& text, const glm::vec3& position, const glm::vec4& color);
+	// Create a basic text entity (text, transform)
+	static flecs::entity& CreateText(const std::string& text, const glm::vec3& position, const glm::vec4& color);
 
 private:
 	// Private constructor
@@ -49,4 +49,19 @@ private:
 
 	// The ECS world
 	flecs::world m_World;
+
+	// Debug profiling stuff (Probably should be moved to a different class)
+	// fps counter
+	float m_FPS = 0.0f;
+	float m_FPSLow = 0.0f;
+	float m_FPSHigh = 0.0f;	
+
+	// Average fps over 1 second
+	float m_FPSAverage = 0.0f;
+
+	// Array of fps values over 1 second (for average)
+	std::vector<float> m_FpsHistory;
+
+	float m_FPSTimer = 0.0f;
+
 };

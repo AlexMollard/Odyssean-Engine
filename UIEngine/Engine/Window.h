@@ -20,6 +20,9 @@ public:
 
 	float GetDeltaTime() const;
 
+	// Getters
+	GLFWwindow* GetWindow() const { return window; }
+
 private:
 	// Main Window
 	GLFWwindow* window;

@@ -201,6 +201,7 @@
     <ClCompile Include="Engine\SceneStateMachine.cpp" />
     <ClCompile Include="Engine\Services.cpp" />
     <ClCompile Include="Engine\TextComponent.cpp" />
+    <ClCompile Include="Engine\ImGuiLayer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".clang-format" />
@@ -228,6 +229,7 @@
     <ClInclude Include="Components\Text.h" />
     <ClInclude Include="Components\Quad.h" />
     <ClInclude Include="Components\Velocity.h" />
+    <ClInclude Include="Engine\ImGuiLayer.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="ToDo.txt" />

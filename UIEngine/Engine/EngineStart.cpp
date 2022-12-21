@@ -1,9 +1,13 @@
 #include "pch.h"
 
+#include "ECS.h"
+#include "ImGuiLayer.h"
 #include "SceneStateMachine.h"
 #include "Services.h"
 #include "TestingScene.h"
-#include "ECS.h"
+#include "imgui.h"
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_opengl3.h"
 
 int main()
 {
@@ -28,7 +32,7 @@ int main()
 
 	// Load shaders
 	Shader* basicShader = shaderManager.Load("Shaders/lit.vert", "Shaders/lit.frag").get();
-	Shader* fontShader = shaderManager.Load("Shaders/font.vert", "Shaders/font.frag").get();
+	Shader* fontShader  = shaderManager.Load("Shaders/font.vert", "Shaders/font.frag").get();
 
 	Renderer2D renderer = Renderer2D(nullptr, basicShader, fontShader);
 	ECS::Instance()->Init(&renderer);
@@ -45,6 +49,10 @@ int main()
 	stateMachine.AddScene(&Secondscene);
 	stateMachine.SetCurrentScene(&scene);
 
+	// ImGui Setup
+	ImGuiLayer imguiLayer(window.get()->GetWindow());
+	bool show_demo_window = true;
+
 	// Engine Loop
 	while (!window->Window_shouldClose())
 	{
@@ -52,13 +60,23 @@ int main()
 		window->Update_Window();
 		float dt = window->GetDeltaTime();
 
+		// Start the Dear ImGui frame
+		imguiLayer.NewFrame();
 		stateMachine.update(dt);
 		stateMachine.render(*window);
 
 		ECS::Instance()->Update();
+
+		if (show_demo_window)
+			ImGui::ShowDemoWindow(&show_demo_window);
+
+		ImGui::Render();
 		renderer.Draw();
+		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+		imguiLayer.UpdateViewPorts();
 	}
-	
+
 	ECS::Instance()->Destroy();
 	return 0;
 }

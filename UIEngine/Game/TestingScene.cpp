@@ -9,10 +9,12 @@ const float height = 1080.0f;
 
 void TestingScene::Enter()
 {
-	for (int i = 0; i < 10; i++)
+	for (int x = 0; x < 100; x++)
 	{
-		ECS::CreateQuad(glm::vec3(100, 100 * (i + 1), 0), glm::vec2(80, 80), glm::vec4(0.8, 0.2, 0.2, 1));
-		ECS::CreateText("TESTING", glm::vec3(100, 100 * (i + 1), 0), glm::vec4(0.2, 0.8, 0.2, 1));
+		for (int y = 0; y < 100; y++)
+		{
+			ECS::CreateQuad(glm::vec3(x * 100, y * 100, 0), glm::vec2(80, 80), glm::vec4(0.2, 0.2, 0.8, 1));
+		}
 	}
 }
 

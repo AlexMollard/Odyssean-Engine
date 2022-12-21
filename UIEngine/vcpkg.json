@@ -8,6 +8,15 @@
     "soil2",
     "flecs",
     "opengl",
-    "freetype"
+    "freetype",
+    {
+      "name": "imgui",
+      "features": [
+        "opengl3-binding",
+        "glfw-binding",
+        "docking-experimental"
+      ]
+
+    }
   ]
 }
