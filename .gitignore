@@ -4,6 +4,7 @@
 *.user
 *.userosscache
 *.sln.docstates
+.vscode/
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
@@ -34,6 +35,9 @@ CMakeScripts/
 CTestTestfile.cmake
 Makefile
 *.cmake
+build/
+.idea/
+UIEngine/cmake-build-debug/
 
 #vcpkg
 vcpkg/

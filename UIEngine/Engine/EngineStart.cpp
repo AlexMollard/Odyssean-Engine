@@ -9,7 +9,6 @@
 #include "Services.h"
 #include "TestingScene.h"
 #include "imgui.h"
-#include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 
 int main()
@@ -45,16 +44,13 @@ int main()
 	services.SetTextureManager(&textureManager);
 
 	TestingScene scene("FirstScene");
-	TestingScene Secondscene("SecondScene");
 
 	auto stateMachine = SceneStateMachine(&services);
 	stateMachine.AddScene(&scene);
-	stateMachine.AddScene(&Secondscene);
 	stateMachine.SetCurrentScene(&scene);
 
 	// ImGui Setup
-	ImGuiLayer imguiLayer(window.get()->GetWindow());
-	bool show_demo_window = true;
+	ImGuiLayer imguiLayer(window->GetWindow());
 
 	// Engine Loop
 	while (!window->Window_shouldClose())

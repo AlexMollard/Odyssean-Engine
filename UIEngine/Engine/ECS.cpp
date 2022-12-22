@@ -29,7 +29,7 @@ flecs::entity& ECS::CreateQuad(const glm::vec3& position, const glm::vec2& size,
 	out << "Quad: " << s_IDIncrementor++;
 	quad.set_name(out.str().c_str());
 
-	return quad;
+	return *quad.get_ref<flecs::entity>().get();
 }
 
 flecs::entity& ECS::CreateText(const std::string& inText, const glm::vec3& position, const glm::vec4& color)
@@ -41,7 +41,7 @@ flecs::entity& ECS::CreateText(const std::string& inText, const glm::vec3& posit
 		text.SetColor(color);
 		text.SetText(inText);
 	});
-	return textEntity;
+	return *textEntity.get_ref<flecs::entity>().get();
 }
 
 void ECS::Init(const Renderer2D* renderer)

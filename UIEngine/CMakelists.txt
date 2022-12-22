@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.15)
 
 set(CMAKE_TOOLCHAIN_FILE "C:/vcpkg/scripts/buildsystems/vcpkg.cmake" CACHE STRING "Vcpkg toolchain file")
 
@@ -11,6 +11,17 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_C_STANDARD 23)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_C_EXTENSIONS OFF)
+set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
+
+find_package(glfw3 REQUIRED)
+find_package(glew REQUIRED)
+find_package(glm REQUIRED)
+find_package(soil2 REQUIRED)
+find_package(flecs REQUIRED)
+#find_package(openGL REQUIRED)
+find_package(Freetype REQUIRED)
+find_package(imgui REQUIRED)
+#find_package(tracy REQUIRED)
 
 ## Blob all the source files into a variable
 file(GLOB_RECURSE UIEngine_SRC
@@ -35,30 +46,23 @@ target_include_directories(UIEngine PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/Engine
     ${CMAKE_CURRENT_SOURCE_DIR}/Game
     ${CMAKE_CURRENT_SOURCE_DIR}/Components
+    ## include the vcpkg installed libraries
+    ${CMAKE_CURRENT_SOURCE_DIR}/../build/vcpkg_installed/x64-windows/include/tracy
+    ${FREETYPE_INCLUDE_DIRS}
 )
 
 ## Link the libraries
+target_link_libraries(UIEngine glm::glm glfw GLEW::GLEW flecs::flecs soil2 opengl32 imgui::imgui ${FREETYPE_LIBRARIES})
 
-#Sail
-find_package(SailC++ REQUIRED)
-target_link_libraries(UIEngine SAIL::sail-c++)
-
-#glm
-find_package(glm CONFIG REQUIRED)
-target_link_libraries(UIEngine glm::glm)
-
-#glfw
-find_package(glfw3 CONFIG REQUIRED)
-target_link_libraries(UIEngine glfw)
-
-#glew
-find_package(GLEW CONFIG REQUIRED)
-target_link_libraries(UIEngine GLEW::GLEW)
-
-#flecs
-find_package(flecs CONFIG REQUIRED)
-target_link_libraries(UIEngine flecs::flecs)
-
-#free type
-find_package(freetype CONFIG REQUIRED)
-target_link_libraries(UIEngine freetype)
+file( WRITE "${CMAKE_CURRENT_BINARY_DIR}/${UIEngine}.vcxproj.user"
+        "<?xml version=\"1.0\" encoding=\"utf-8\"?>     \
+    <Project ToolsVersion=\"4.0\" xmlns=\"http://schemas.microsoft.com/developer/msbuild/2003\">
+    <PropertyGroup Condition=\"'$(Configuration)|$(Platform)'=='Debug|x64'\">
+        <LocalDebuggerWorkingDirectory>$(OutDir)</LocalDebuggerWorkingDirectory>
+        <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+    </PropertyGroup>
+    <PropertyGroup Condition=\"'$(Configuration)|$(Platform)'=='Release|x64'\">
+        <LocalDebuggerWorkingDirectory>$(OutDir)</LocalDebuggerWorkingDirectory>
+        <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+    </PropertyGroup>
+    </Project>")
