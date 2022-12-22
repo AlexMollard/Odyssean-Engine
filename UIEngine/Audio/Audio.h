@@ -21,15 +21,23 @@ public:
 
 	void AudioInit();
 	const char* Common_MediaPath(const char* fileName);
+	FMOD::Studio::System* system = NULL;
 
+
+	private:
 	FMOD_RESULT result;
 
-	FMOD::Studio::System* system = NULL;
 	FMOD::Sound* sound;
 	std::vector<char*> gPathList;
 	FMOD::Studio::EventDescription* loopingAmbienceDescription = NULL;
 	FMOD::Studio::EventInstance* loopingAmbienceInstance       = NULL;
 	FMOD::Studio::Bank* masterBank                             = NULL;
+	FMOD::Studio::Bank* stringsBank                            = NULL;
+	FMOD::Studio::Bank* sfxBank                                = NULL;
 	FMOD::Studio::Bus* bus;
+
+	const char* bank1 = "Audio\\Desktop\\Master.bank";
+	const char* bank2 = "Audio\\Desktop\\Master.strings.bank";
+	const char* bank3 = "Audio\\Desktop\\Music.bank";
 	//float* mainVolume = 0.5f;
 };

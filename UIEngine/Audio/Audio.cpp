@@ -21,26 +21,52 @@ Audio::Audio()
 		exit(-1);
 	}
 
-	const char* bank1 = "F:\\UIEngine\\UIEngine\\Audio\\Desktop\\Master.bank";
-	const char* bank2 = "F:\\UIEngine\\UIEngine\\Audio\\Desktop\\Master.strings.bank";
-	const char* bank3 = "F:\\UIEngine\\UIEngine\\Audio\\Desktop\\SFX.bank";
+
 
 	FMOD_ErrorString(system->loadBankFile(Common_MediaPath(bank1), FMOD_STUDIO_LOAD_BANK_NORMAL, &masterBank));
 
-	FMOD::Studio::Bank* stringsBank = NULL;
+	
 	system->loadBankFile(Common_MediaPath(bank2), FMOD_STUDIO_LOAD_BANK_NORMAL, &stringsBank);
+	{
 
-	FMOD::Studio::Bank* sfxBank = NULL;
-	system->loadBankFile(Common_MediaPath(bank3), FMOD_STUDIO_LOAD_BANK_NORMAL, &sfxBank);
+	
+	S_INFO(FMOD_ErrorString(system->loadBankFile(Common_MediaPath(bank3), FMOD_STUDIO_LOAD_BANK_NORMAL, &sfxBank)));
+	}
 
-	system->getEvent("event:/New Event", &loopingAmbienceDescription);
+	system->getEvent("event:/Music/Level 01", &loopingAmbienceDescription);
 	S_INFO(FMOD_ErrorString(loopingAmbienceDescription->createInstance(&loopingAmbienceInstance)));
+}
+
+Audio::~Audio() 
+{
+	{
+	S_INFO(FMOD_ErrorString(sfxBank->unload()));
+		sfxBank = NULL;
+	}
+	{
+	S_INFO(FMOD_ErrorString(stringsBank->unload()));
+		stringsBank = NULL;
+	}
+	{
+	S_INFO(FMOD_ErrorString(masterBank->unload()));
+		masterBank = NULL;
+	}
+	{
+	S_INFO(FMOD_ErrorString(system->release()));
+		system = NULL;
+	}
+	//delete bank1;
+	//delete bank2;
+	//delete bank3;
+	gPathList.clear();
+	//delete bus;
+	//delete loopingAmbienceDescription.
 }
 
 void Audio::AudioInit()
 {
 	loopingAmbienceInstance->start();
-
+	
 	loopingAmbienceInstance->release();
 
 	S_INFO(FMOD_ErrorString(system->getBus("bus:/", &bus)));

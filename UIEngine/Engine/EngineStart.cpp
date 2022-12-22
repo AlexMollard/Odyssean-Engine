@@ -90,5 +90,6 @@ int main()
 	}
 
 	ECS::Instance()->Destroy();
+	delete audioManager;
 	return 0;
 }
