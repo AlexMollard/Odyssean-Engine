@@ -3,6 +3,7 @@
 #include "SceneStateMachine.h"
 
 #include "Scene.h"
+#include "tracy/Tracy.hpp"
 
 SceneStateMachine::SceneStateMachine(const Services* services) : services(services) {}
 
@@ -56,11 +57,14 @@ Scene* SceneStateMachine::GetCurrentScene() const
 
 void SceneStateMachine::update(float deltaTime) 
 {
+	ZoneScopedN("StateMachine Update");
+
 	currentScene->Update(deltaTime, services);
 }
 
 void SceneStateMachine::render(Window& window) 
 {
+	ZoneScopedN("StateMachine Render");
 	currentScene->Draw(window, services);
 }
 

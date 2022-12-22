@@ -61,6 +61,7 @@ private:
 
 	// Array of fps values over 1 second (for average)
 	std::vector<float> m_FpsHistory;
+	std::vector<float> m_AverageFpsHistory;
 
 	float m_FPSTimer = 0.0f;
 

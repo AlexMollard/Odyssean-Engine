@@ -13,7 +13,13 @@ void TestingScene::Enter()
 	{
 		for (int y = 0; y < 100; y++)
 		{
-			ECS::CreateQuad(glm::vec3(x * 100, y * 100, 0), glm::vec2(80, 80), glm::vec4(0.2, 0.2, 0.8, 1));
+			glm::vec4 colour = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+			// pastel rainbow colours
+			colour.r = (x / 100.0f) * 0.5f + 0.5f;
+			colour.g = (y / 100.0f) * 0.5f + 0.5f;
+			colour.b = 0.5f;
+
+			ECS::CreateQuad(glm::vec3(x * 9 + 100, y * 9 + 100, 0), glm::vec2(8, 8), colour);
 		}
 	}
 }

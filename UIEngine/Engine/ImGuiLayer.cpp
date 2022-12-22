@@ -5,6 +5,7 @@
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 #include "imgui_internal.h"
+#include <Tracy.hpp>
 ImGuiLayer::ImGuiLayer(GLFWwindow* window)
 {
 	IMGUI_CHECKVERSION();
@@ -109,6 +110,7 @@ void ImGuiLayer::SetStyle()
 
 void ImGuiLayer::NewFrame()
 {
+	ZoneScopedN("ImGui New Frame");
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
@@ -136,6 +138,7 @@ void ImGuiLayer::NewFrame()
 
 void ImGuiLayer::UpdateViewPorts()
 {
+	ZoneScopedN("UpdateViewPorts");
 	// Update and Render additional Platform Windows
 	// (Platform functions may change the current OpenGL context, so we save/restore it to make it easier to paste this code elsewhere.
 	//  For this specific demo app we could also call glfwMakeContextCurrent(window) directly)

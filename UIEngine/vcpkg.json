@@ -16,7 +16,13 @@
         "glfw-binding",
         "docking-experimental"
       ]
-
+    },
+    {
+      "name": "tracy",
+      "features": [
+        "gui-tools",
+        "cli-tools"
+      ]
     }
   ]
 }

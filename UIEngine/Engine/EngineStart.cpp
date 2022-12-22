@@ -1,5 +1,8 @@
 #include "pch.h"
 
+// Tracy C++ profiler
+#include <Tracy.hpp>
+
 #include "ECS.h"
 #include "ImGuiLayer.h"
 #include "SceneStateMachine.h"
@@ -56,25 +59,26 @@ int main()
 	// Engine Loop
 	while (!window->Window_shouldClose())
 	{
+		ZoneScopedN("Frame");
 		// Update Window
 		window->Update_Window();
 		float dt = window->GetDeltaTime();
 
 		// Start the Dear ImGui frame
 		imguiLayer.NewFrame();
+		
 		stateMachine.update(dt);
+		
 		stateMachine.render(*window);
 
 		ECS::Instance()->Update();
-
-		if (show_demo_window)
-			ImGui::ShowDemoWindow(&show_demo_window);
 
 		ImGui::Render();
 		renderer.Draw();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
 		imguiLayer.UpdateViewPorts();
+		FrameMark;
 	}
 
 	ECS::Instance()->Destroy();
