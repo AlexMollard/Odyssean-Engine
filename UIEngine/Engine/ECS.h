@@ -34,6 +34,9 @@ public:
 	// Get the ECS world
 	flecs::world* GetWorld() { return &m_World; }
 
+	// Static Get the ECS world
+	static flecs::world& GetWorldStatic() { return Instance()->m_World; }
+
 	// Create a basic quad entity (quad, transform)
 	static flecs::entity& CreateQuad(const glm::vec3& position, const glm::vec2& size, const glm::vec4& color);
 
@@ -52,9 +55,9 @@ private:
 
 	// Debug profiling stuff (Probably should be moved to a different class)
 	// fps counter
-	float m_FPS = 0.0f;
-	float m_FPSLow = 0.0f;
-	float m_FPSHigh = 0.0f;	
+	float m_FPS     = 0.0f;
+	float m_FPSLow  = 0.0f;
+	float m_FPSHigh = 0.0f;
 
 	// Average fps over 1 second
 	float m_FPSAverage = 0.0f;
@@ -64,5 +67,4 @@ private:
 	std::vector<float> m_AverageFpsHistory;
 
 	float m_FPSTimer = 0.0f;
-
 };

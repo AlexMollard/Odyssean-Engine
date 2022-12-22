@@ -11,8 +11,7 @@ void TestingScene::Enter()
 {
 	// testing text
 	ECS::CreateText("Hello World!", glm::vec3(100, 950, 0), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-	ECS::CreateText("Good Bye World!", glm::vec3(100, 1000, 0), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-	
+
 	for (int x = 0; x < 10; x++)
 	{
 		for (int y = 0; y < 10; y++)
@@ -26,6 +25,26 @@ void TestingScene::Enter()
 			ECS::CreateQuad(glm::vec3(x * 82 + 100, y * 82 + 100, 0), glm::vec2(80, 80), colour);
 		}
 	}
+
+	flecs::entity quadEntity = ECS::Instance()->GetWorld()->entity();
+	quadEntity.set([&](components::Quad& quad, components::Transform& transform, components::Tag& tag) {
+		transform.SetPosition(glm::vec3(100.0f));
+		quad.SetSize(glm::vec2(100.0f));
+		quad.SetColor(glm::vec4(1.0f));
+		tag.SetName("Testing button");
+	});
+
+	auto& world = ECS::GetWorldStatic();
+	auto parent = world.entity("parent");
+	auto child = world.entity("child").child_of(parent);
+
+	child.set([&](components::Quad& quad, components::Transform& transform, components::Tag& tag) {
+		transform.SetPosition(glm::vec3(100.0f));
+		quad.SetSize(glm::vec2(100.0f));
+		quad.SetColor(glm::vec4(1.0f));
+		tag.SetName("Child");
+	});
+	//std::cout << child.path() << std::endl; // output: 'parent::child'
 }
 
 void TestingScene::Exit() {}

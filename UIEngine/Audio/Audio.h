@@ -23,8 +23,10 @@ public:
 	const char* Common_MediaPath(const char* fileName);
 	FMOD::Studio::System* system = NULL;
 
+	float mainVolume = 0.5f;
+	FMOD::Studio::Bus* bus;
 
-	private:
+private:
 	FMOD_RESULT result;
 
 	FMOD::Sound* sound;
@@ -34,7 +36,4 @@ public:
 	FMOD::Studio::Bank* masterBank                             = NULL;
 	FMOD::Studio::Bank* stringsBank                            = NULL;
 	FMOD::Studio::Bank* sfxBank                                = NULL;
-	FMOD::Studio::Bus* bus;
-
-	//float* mainVolume = 0.5f;
 };

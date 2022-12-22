@@ -1,8 +1,7 @@
 #include "pch.h"
 
 // Tracy C++ profiler
-#include <Tracy.hpp>
-
+#include "Audio.h"
 #include "ECS.h"
 #include "ImGuiLayer.h"
 #include "SceneStateMachine.h"
@@ -10,7 +9,7 @@
 #include "TestingScene.h"
 #include "imgui.h"
 #include "imgui_impl_opengl3.h"
-#include "Audio.h"
+#include <Tracy.hpp>
 
 int main()
 {
@@ -33,9 +32,6 @@ int main()
 	auto textureManager = ResourceManager<Texture>();
 	textureManager.Initialise("Texture Manager");
 
-	
-	
-
 	// Load shaders
 	Shader* basicShader = shaderManager.Load("Shaders/lit.vert", "Shaders/lit.frag").get();
 	Shader* fontShader  = shaderManager.Load("Shaders/font.vert", "Shaders/font.frag").get();
@@ -43,7 +39,7 @@ int main()
 	Renderer2D renderer = Renderer2D(nullptr, basicShader, fontShader);
 	ECS::Instance()->Init(&renderer);
 
-	Audio audioManager = Audio();	
+	Audio audioManager = Audio();
 
 	Services services(window.get());
 	services.SetShaderManager(&shaderManager);
@@ -55,7 +51,6 @@ int main()
 	stateMachine.AddScene(&scene);
 	stateMachine.SetCurrentScene(&scene);
 
-	
 	// ImGui Setup
 	ImGuiLayer imguiLayer(window->GetWindow());
 
@@ -69,16 +64,21 @@ int main()
 		window->Update_Window();
 		float dt = window->GetDeltaTime();
 
-		
 		// Start the Dear ImGui frame
 		imguiLayer.NewFrame();
-		
+
 		stateMachine.update(dt);
-		
+
 		stateMachine.render(*window);
 
 		audioManager.system->update();
 
+		// Move this into the audio class probs in a update function
+		ImGui::Begin("Volume");
+		ImGui::SliderFloat("Master", &audioManager.mainVolume, 0 ,1);
+		audioManager.bus->setVolume(audioManager.mainVolume);
+		ImGui::End();
+		
 		ECS::Instance()->Update();
 
 		ImGui::Render();
@@ -90,6 +90,5 @@ int main()
 	}
 
 	ECS::Instance()->Destroy();
-	
 	return 0;
 }

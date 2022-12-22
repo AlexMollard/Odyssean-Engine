@@ -59,11 +59,10 @@ Audio::~Audio()
 void Audio::AudioInit()
 {
 	loopingAmbienceInstance->start();
-
 	loopingAmbienceInstance->release();
 
 	S_INFO(FMOD_ErrorString(system->getBus("bus:/", &bus)));
-	bus->setVolume(1.f);
+	bus->setVolume(mainVolume);
 }
 
 const char* Audio::Common_MediaPath(const char* fileName)
@@ -89,8 +88,8 @@ const char* Audio::Common_MediaPath(const char* fileName)
 		}
 	}
 
-	strcat(filePath, pathPrefix);
-	strcat(filePath, fileName);
+	strcat_s(filePath, 256,pathPrefix);
+	strcat_s(filePath, 256, fileName);
 	
 	
 
