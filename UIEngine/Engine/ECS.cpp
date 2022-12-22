@@ -17,30 +17,37 @@ flecs::entity ECS::CreateEntity()
 flecs::entity& ECS::CreateQuad(const glm::vec3& position, const glm::vec2& size, const glm::vec4& color)
 {
 	ZoneScoped;
-	flecs::entity quad = Instance()->m_World.entity();
-	quad.set([&](components::Quad& quad, components::Transform& transform) {
+	std::ostringstream out;
+	out << "Quad: " << s_IDIncrementor++;
+
+	flecs::entity quadEntity = Instance()->m_World.entity();
+	quadEntity.set([&](components::Quad& quad, components::Transform& transform, components::Tag& tag) {
 		transform.SetPosition(position);
 		quad.SetSize(size);
 		quad.SetColor(color);
+		tag.SetName(out.str());
 	});
 
-	// Set the quads id so we can use it later
-	std::ostringstream out;
-	out << "Quad: " << s_IDIncrementor++;
-	quad.set_name(out.str().c_str());
+	quadEntity.set_name(out.str().c_str());
 
-	return *quad.get_ref<flecs::entity>().get();
+	return *quadEntity.get_ref<flecs::entity>().get();
 }
 
 flecs::entity& ECS::CreateText(const std::string& inText, const glm::vec3& position, const glm::vec4& color)
 {
 	ZoneScoped;
+	std::ostringstream out;
+	out << "Text: " << s_IDIncrementor++;
+
 	flecs::entity textEntity = Instance()->m_World.entity();
-	textEntity.set([&](components::Text& text, components::Transform& transform) {
+	textEntity.set([&](components::Text& text, components::Transform& transform, components::Tag& tag) {
 		transform.SetPosition(position);
 		text.SetColor(color);
 		text.SetText(inText);
+		tag.SetName(out.str());
 	});
+	textEntity.set_name(out.str().c_str());
+
 	return *textEntity.get_ref<flecs::entity>().get();
 }
 
@@ -78,28 +85,6 @@ void ECS::Update()
 	ZoneScopedN("ECS Update");
 	// Update the ECS
 	m_World.progress();
-
-	// // Add the imgui hierarchy window
-	// ImGui::Begin("Hierarchy");
-	// {
-	// 	ZoneScopedN("Hierarchy");
-	// 	// Iterate over all entities
-	// 	m_World.each([&](flecs::entity e, components::Transform& t) {
-	// 		// Get the name of the entity
-	// 		const char* name = e.name().c_str();
-	// 		// If the entity has a name, display it
-	// 		if (name)
-	// 		{
-	// 			// make collapsible
-	// 			if (ImGui::CollapsingHeader(name))
-	// 			{
-	// 				// Display the position of the entity
-	// 				ImGui::Text("Position: %f, %f, %f", t.GetPosition().x, t.GetPosition().y, t.GetPosition().z);
-	// 			}
-	// 		}
-	// 	});
-	// }
-	// ImGui::End();
 
 	// Fps counter
 	ImGui::Begin("Stats");

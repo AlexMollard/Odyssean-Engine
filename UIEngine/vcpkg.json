@@ -9,19 +9,13 @@
     "flecs",
     "opengl",
     "freetype",
+    "tracy",
     {
       "name": "imgui",
       "features": [
         "opengl3-binding",
         "glfw-binding",
         "docking-experimental"
-      ]
-    },
-    {
-      "name": "tracy",
-      "features": [
-        "gui-tools",
-        "cli-tools"
       ]
     }
   ]

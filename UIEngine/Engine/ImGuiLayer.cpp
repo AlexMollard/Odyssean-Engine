@@ -6,6 +6,7 @@
 #include "imgui_impl_opengl3.h"
 #include "imgui_internal.h"
 #include <Tracy.hpp>
+
 ImGuiLayer::ImGuiLayer(GLFWwindow* window)
 {
 	IMGUI_CHECKVERSION();
@@ -21,6 +22,8 @@ ImGuiLayer::ImGuiLayer(GLFWwindow* window)
 	// Setup Platform/Renderer backends
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
 	ImGui_ImplOpenGL3_Init("#version 330");
+
+	m_TransformQ = ECS::Instance()->GetWorld()->query<components::Transform>();
 }
 
 ImGuiLayer::~ImGuiLayer()
@@ -119,7 +122,7 @@ void ImGuiLayer::NewFrame()
 	ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDocking;
 	window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
 	window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
-	
+
 	ImGuiViewport* viewport = ImGui::GetMainViewport();
 	ImGui::SetNextWindowPos(viewport->WorkPos);
 	ImGui::SetNextWindowSize(viewport->WorkSize);
@@ -133,6 +136,77 @@ void ImGuiLayer::NewFrame()
 	ImGuiID dockspace_id = ImGui::GetID("MainDockSpace");
 	ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_PassthruCentralNode);
 
+	ImGui::End();
+
+	// Lambda function to draw each entity in the hierarchy
+	auto drawEntity = [](flecs::entity e, components::Transform& transform) {
+		// Making sure the transforms id are different so we can edit them individually
+		ImGui::PushID(&transform);
+		ImGui::Spacing();
+
+		std::string name;
+		bool hasTag = e.has<components::Tag>();
+
+		if (hasTag)
+		{
+			auto text = e.get_ref<components::Tag>().get();
+			name      = text->GetName();
+		}
+		else
+			name = e.name();
+
+		// collapsing header for the transform
+		if (ImGui::CollapsingHeader(name.c_str()))
+		{
+			if (hasTag)
+			{
+				// Text box for the tag
+				auto text = e.get_ref<components::Tag>().get();
+
+				static char* nameBuffer = new char[256];
+				strcpy_s(nameBuffer, 256, text->GetName().c_str());
+				ImGui::InputText("Name", nameBuffer, 256);
+				text->SetName(nameBuffer);
+				ImGui::Spacing();
+			}
+
+			// DragFloat3 for the position, rotation and scale
+			ImGui::DragFloat3("Position", &transform.m_Position.x, 0.1f);
+			ImGui::DragFloat3("Rotation", &transform.m_Rotation.x, 0.1f);
+			ImGui::DragFloat3("Scale", &transform.m_Scale.x, 0.1f);
+
+			// If the entity has a quad component, we can edit the color
+			if (e.has<components::Quad>())
+			{
+				ImGui::Spacing();
+				auto quad = e.get_ref<components::Quad>().get();
+				ImGui::ColorEdit4("Color", &quad->m_Color.x);
+			}
+			// If the entity has a text component, we can edit the text
+			if (e.has<components::Text>())
+			{
+				ImGui::Spacing();
+				auto text           = e.get_ref<components::Text>().get();
+				static char* buffer = new char[256];
+				strcpy_s(buffer, 256, text->m_Text.c_str());
+				ImGui::InputText("Text", buffer, 256);
+				text->m_Text = buffer;
+
+				// Color edit for the text color
+				ImGui::Spacing();
+				ImGui::ColorEdit4("Color", &text->m_Color.x);
+			}
+		}
+
+		// Pop the id so we can edit the next transform
+		ImGui::PopID();
+	};
+
+	ImGui::Begin("Hierarchy");
+	{
+		ZoneScopedN("ImGui Hierarchy");
+		m_TransformQ.each([&](flecs::entity e, components::Transform& transform) { drawEntity(e, transform); });
+	}
 	ImGui::End();
 }
 

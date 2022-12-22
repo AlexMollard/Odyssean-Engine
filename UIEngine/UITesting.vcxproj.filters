@@ -130,6 +130,9 @@
     <ClInclude Include="Engine\ImGuiLayer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Components\Tag.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ToDo.txt" />

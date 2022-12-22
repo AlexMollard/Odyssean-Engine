@@ -24,7 +24,6 @@ public:
 	void SetColor(const glm::vec4& color) { m_Color = color; }
 	void SetPosition(const glm::vec3& position) { m_Position = position; }
 
-private:
 	std::string m_Text;
 	std::string m_Font;
 	float m_Scale     = 1.0f;

@@ -21,7 +21,6 @@ public:
 
 	const unsigned int GetTextureID() const { return m_TextureID; }
 
-private:
 	glm::vec2 m_Size;
 	glm::vec4 m_Color;
 	glm::vec2 m_AnchorPoint = glm::vec2(0.0f, 0.0f);
