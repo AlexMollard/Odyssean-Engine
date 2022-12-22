@@ -36,8 +36,5 @@ public:
 	FMOD::Studio::Bank* sfxBank                                = NULL;
 	FMOD::Studio::Bus* bus;
 
-	const char* bank1 = "Audio\\Desktop\\Master.bank";
-	const char* bank2 = "Audio\\Desktop\\Master.strings.bank";
-	const char* bank3 = "Audio\\Desktop\\Music.bank";
 	//float* mainVolume = 0.5f;
 };

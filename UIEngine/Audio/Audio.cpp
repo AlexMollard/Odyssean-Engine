@@ -21,52 +21,45 @@ Audio::Audio()
 		exit(-1);
 	}
 
+	auto s = Common_MediaPath("Audio\\Desktop\\Master.bank");
+	system->loadBankFile(s, FMOD_STUDIO_LOAD_BANK_NORMAL, &masterBank);
+	free((void*)s);
 
+	s = Common_MediaPath("Audio\\Desktop\\Master.strings.bank");
+	S_INFO(FMOD_ErrorString(system->loadBankFile(s, FMOD_STUDIO_LOAD_BANK_NORMAL, &stringsBank)));
+	free((void*)s);
 
-	FMOD_ErrorString(system->loadBankFile(Common_MediaPath(bank1), FMOD_STUDIO_LOAD_BANK_NORMAL, &masterBank));
-
-	
-	system->loadBankFile(Common_MediaPath(bank2), FMOD_STUDIO_LOAD_BANK_NORMAL, &stringsBank);
-	{
-
-	
-	S_INFO(FMOD_ErrorString(system->loadBankFile(Common_MediaPath(bank3), FMOD_STUDIO_LOAD_BANK_NORMAL, &sfxBank)));
-	}
+	s = Common_MediaPath("Audio\\Desktop\\Music.bank");
+	S_INFO(FMOD_ErrorString(system->loadBankFile(s, FMOD_STUDIO_LOAD_BANK_NORMAL, &sfxBank)));
+	free((void*)s);
 
 	system->getEvent("event:/Music/Level 01", &loopingAmbienceDescription);
 	S_INFO(FMOD_ErrorString(loopingAmbienceDescription->createInstance(&loopingAmbienceInstance)));
 }
 
-Audio::~Audio() 
+Audio::~Audio()
 {
-	{
 	S_INFO(FMOD_ErrorString(sfxBank->unload()));
-		sfxBank = NULL;
-	}
-	{
+	sfxBank = NULL;
+
 	S_INFO(FMOD_ErrorString(stringsBank->unload()));
-		stringsBank = NULL;
-	}
-	{
+	stringsBank = NULL;
+
 	S_INFO(FMOD_ErrorString(masterBank->unload()));
-		masterBank = NULL;
-	}
-	{
+	masterBank = NULL;
+
+	system->resetBufferUsage();
+	system->flushCommands();
+	system->unloadAll();
 	S_INFO(FMOD_ErrorString(system->release()));
-		system = NULL;
-	}
-	//delete bank1;
-	//delete bank2;
-	//delete bank3;
-	gPathList.clear();
-	//delete bus;
-	//delete loopingAmbienceDescription.
+	system = NULL;
 }
+
 
 void Audio::AudioInit()
 {
 	loopingAmbienceInstance->start();
-	
+
 	loopingAmbienceInstance->release();
 
 	S_INFO(FMOD_ErrorString(system->getBus("bus:/", &bus)));
@@ -98,8 +91,8 @@ const char* Audio::Common_MediaPath(const char* fileName)
 
 	strcat(filePath, pathPrefix);
 	strcat(filePath, fileName);
-
-	gPathList.push_back(filePath);
+	
+	
 
 	return filePath;
 }
