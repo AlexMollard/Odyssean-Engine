@@ -10,6 +10,7 @@
 #include "TestingScene.h"
 #include "imgui.h"
 #include "imgui_impl_opengl3.h"
+#include "Audio.h"
 
 int main()
 {
@@ -32,6 +33,9 @@ int main()
 	auto textureManager = ResourceManager<Texture>();
 	textureManager.Initialise("Texture Manager");
 
+	
+	
+
 	// Load shaders
 	Shader* basicShader = shaderManager.Load("Shaders/lit.vert", "Shaders/lit.frag").get();
 	Shader* fontShader  = shaderManager.Load("Shaders/font.vert", "Shaders/font.frag").get();
@@ -39,18 +43,23 @@ int main()
 	Renderer2D renderer = Renderer2D(nullptr, basicShader, fontShader);
 	ECS::Instance()->Init(&renderer);
 
+	Audio* audioManager = new Audio();	
+
 	Services services(window.get());
 	services.SetShaderManager(&shaderManager);
 	services.SetTextureManager(&textureManager);
-
+	services.SetAudioManager(audioManager);
 	TestingScene scene("FirstScene");
 
 	auto stateMachine = SceneStateMachine(&services);
 	stateMachine.AddScene(&scene);
 	stateMachine.SetCurrentScene(&scene);
 
+	
 	// ImGui Setup
 	ImGuiLayer imguiLayer(window->GetWindow());
+
+	audioManager->AudioInit();
 
 	// Engine Loop
 	while (!window->Window_shouldClose())
@@ -60,12 +69,15 @@ int main()
 		window->Update_Window();
 		float dt = window->GetDeltaTime();
 
+		
 		// Start the Dear ImGui frame
 		imguiLayer.NewFrame();
 		
 		stateMachine.update(dt);
 		
 		stateMachine.render(*window);
+
+		audioManager->system->update();
 
 		ECS::Instance()->Update();
 

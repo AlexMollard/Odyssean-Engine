@@ -1,9 +1,10 @@
 #pragma once
 // Helper functions that can be passed around to other classes
+#include "Audio.h"
+#include "Renderer2D.h"
 #include "ResourceManager.h"
 #include "Shader.h"
 #include "Texture.h"
-#include "Renderer2D.h"
 
 class Window;
 class Services
@@ -27,9 +28,14 @@ public:
 	void SetTextureManager(ResourceManager<Texture>* inTextureManager) { textureManager = inTextureManager; }
 	ResourceManager<Texture>* GetTextureManager() const { return textureManager; }
 
+	// Get and set audio manager
+	void SetAudioManager(Audio* inAudioManager) { audioManager = inAudioManager; }
+	Audio* GetAudioManager() const { return audioManager; }
+
 private:
-	const Window* window = nullptr;
+	const Window* window       = nullptr;
 	const Renderer2D* renderer = nullptr;
+	Audio* audioManager        = nullptr;
 
 	ResourceManager<Shader>* shaderManager           = nullptr;
 	ResourceManager<Texture>* textureManager         = nullptr;
