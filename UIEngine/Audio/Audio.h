@@ -10,6 +10,14 @@
 #include "ErrorHandling.h"
 #include "fmod_studio_common.h"
 #include <vector>
+#include <string>
+
+struct UserData
+{
+	FMOD::Studio::System* system = nullptr;
+	FMOD::System* coreSystem     = nullptr;
+	std::string filePath;
+};
 
 class Audio
 {
@@ -20,20 +28,23 @@ public:
 	~Audio();
 
 	void AudioInit();
+	void Update();
+
 	const char* Common_MediaPath(const char* fileName);
 	FMOD::Studio::System* system = NULL;
-
-	float mainVolume = 0.5f;
-	FMOD::Studio::Bus* bus;
-
+	FMOD::System* coreSystem     = NULL;
+	float mainVolume             = 0.5f;
+	FMOD::Studio::Bus* bus       = NULL;
 private:
-	FMOD_RESULT result;
-
+	UserData context = UserData();
 	FMOD::Sound* sound;
 	std::vector<char*> gPathList;
-	FMOD::Studio::EventDescription* loopingAmbienceDescription = NULL;
-	FMOD::Studio::EventInstance* loopingAmbienceInstance       = NULL;
+	FMOD::Studio::EventDescription* programmerDescription      = NULL;
+	FMOD::Studio::EventInstance* programmerInstance            = NULL;
 	FMOD::Studio::Bank* masterBank                             = NULL;
 	FMOD::Studio::Bank* stringsBank                            = NULL;
 	FMOD::Studio::Bank* sfxBank                                = NULL;
+
+	void ERRCHECK(FMOD_RESULT result, int errorCode);
+	void PlayProgrammerSound();
 };

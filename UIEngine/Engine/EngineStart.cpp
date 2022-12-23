@@ -72,12 +72,7 @@ int main()
 		stateMachine.render(*window);
 
 		audioManager.system->update();
-
-		// Move this into the audio class probs in a update function
-		ImGui::Begin("Volume");
-		ImGui::SliderFloat("Master", &audioManager.mainVolume, 0 ,1);
-		audioManager.bus->setVolume(audioManager.mainVolume);
-		ImGui::End();
+		audioManager.Update();
 		
 		ECS::Instance()->Update();
 
