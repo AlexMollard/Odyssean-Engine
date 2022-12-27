@@ -1,13 +1,5 @@
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
-    <ProjectConfiguration Include="Debug|Win32">
-      <Configuration>Debug</Configuration>
-      <Platform>Win32</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Release|Win32">
-      <Configuration>Release</Configuration>
-      <Platform>Win32</Platform>
-    </ProjectConfiguration>
     <ProjectConfiguration Include="Debug|x64">
       <Configuration>Debug</Configuration>
       <Platform>x64</Platform>
@@ -16,6 +8,46 @@
       <Configuration>Release</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Src\Engine.h" />
+    <ClInclude Include="Src\Components\Camera.h" />
+    <ClInclude Include="Src\Components\Quad.h" />
+    <ClInclude Include="Src\Components\Tag.h" />
+    <ClInclude Include="Src\Components\Text.h" />
+    <ClInclude Include="Src\Components\Transform.h" />
+    <ClInclude Include="Src\Components\Velocity.h" />
+    <ClInclude Include="Src\Engine\Components.h" />
+    <ClInclude Include="Src\Engine\ECS.h" />
+    <ClInclude Include="Src\Engine\ErrorHandling.h" />
+    <ClInclude Include="Src\Engine\ImGuiLayer.h" />
+    <ClInclude Include="Src\Engine\pch.h" />
+    <ClInclude Include="Src\Engine\Renderer2D.h" />
+    <ClInclude Include="Src\Engine\Resource.h" />
+    <ClInclude Include="Src\Engine\ResourceManager.h" />
+    <ClInclude Include="Src\Engine\Scene.h" />
+    <ClInclude Include="Src\Engine\SceneStateMachine.h" />
+    <ClInclude Include="Src\Engine\Services.h" />
+    <ClInclude Include="Src\Engine\Shader.h" />
+    <ClInclude Include="Src\Engine\TextComponent.h" />
+    <ClInclude Include="Src\Engine\Texture.h" />
+    <ClInclude Include="Src\Engine\Window.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Src\Engine.cpp" />
+    <ClCompile Include="Src\Engine\ECS.cpp" />
+    <ClCompile Include="Src\Engine\ImGuiLayer.cpp" />
+    <ClCompile Include="Src\Engine\pch.cpp" />
+    <ClCompile Include="Src\Engine\Renderer2D.cpp" />
+    <ClCompile Include="Src\Engine\Resource.cpp" />
+    <ClCompile Include="Src\Engine\ResourceManager.cpp" />
+    <ClCompile Include="Src\Engine\Scene.cpp" />
+    <ClCompile Include="Src\Engine\SceneStateMachine.cpp" />
+    <ClCompile Include="Src\Engine\Services.cpp" />
+    <ClCompile Include="Src\Engine\Shader.cpp" />
+    <ClCompile Include="Src\Engine\TextComponent.cpp" />
+    <ClCompile Include="Src\Engine\Texture.cpp" />
+    <ClCompile Include="Src\Engine\Window.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
@@ -26,27 +58,14 @@
     <ProjectName>UIEngine</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
-    <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
-    <CharacterSet>Unicode</CharacterSet>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
-    <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
-    <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>Unicode</CharacterSet>
-  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
@@ -55,12 +74,6 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings" />
   <ImportGroup Label="Shared" />
-  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-  </ImportGroup>
-  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-  </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
@@ -68,14 +81,6 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <AllProjectIncludesArePublic>true</AllProjectIncludesArePublic>
-    <IncludePath>C:\vcpkg\installed;$(IncludePath)</IncludePath>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <AllProjectIncludesArePublic>true</AllProjectIncludesArePublic>
-    <IncludePath>C:\vcpkg\installed;$(IncludePath)</IncludePath>
-  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <AllProjectIncludesArePublic>true</AllProjectIncludesArePublic>
     <IncludePath>C:\vcpkg\installed;$(IncludePath)</IncludePath>
@@ -88,73 +93,15 @@
     <VcpkgEnabled>true</VcpkgEnabled>
     <VcpkgEnableManifest>true</VcpkgEnableManifest>
     <VcpkgManifestInstall>true</VcpkgManifestInstall>
-    <VcpkgTriplet Condition="'$(Platform)'=='x64'">x64-windows-static</VcpkgTriplet>
+    <VcpkgTriplet Condition="'$(Platform)'=='x64'">x64-windows</VcpkgTriplet>
     <VcpkgAutoLink>true</VcpkgAutoLink>
   </PropertyGroup>
-  <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <VcpkgUseStatic>true</VcpkgUseStatic>
-  </PropertyGroup>
-  <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <VcpkgUseStatic>true</VcpkgUseStatic>
-  </PropertyGroup>
   <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <VcpkgUseStatic>true</VcpkgUseStatic>
+    <VcpkgUseStatic>false</VcpkgUseStatic>
   </PropertyGroup>
   <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <VcpkgUseStatic>true</VcpkgUseStatic>
+    <VcpkgUseStatic>false</VcpkgUseStatic>
   </PropertyGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
-      <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ConformanceMode>true</ConformanceMode>
-      <LanguageStandard>stdcpplatest</LanguageStandard>
-      <AdditionalIncludeDirectories>Engine;Game;Components;Audio;vcpkg_installed\x64-windows-static\x64-windows-static\include;vcpkg_installed\x64-windows-static\x64-windows-static\include\tracy;C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\core\inc;C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\fsbank\inc;C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\studio\inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <LanguageStandard_C>stdc17</LanguageStandard_C>
-      <EnableModules>true</EnableModules>
-      <PrecompiledHeader>Use</PrecompiledHeader>
-      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-    </ClCompile>
-    <Link>
-      <SubSystem>Console</SubSystem>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\studio\lib\x64;C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\fsbank\lib\x64;C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\core\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>fmodstudio_vc.lib;fsbank_vc.lib;fmod_vc.lib;%(AdditionalDependencies)</AdditionalDependencies>
-    </Link>
-    <PostBuildEvent>
-      <Command>xcopy /y "C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\studio\lib\x64\fmodstudio.dll" "$(TargetDir)"
-xcopy /y "C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\core\lib\x64\fmod.dll" "$(TargetDir)"</Command>
-    </PostBuildEvent>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
-      <FunctionLevelLinking>true</FunctionLevelLinking>
-      <IntrinsicFunctions>true</IntrinsicFunctions>
-      <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ConformanceMode>true</ConformanceMode>
-      <LanguageStandard>stdcpplatest</LanguageStandard>
-      <AdditionalIncludeDirectories>Engine;Game;Components;Audio;vcpkg_installed\x64-windows-static\x64-windows-static\include;vcpkg_installed\x64-windows-static\x64-windows-static\include\tracy;C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\core\inc;C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\fsbank\inc;C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\studio\inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <LanguageStandard_C>stdc17</LanguageStandard_C>
-      <EnableModules>true</EnableModules>
-      <PrecompiledHeader>Use</PrecompiledHeader>
-      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-    </ClCompile>
-    <Link>
-      <SubSystem>Console</SubSystem>
-      <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <OptimizeReferences>true</OptimizeReferences>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\studio\lib\x64;C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\fsbank\lib\x64;C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\core\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>fmodstudio_vc.lib;fsbank_vc.lib;fmod_vc.lib;%(AdditionalDependencies)</AdditionalDependencies>
-    </Link>
-    <PostBuildEvent>
-      <Command>xcopy /y "C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\studio\lib\x64\fmodstudio.dll" "$(TargetDir)"
-xcopy /y "C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\core\lib\x64\fmod.dll" "$(TargetDir)"</Command>
-    </PostBuildEvent>
-  </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -164,11 +111,11 @@ xcopy /y "C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\co
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <PrecompiledHeader>Create</PrecompiledHeader>
-      <AdditionalIncludeDirectories>Engine;Game;Components;Audio;vcpkg_installed\x64-windows-static\x64-windows-static\include;vcpkg_installed\x64-windows-static\x64-windows-static\include\tracy;C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\core\inc;C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\fsbank\inc;C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\studio\inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>Src;Src\Engine;Src\Components;vcpkg_installed\x64-windows\x64-windows\include;vcpkg_installed\x64-windows\x64-windows\include\tracy;C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\core\inc;C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\fsbank\inc;C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\studio\inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
       <EnableModules>true</EnableModules>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -190,11 +137,12 @@ xcopy /y "C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\co
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
-      <AdditionalIncludeDirectories>Engine;Game;Components;Audio;vcpkg_installed\x64-windows-static\x64-windows-static\include;vcpkg_installed\x64-windows-static\x64-windows-static\include\tracy;C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\core\inc;C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\fsbank\inc;C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\studio\inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>Src;Src\Engine;Src\Components;vcpkg_installed\x64-windows\x64-windows\include;vcpkg_installed\x64-windows\x64-windows\include\tracy;C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\core\inc;C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\fsbank\inc;C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\studio\inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
       <EnableModules>true</EnableModules>
       <PrecompiledHeader>Create</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -209,59 +157,6 @@ xcopy /y "C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\co
 xcopy /y "C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\core\lib\x64\fmod.dll" "$(TargetDir)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="Audio\Audio.cpp" />
-    <ClCompile Include="Engine\Texture.cpp" />
-    <ClCompile Include="Engine\ECS.cpp" />
-    <ClCompile Include="Engine\Renderer2D.cpp" />
-    <ClCompile Include="Engine\Shader.cpp" />
-    <ClCompile Include="Engine\Resource.cpp" />
-    <ClCompile Include="Engine\pch.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="Engine\EngineStart.cpp" />
-    <ClCompile Include="Engine\Window.cpp" />
-    <ClCompile Include="Engine\ResourceManager.cpp" />
-    <ClCompile Include="Engine\Scene.cpp" />
-    <ClCompile Include="Game\TestingScene.cpp" />
-    <ClCompile Include="Engine\SceneStateMachine.cpp" />
-    <ClCompile Include="Engine\Services.cpp" />
-    <ClCompile Include="Engine\TextComponent.cpp" />
-    <ClCompile Include="Engine\ImGuiLayer.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include=".clang-format" />
-    <None Include="Shaders\litFragment.shader" />
-    <None Include="Shaders\litVertex.shader" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="Audio\Audio.h" />
-    <ClInclude Include="Components\Camera.h" />
-    <ClInclude Include="Components\Tag.h" />
-    <ClInclude Include="Components\Transform.h" />
-    <ClInclude Include="Engine\Texture.h" />
-    <ClInclude Include="Engine\ECS.h" />
-    <ClInclude Include="Engine\Components.h" />
-    <ClInclude Include="Engine\ErrorHandling.h" />
-    <ClInclude Include="Engine\Renderer2D.h" />
-    <ClInclude Include="Engine\Window.h" />
-    <ClInclude Include="Engine\Shader.h" />
-    <ClInclude Include="Engine\Resource.h" />
-    <ClInclude Include="Engine\pch.h" />
-    <ClInclude Include="Engine\ResourceManager.h" />
-    <ClInclude Include="Engine\Scene.h" />
-    <ClInclude Include="Game\TestingScene.h" />
-    <ClInclude Include="Engine\SceneStateMachine.h" />
-    <ClInclude Include="Engine\Services.h" />
-    <ClInclude Include="Engine\TextComponent.h" />
-    <ClInclude Include="Components\Text.h" />
-    <ClInclude Include="Components\Quad.h" />
-    <ClInclude Include="Components\Velocity.h" />
-    <ClInclude Include="Engine\ImGuiLayer.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="ToDo.txt" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />
 </Project>
