@@ -39,12 +39,12 @@ int main()
 	Renderer2D renderer = Renderer2D(nullptr, basicShader, fontShader);
 	ECS::Instance()->Init(&renderer);
 
-	Audio audioManager = Audio();
+	//Audio audioManager = Audio();
 
 	Services services(window.get());
 	services.SetShaderManager(&shaderManager);
 	services.SetTextureManager(&textureManager);
-	services.SetAudioManager(&audioManager);
+	//services.SetAudioManager(&audioManager);
 	TestingScene scene("FirstScene");
 
 	auto stateMachine = SceneStateMachine(&services);
@@ -54,7 +54,7 @@ int main()
 	// ImGui Setup
 	ImGuiLayer imguiLayer(window->GetWindow());
 
-	audioManager.AudioInit();
+	//audioManager.AudioInit();
 
 	// Engine Loop
 	while (!window->Window_shouldClose())
@@ -71,8 +71,8 @@ int main()
 
 		stateMachine.render(*window);
 
-		audioManager.system->update();
-		audioManager.Update();
+		//audioManager.system->update();
+		//audioManager.Update();
 		
 		ECS::Instance()->Update();
 

@@ -7,6 +7,10 @@
 #include "imgui_internal.h"
 #include <Tracy.hpp>
 
+// Setup name buffer 
+char* ImGuiLayer::m_NameBuffer = new char[256];
+char* ImGuiLayer::m_TextBuffer = new char[256];
+
 ImGuiLayer::ImGuiLayer(GLFWwindow* window)
 {
 	IMGUI_CHECKVERSION();
@@ -28,6 +32,19 @@ ImGuiLayer::ImGuiLayer(GLFWwindow* window)
 
 ImGuiLayer::~ImGuiLayer()
 {
+	// Clean up the nameBuffer if it exists
+	if (m_NameBuffer)
+	{
+		delete[] m_NameBuffer;
+		m_NameBuffer = nullptr;
+	}
+	
+	if (m_TextBuffer)
+	{
+		delete[] m_TextBuffer;
+		m_TextBuffer = nullptr;
+	}
+
 	// Cleanup
 	ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplGlfw_Shutdown();
@@ -163,10 +180,9 @@ void ImGuiLayer::NewFrame()
 				// Text box for the tag
 				auto text = e.get_ref<components::Tag>().get();
 
-				static char* nameBuffer = new char[256];
-				strcpy_s(nameBuffer, 256, text->GetName().c_str());
-				ImGui::InputText("Name", nameBuffer, 256);
-				text->SetName(nameBuffer);
+				strcpy_s(m_NameBuffer, 256, text->GetName().c_str());
+				ImGui::InputText("Name", m_NameBuffer, 256);
+				text->SetName(m_NameBuffer);
 				ImGui::Spacing();
 			}
 
@@ -187,10 +203,10 @@ void ImGuiLayer::NewFrame()
 			{
 				ImGui::Spacing();
 				auto text           = e.get_ref<components::Text>().get();
-				static char* buffer = new char[256];
-				strcpy_s(buffer, 256, text->m_Text.c_str());
-				ImGui::InputText("Text", buffer, 256);
-				text->m_Text = buffer;
+				
+				strcpy_s(m_TextBuffer, 256, text->m_Text.c_str());
+				ImGui::InputText("Text", m_TextBuffer, 256);
+				text->m_Text = m_TextBuffer;
 
 				// Color edit for the text color
 				ImGui::Spacing();

@@ -18,4 +18,7 @@ private:
 	ImGuiIO* io;
 
 	flecs::query<components::Transform> m_TransformQ;
+
+	static char* m_NameBuffer;
+	static char* m_TextBuffer;
 };
