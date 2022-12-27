@@ -3,9 +3,20 @@
 #include "Engine.h"
 
 #include "ECS.h"
+#include "ImGuiLayer.h"
+#include "SceneStateMachine.h"
+#include "Services.h"
+#include "Window.h"
 #include "imgui.h"
 #include "imgui_impl_opengl3.h"
 #include <Tracy.hpp>
+
+static Window m_Window;
+static ImGuiLayer m_ImguiLayer;
+static Renderer2D m_Renderer;
+static Services m_Services;
+static ResourceManager<Shader> m_shaderManager;
+static ResourceManager<Texture> m_TextureManager;
 
 namespace UIEngine
 {
@@ -15,15 +26,15 @@ void Engine::Init(const char* windowName, int width, int height)
 	// Create Window
 	m_Window.Initialise(width, height, windowName);
 
-	auto shaderManager = ResourceManager<Shader>();
-	shaderManager.Initialise("Shader Manager");
+	m_shaderManager = ResourceManager<Shader>();
+	m_shaderManager.Initialise("Shader Manager");
 
-	auto textureManager = ResourceManager<Texture>();
-	textureManager.Initialise("Texture Manager");
+	m_TextureManager = ResourceManager<Texture>();
+	m_TextureManager.Initialise("Texture Manager");
 
 	// Load shaders
-	Shader* basicShader = shaderManager.Load("../Resources/Shaders/lit.vert", "../Resources/Shaders/lit.frag").get();
-	Shader* fontShader  = shaderManager.Load("../Resources/Shaders/font.vert", "../Resources/Shaders/font.frag").get();
+	Shader* basicShader = m_shaderManager.Load("../Resources/Shaders/lit.vert", "../Resources/Shaders/lit.frag").get();
+	Shader* fontShader  = m_shaderManager.Load("../Resources/Shaders/font.vert", "../Resources/Shaders/font.frag").get();
 
 	m_Renderer.Init(nullptr, basicShader, fontShader);
 	ECS::Instance()->Init(&m_Renderer);
@@ -31,10 +42,8 @@ void Engine::Init(const char* windowName, int width, int height)
 	//Audio audioManager = Audio();
 
 	m_Services.SetWindow(&m_Window);
-	m_Services.SetShaderManager(&shaderManager);
-	m_Services.SetTextureManager(&textureManager);
-
-	m_StateMachine.Init(&m_Services);
+	m_Services.SetShaderManager(&m_shaderManager);
+	m_Services.SetTextureManager(&m_TextureManager);
 
 	// ImGui Setup
 	m_ImguiLayer.Init(m_Window.GetWindow());
@@ -47,7 +56,6 @@ Engine::~Engine()
 	ECS::Instance()->Destroy();
 }
 
-// Lambda function for updating the engine
 float Engine::Update()
 {
 	if (m_Window.Window_shouldClose())
@@ -65,8 +73,6 @@ float Engine::Update()
 	// Start the Dear ImGui frame
 	m_ImguiLayer.NewFrame();
 
-	m_StateMachine.update(dt);
-
 	//audioManager.system->update();
 	//audioManager.Update();
 
@@ -75,10 +81,8 @@ float Engine::Update()
 	return dt;
 }
 
-// Lambda function for rendering the engine
 void Engine::Render()
 {
-	m_StateMachine.render(m_Window);
 	ImGui::Render();
 	m_Renderer.Draw();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -86,4 +90,10 @@ void Engine::Render()
 	m_ImguiLayer.UpdateViewPorts();
 	FrameMark;
 }
+
+void* Engine::GetWindow() 
+{
+	return m_Window.GetWindow();
+}
+
 } // namespace UIEngine
