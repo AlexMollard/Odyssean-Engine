@@ -1,5 +1,6 @@
 #pragma once
 #include <vector>
+#include "BaseRenderer.h"
 
 class Scene;
 class SceneStateMachine
@@ -21,10 +22,10 @@ public:
 	Scene* GetCurrentScene() const;
 
 	// Update the current state
-	void update(float deltaTime);
+	void Update(float deltaTime);
 
 	// Render the current state
-	void render();
+	void Render(const BaseRenderer& renderer);
 
 	// Destroy all scenes.
 	void Destroy();

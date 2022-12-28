@@ -6,4 +6,4 @@ void VulkanScene::Exit() {}
 
 void VulkanScene::Update(float deltaTime) {}
 
-void VulkanScene::Draw() {}
+void VulkanScene::Draw(const BaseRenderer& renderer) {}

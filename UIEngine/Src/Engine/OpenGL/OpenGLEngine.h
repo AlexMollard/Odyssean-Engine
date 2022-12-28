@@ -2,6 +2,7 @@
 
 #include "BaseEngine.h"
 #include "ImGuiLayer.h"
+#include "OpenGl/OpenGLRenderer.h"
 
 class OpenGLEngine : BaseEngine
 {
@@ -19,8 +20,10 @@ public:
 
 	void* GetWindow();
 
+	const OpenGLRenderer* GetRenderer() const { return &m_renderer; }
+
 private:
 	bool m_close = true;
-
+	OpenGLRenderer m_renderer;
 	ImGuiLayer m_ImguiLayer;
 };

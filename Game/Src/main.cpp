@@ -1,9 +1,10 @@
 #include "pch.h"
 
+#include "BaseRenderer.h"
+#include "Engine.h"
 #include "SceneStateMachine.h"
 #include "TestingScene.h"
 #include "VulkanScene.h"
-#include <Engine.h>
 
 int main()
 {
@@ -18,6 +19,9 @@ int main()
 	SceneStateMachine stateMachine;
 	Scene* scene = nullptr;
 
+	const BaseRenderer* renderer = static_cast<const BaseRenderer*>(engine.GetRenderer());
+
+	// Create a new scene based on the graphics API and get renderer
 	if (graphicsAPI == GraphicsAPI::OpenGL)
 		scene = new TestingScene("TestingScene");
 	else if (graphicsAPI == GraphicsAPI::Vulkan)
@@ -34,9 +38,9 @@ int main()
 		if (dt == -FLT_MAX)
 			break;
 
-		stateMachine.update(dt);
+		stateMachine.Update(dt);
 
-		stateMachine.render();
+		stateMachine.Render(*renderer);
 		engine.Render();
 	}
 

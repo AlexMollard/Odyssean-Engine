@@ -1,5 +1,6 @@
 #pragma once
 #include "BaseEngine.h"
+#include "BaseRenderer.h"
 
 // Graphics API enum
 enum class GraphicsAPI
@@ -24,6 +25,8 @@ public:
 	void Render();
 
 	bool GetClose() const { return m_close; }
+
+	const void* GetRenderer();
 
 private:
 	bool m_close = true;

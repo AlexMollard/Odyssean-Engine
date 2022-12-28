@@ -1,6 +1,7 @@
 #pragma once
 
 #include "BaseEngine.h"
+#include "VulkanRenderer.h"
 
 class VulkanEngine : BaseEngine
 {
@@ -18,6 +19,10 @@ public:
 
 	void* GetWindow();
 
+	const VulkanRenderer* GetRenderer() const { return &m_renderer; }
+
 private:
 	bool m_close = true;
+
+	VulkanRenderer m_renderer;
 };

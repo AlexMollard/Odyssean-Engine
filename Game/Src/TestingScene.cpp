@@ -40,7 +40,7 @@ void TestingScene::Exit()
 
 void TestingScene::Update(float deltaTime) {}
 
-void TestingScene::Draw()
+void TestingScene::Draw(const BaseRenderer& renderer)
 {
 	auto& world = ECS::GetWorldStatic();
 

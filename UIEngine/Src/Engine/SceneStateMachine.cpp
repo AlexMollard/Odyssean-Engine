@@ -53,18 +53,18 @@ Scene* SceneStateMachine::GetCurrentScene() const
 	return currentScene;
 }
 
-void SceneStateMachine::update(float deltaTime)
+void SceneStateMachine::Update(float deltaTime)
 {
 	ZoneScopedN("StateMachine Update");
 	if (currentScene)
 		currentScene->Update(deltaTime);
 }
 
-void SceneStateMachine::render()
+void SceneStateMachine::Render(const BaseRenderer& renderer)
 {
 	ZoneScopedN("StateMachine Render");
 	if (currentScene)
-		currentScene->Draw();
+		currentScene->Draw(renderer);
 }
 
 void SceneStateMachine::Destroy()

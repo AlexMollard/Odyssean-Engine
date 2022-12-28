@@ -19,7 +19,7 @@ public:
 	void OnDestroy() override{ /*To Be Impelmented*/ };
 
 	void Update(float deltaTime) override;
-	void Draw() override;
+	void Draw(const BaseRenderer& renderer) override;
 
 private:
 	std::string name;

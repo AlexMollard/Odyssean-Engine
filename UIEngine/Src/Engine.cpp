@@ -83,4 +83,20 @@ void Engine::Render()
 	}
 }
 
+const void* Engine::GetRenderer() 
+{
+	if (m_graphicsAPI == GraphicsAPI::OpenGL)
+	{
+		OpenGLEngine* engine = static_cast<OpenGLEngine*>(m_engine);
+		return engine->GetRenderer();
+	}
+	else if (m_graphicsAPI == GraphicsAPI::Vulkan)
+	{
+		VulkanEngine* engine = static_cast<VulkanEngine*>(m_engine);
+		return engine->GetRenderer();
+	}
+
+	return nullptr;
+}
+
 } // namespace UIEngine
