@@ -1,10 +1,6 @@
 #pragma once
-#include "Window.h"
 #include <string>
-#include "Services.h"
 
-class Window;
-class Services;
 class Scene
 {
 public:
@@ -25,9 +21,9 @@ public:
 
 	// The below functions can be overridden as necessary in our scenes.
 	virtual void ProcessInput(){ /* Override This */ };
-	virtual void Update(float deltaTime, const Services* services){ /* Override This */ };
+	virtual void Update(float deltaTime){ /* Override This */ };
 	virtual void LateUpdate(float deltaTime){ /* Override This */ };
-	virtual void Draw(Window& window, const Services* services){ /* Override This */ };
+	virtual void Draw(){ /* Override This */ };
 
 	// virtual destructor
 	virtual ~Scene() = default;

@@ -1,4 +1,12 @@
 #pragma once
+#include "BaseEngine.h"
+
+// Graphics API enum
+enum class GraphicsAPI
+{
+	OpenGL,
+	Vulkan
+};
 
 namespace UIEngine
 {
@@ -9,7 +17,7 @@ public:
 	Engine() = default;
 	~Engine();
 
-	void Init(const char* windowName, int width, int height);
+	void Init(const char* windowName, int width, int height, GraphicsAPI graphicsAPI = GraphicsAPI::OpenGL);
 
 	// Returns DT
 	float Update();
@@ -17,9 +25,12 @@ public:
 
 	bool GetClose() const { return m_close; }
 
-	void* GetWindow();
-
 private:
-	bool m_close = false;
+	bool m_close = true;
+
+	// Graphics API
+	GraphicsAPI m_graphicsAPI = GraphicsAPI::OpenGL;
+
+	void* m_engine = nullptr;
 };
 } // namespace UIEngine

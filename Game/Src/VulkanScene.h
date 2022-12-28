@@ -1,11 +1,12 @@
 #pragma once
 #include "Scene.h"
-#include <string_view>
 #include "glm/glm.hpp"
-class TestingScene : public Scene
+#include <string_view>
+
+class VulkanScene : public Scene
 {
 public:
-	explicit TestingScene(std::string_view inName) { name = inName; };
+	explicit VulkanScene(std::string_view inName) { name = inName; };
 
 	void OnCreate() override{ /*To Be Impelmented*/ };
 	void Enter() override;

@@ -19,11 +19,13 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp" />
+    <ClCompile Include="Src\main.cpp" />
     <ClCompile Include="Src\TestingScene.cpp" />
+    <ClCompile Include="Src\VulkanScene.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Src\TestingScene.h" />
+    <ClInclude Include="Src\VulkanScene.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\UIEngine\UITesting.vcxproj">

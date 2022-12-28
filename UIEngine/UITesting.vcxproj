@@ -10,6 +10,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Src\Engine\BaseEngine.h" />
+    <ClInclude Include="Src\Engine\OpenGL\OpenGLEngine.h" />
     <ClInclude Include="Src\Engine.h" />
     <ClInclude Include="Src\Components\Camera.h" />
     <ClInclude Include="Src\Components\Quad.h" />
@@ -27,13 +29,15 @@
     <ClInclude Include="Src\Engine\ResourceManager.h" />
     <ClInclude Include="Src\Engine\Scene.h" />
     <ClInclude Include="Src\Engine\SceneStateMachine.h" />
-    <ClInclude Include="Src\Engine\Services.h" />
     <ClInclude Include="Src\Engine\Shader.h" />
     <ClInclude Include="Src\Engine\TextComponent.h" />
     <ClInclude Include="Src\Engine\Texture.h" />
-    <ClInclude Include="Src\Engine\Window.h" />
+    <ClInclude Include="Src\Engine\OpenGL\OpenGLWindow.h" />
+    <ClInclude Include="Src\Engine\Vulkan\VulkanLayer.h" />
+    <ClInclude Include="Src\Engine\Vulkan\VulkanEngine.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Src\Engine\OpenGL\OpenGLEngine.cpp" />
     <ClCompile Include="Src\Engine.cpp" />
     <ClCompile Include="Src\Engine\ECS.cpp" />
     <ClCompile Include="Src\Engine\ImGuiLayer.cpp" />
@@ -43,11 +47,12 @@
     <ClCompile Include="Src\Engine\ResourceManager.cpp" />
     <ClCompile Include="Src\Engine\Scene.cpp" />
     <ClCompile Include="Src\Engine\SceneStateMachine.cpp" />
-    <ClCompile Include="Src\Engine\Services.cpp" />
     <ClCompile Include="Src\Engine\Shader.cpp" />
     <ClCompile Include="Src\Engine\TextComponent.cpp" />
     <ClCompile Include="Src\Engine\Texture.cpp" />
-    <ClCompile Include="Src\Engine\Window.cpp" />
+    <ClCompile Include="Src\Engine\OpenGL\OpenGLWindow.cpp" />
+    <ClCompile Include="Src\Engine\Vulkan\VulkanLayer.cpp" />
+    <ClCompile Include="Src\Engine\Vulkan\VulkanEngine.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
@@ -106,7 +111,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;TRACY_ENABLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>

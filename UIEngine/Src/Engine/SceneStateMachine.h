@@ -2,15 +2,11 @@
 #include <vector>
 
 class Scene;
-class Window;
-class Services;
 class SceneStateMachine
 {
 public:
 	SceneStateMachine()  = default;
 	~SceneStateMachine() = default;
-
-	void Init(const Services* services);
 
 	// Add a scene to the state machine.
 	void AddScene(Scene* scene);
@@ -28,13 +24,12 @@ public:
 	void update(float deltaTime);
 
 	// Render the current state
-	void render(Window& window);
+	void render();
 
 	// Destroy all scenes.
 	void Destroy();
 
 private:
 	Scene* currentScene = nullptr;
-	const Services* services = nullptr; 
 	std::vector<Scene*> scenes;
 };

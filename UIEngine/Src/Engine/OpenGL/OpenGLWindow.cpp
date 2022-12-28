@@ -1,18 +1,18 @@
 #include "pch.h"
 
-#include "Window.h"
+#include "OpenGLWindow.h"
 
 #include "Tracy.hpp"
 #include "TracyOpenGL.hpp"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
-Window::~Window()
+OpenGLWindow::~OpenGLWindow()
 {
 	Window_destroy();
 }
 
-void Window::Initialise(int width, int height, std::string_view name) 
+void OpenGLWindow::Initialise(int width, int height, std::string_view name) 
 {
 	if (!Window_intit(width, height, name))
 	{
@@ -20,7 +20,7 @@ void Window::Initialise(int width, int height, std::string_view name)
 	}
 }
 
-int Window::Window_intit(int width, int height, std::string_view name)
+int OpenGLWindow::Window_intit(int width, int height, std::string_view name)
 {
 	if (!glfwInit())
 	{
@@ -62,7 +62,7 @@ int Window::Window_intit(int width, int height, std::string_view name)
 	return 1;
 }
 
-void Window::Update_Window()
+void OpenGLWindow::Update_Window()
 {
 	ZoneScopedN("window Update");
 
@@ -86,18 +86,18 @@ void Window::Update_Window()
 	last  = now;
 }
 
-int Window::Window_shouldClose()
+int OpenGLWindow::Window_shouldClose()
 {
 	return glfwWindowShouldClose(window);
 }
 
-void Window::Window_destroy()
+void OpenGLWindow::Window_destroy()
 {
 	glfwDestroyWindow(window);
 	glfwTerminate();
 }
 
-float Window::GetDeltaTime() const
+float OpenGLWindow::GetDeltaTime() const
 {
 	return delta;
 }

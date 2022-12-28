@@ -2,12 +2,12 @@
 #include <GLFW/glfw3.h>
 #include <string>
 
-class Window
+class OpenGLWindow
 {
 public:
-	Window() = default;
+	OpenGLWindow() = default;
 
-	~Window();
+	~OpenGLWindow();
 
 	void Initialise(int width, int height, std::string_view name);
 

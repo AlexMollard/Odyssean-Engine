@@ -19,8 +19,7 @@ public:
 private:
 	ImGuiIO* io;
 
-	flecs::query<components::Transform> m_TransformQ;
+	flecs::query<components::Tag> q;
 
-	static char* m_NameBuffer;
-	static char* m_TextBuffer;
+	void DrawEntity(components::Tag& tag);
 };

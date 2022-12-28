@@ -5,11 +5,6 @@
 #include "Scene.h"
 #include "tracy/Tracy.hpp"
 
-void SceneStateMachine::Init(const Services* inServices)
-{
-	services = inServices;
-}
-
 // Add a scene to the state machine.
 void SceneStateMachine::AddScene(Scene* scene)
 {
@@ -62,14 +57,14 @@ void SceneStateMachine::update(float deltaTime)
 {
 	ZoneScopedN("StateMachine Update");
 	if (currentScene)
-		currentScene->Update(deltaTime, services);
+		currentScene->Update(deltaTime);
 }
 
-void SceneStateMachine::render(Window& window)
+void SceneStateMachine::render()
 {
 	ZoneScopedN("StateMachine Render");
 	if (currentScene)
-		currentScene->Draw(window, services);
+		currentScene->Draw();
 }
 
 void SceneStateMachine::Destroy()

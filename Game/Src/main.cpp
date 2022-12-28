@@ -2,6 +2,7 @@
 
 #include "SceneStateMachine.h"
 #include "TestingScene.h"
+#include "VulkanScene.h"
 #include <Engine.h>
 
 int main()
@@ -9,15 +10,15 @@ int main()
 	// Memory leak detection
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 	UIEngine::Engine engine = UIEngine::Engine();
-	engine.Init("UIEngine", 1920,1080);
+	engine.Init("UIEngine", 1920, 1080, GraphicsAPI::OpenGL);
 
 	SceneStateMachine stateMachine;
-
 	TestingScene testScene("Testing Scene");
-	stateMachine.AddScene(&testScene);
-	stateMachine.SetCurrentScene(&testScene);
+	VulkanScene vulkanScene("Vulkan Scene");
 
-	Window* window = static_cast<Window*>(engine.GetWindow());
+	stateMachine.AddScene(&testScene);
+	stateMachine.AddScene(&vulkanScene);
+	stateMachine.SetCurrentScene(&vulkanScene);
 
 	while (!engine.GetClose())
 	{
@@ -29,7 +30,7 @@ int main()
 
 		stateMachine.update(dt);
 
-		stateMachine.render(*window);
+		stateMachine.render();
 		engine.Render();
 	}
 }

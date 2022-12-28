@@ -1,8 +1,9 @@
 #pragma once
 
+#include "gl/glew.h"
 #include "GLFW/glfw3.h"
 #include "Resource.h"
-#include "gl/glew.h"
+#include "glm/glm.hpp"
 
 class Shader : public Resource
 {

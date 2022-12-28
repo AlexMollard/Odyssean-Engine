@@ -25,7 +25,7 @@ flecs::entity& ECS::CreateQuad(const glm::vec3& position, const glm::vec2& size,
 		transform.SetPosition(position);
 		quad.SetSize(size);
 		quad.SetColor(color);
-		tag.SetName(out.str());
+		tag.SetName(out.str().c_str());
 	});
 
 	quadEntity.set_name(out.str().c_str());
@@ -44,14 +44,14 @@ flecs::entity& ECS::CreateText(const std::string& inText, const glm::vec3& posit
 		transform.SetPosition(position);
 		text.SetColor(color);
 		text.SetText(inText);
-		tag.SetName(out.str());
+		tag.SetName(out.str().c_str());
 	});
 	textEntity.set_name(out.str().c_str());
 
 	return *textEntity.get_ref<flecs::entity>().get();
 }
 
-void ECS::Init(const Renderer2D* renderer)
+void ECS::Init()
 {
 	// Create the components (Not needed I think)
 	m_World.component<components::Text>();
@@ -62,21 +62,6 @@ void ECS::Init(const Renderer2D* renderer)
 		.kind(flecs::OnUpdate)
 		.each([&](flecs::entity e, components::Velocity& velocity, components::Transform& transform) {
 			transform.SetPosition(transform.GetPosition() + (velocity.GetVelocity() * delta_time()));
-		});
-
-	// Render Quad
-	m_World.system<components::Quad, components::Transform>("RenderSprite")
-		.kind(flecs::OnStore)
-		.each([&](flecs::entity e, components::Quad& quad, components::Transform& transform) {
-			renderer->DrawQuad(transform.GetPosition(), quad.GetSize() * glm::vec2(transform.GetScale()), quad.GetColor(),
-				quad.GetAnchorPoint(), quad.GetTextureID());
-		});
-
-	// Render Text
-	m_World.system<components::Text, components::Transform>("RenderText")
-		.kind(flecs::OnStore)
-		.each([&](flecs::entity e, components::Text& text, components::Transform& transform) {
-			renderer->DrawText(text.GetText(), transform.GetPosition(), text.GetColor(), text.GetScale(), "");
 		});
 }
 

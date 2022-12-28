@@ -15,132 +15,130 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Engine\EngineStart.cpp">
+    <ClCompile Include="Src\Engine.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Engine\Window.cpp">
+    <ClCompile Include="Src\Engine\ECS.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Engine\Shader.cpp">
+    <ClCompile Include="Src\Engine\ImGuiLayer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Engine\Resource.cpp">
+    <ClCompile Include="Src\Engine\pch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Engine\pch.cpp">
+    <ClCompile Include="Src\Engine\Renderer2D.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Engine\ResourceManager.cpp">
+    <ClCompile Include="Src\Engine\Resource.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Engine\Scene.cpp">
+    <ClCompile Include="Src\Engine\ResourceManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Game\TestingScene.cpp">
+    <ClCompile Include="Src\Engine\Scene.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Engine\SceneStateMachine.cpp">
+    <ClCompile Include="Src\Engine\SceneStateMachine.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Engine\Services.cpp">
+    <ClCompile Include="Src\Engine\Shader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Engine\TextComponent.cpp">
+    <ClCompile Include="Src\Engine\TextComponent.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Engine\ECS.cpp">
+    <ClCompile Include="Src\Engine\Texture.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Engine\Renderer2D.cpp">
+    <ClCompile Include="Src\Engine\OpenGL\OpenGLWindow.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Engine\Texture.cpp">
+    <ClCompile Include="Src\Engine\Vulkan\VulkanLayer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Engine\ImGuiLayer.cpp">
+    <ClCompile Include="Src\Engine\OpenGL\OpenGLEngine.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Audio\Audio.cpp">
+    <ClCompile Include="Src\Engine\Vulkan\VulkanEngine.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Shaders\litFragment.shader" />
-    <None Include="Shaders\litVertex.shader" />
-    <None Include=".clang-format" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="Engine\Window.h">
+    <ClInclude Include="Src\Engine.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Engine\Shader.h">
+    <ClInclude Include="Src\Components\Camera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Engine\Resource.h">
+    <ClInclude Include="Src\Components\Quad.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Engine\pch.h">
+    <ClInclude Include="Src\Components\Tag.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Engine\ResourceManager.h">
+    <ClInclude Include="Src\Components\Text.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Engine\ErrorHandling.h">
+    <ClInclude Include="Src\Components\Transform.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Engine\Scene.h">
+    <ClInclude Include="Src\Components\Velocity.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Game\TestingScene.h">
+    <ClInclude Include="Src\Engine\Components.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Engine\SceneStateMachine.h">
+    <ClInclude Include="Src\Engine\ECS.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Engine\Services.h">
+    <ClInclude Include="Src\Engine\ErrorHandling.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Engine\TextComponent.h">
+    <ClInclude Include="Src\Engine\ImGuiLayer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Engine\Components.h">
+    <ClInclude Include="Src\Engine\pch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Engine\ECS.h">
+    <ClInclude Include="Src\Engine\Renderer2D.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Components\Text.h">
+    <ClInclude Include="Src\Engine\Resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Components\Quad.h">
+    <ClInclude Include="Src\Engine\ResourceManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Engine\Renderer2D.h">
+    <ClInclude Include="Src\Engine\Scene.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Components\Camera.h">
+    <ClInclude Include="Src\Engine\SceneStateMachine.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Engine\Texture.h">
+    <ClInclude Include="Src\Engine\Shader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Components\Velocity.h">
+    <ClInclude Include="Src\Engine\TextComponent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Components\Transform.h">
+    <ClInclude Include="Src\Engine\Texture.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Engine\ImGuiLayer.h">
+    <ClInclude Include="Src\Engine\OpenGL\OpenGLWindow.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Components\Tag.h">
+    <ClInclude Include="Src\Engine\Vulkan\VulkanLayer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Audio\Audio.h">
+    <ClInclude Include="Src\Engine\OpenGL\OpenGLEngine.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="ToDo.txt" />
+    <ClInclude Include="Src\Engine\BaseEngine.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Engine\Vulkan\VulkanEngine.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

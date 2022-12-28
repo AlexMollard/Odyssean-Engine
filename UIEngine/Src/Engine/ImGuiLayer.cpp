@@ -7,34 +7,16 @@
 #include "imgui_internal.h"
 #include <Tracy.hpp>
 
-// Setup name buffer 
-char* ImGuiLayer::m_NameBuffer = new char[256];
-char* ImGuiLayer::m_TextBuffer = new char[256];
-
 ImGuiLayer::~ImGuiLayer()
 {
-	// Clean up the nameBuffer if it exists
-	if (m_NameBuffer)
-	{
-		delete[] m_NameBuffer;
-		m_NameBuffer = nullptr;
-	}
-	
-	if (m_TextBuffer)
-	{
-		delete[] m_TextBuffer;
-		m_TextBuffer = nullptr;
-	}
-
 	// Cleanup
 	ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplGlfw_Shutdown();
 	ImGui::DestroyContext();
 }
 
-void ImGuiLayer::Init(GLFWwindow* window) 
+void ImGuiLayer::Init(GLFWwindow* window)
 {
-	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 	io = &ImGui::GetIO();
 	(void)io;
@@ -47,8 +29,7 @@ void ImGuiLayer::Init(GLFWwindow* window)
 	// Setup Platform/Renderer backends
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
 	ImGui_ImplOpenGL3_Init("#version 330");
-
-	m_TransformQ = ECS::Instance()->GetWorld()->query<components::Transform>();
+	q = ECS::GetWorldStatic().query<components::Tag>();
 }
 
 void ImGuiLayer::SetStyle()
@@ -147,83 +128,68 @@ void ImGuiLayer::NewFrame()
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
 	window_flags |= ImGuiWindowFlags_NoBackground;
+
 	ImGui::Begin("DockSpace", nullptr, window_flags);
 	ImGui::PopStyleVar(2);
-
 	ImGuiID dockspace_id = ImGui::GetID("MainDockSpace");
 	ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_PassthruCentralNode);
-
 	ImGui::End();
-
-	// Lambda function to draw each entity in the hierarchy
-	auto drawEntity = [](flecs::entity e, components::Transform& transform) {
-		// Making sure the transforms id are different so we can edit them individually
-		ImGui::PushID(&transform);
-		ImGui::Spacing();
-
-		std::string name;
-		bool hasTag = e.has<components::Tag>();
-
-		if (hasTag)
-		{
-			auto text = e.get_ref<components::Tag>().get();
-			name      = text->GetName();
-		}
-		else
-			name = e.name();
-
-		// collapsing header for the transform
-		if (ImGui::CollapsingHeader(name.c_str()))
-		{
-			if (hasTag)
-			{
-				// Text box for the tag
-				auto text = e.get_ref<components::Tag>().get();
-
-				strcpy_s(m_NameBuffer, 256, text->GetName().c_str());
-				ImGui::InputText("Name", m_NameBuffer, 256);
-				text->SetName(m_NameBuffer);
-				ImGui::Spacing();
-			}
-
-			// DragFloat3 for the position, rotation and scale
-			ImGui::DragFloat3("Position", &transform.m_Position.x, 0.1f);
-			ImGui::DragFloat3("Rotation", &transform.m_Rotation.x, 0.1f);
-			ImGui::DragFloat3("Scale", &transform.m_Scale.x, 0.1f);
-
-			// If the entity has a quad component, we can edit the color
-			if (e.has<components::Quad>())
-			{
-				ImGui::Spacing();
-				auto quad = e.get_ref<components::Quad>().get();
-				ImGui::ColorEdit4("Color", &quad->m_Color.x);
-			}
-			// If the entity has a text component, we can edit the text
-			if (e.has<components::Text>())
-			{
-				ImGui::Spacing();
-				auto text           = e.get_ref<components::Text>().get();
-				
-				strcpy_s(m_TextBuffer, 256, text->m_Text.c_str());
-				ImGui::InputText("Text", m_TextBuffer, 256);
-				text->m_Text = m_TextBuffer;
-
-				// Color edit for the text color
-				ImGui::Spacing();
-				ImGui::ColorEdit4("Color", &text->m_Color.x);
-			}
-		}
-
-		// Pop the id so we can edit the next transform
-		ImGui::PopID();
-	};
 
 	ImGui::Begin("Hierarchy");
 	{
 		ZoneScopedN("ImGui Hierarchy");
-		m_TransformQ.each([&](flecs::entity e, components::Transform& transform) { drawEntity(e, transform); });
+		q.each([&](components::Tag& t) {
+			DrawEntity(t);
+		});
 	}
 	ImGui::End();
+}
+
+void ImGuiLayer::DrawEntity(components::Tag& tag)
+{
+	ZoneScopedN("Hierarchy Draw Entity");
+	// Making sure the transforms id are different so we can edit them individually
+	ImGui::PushID(&tag);
+	ImGui::Spacing();
+
+	std::string name = tag.GetName();
+
+	// collapsing header for the transform
+	if (ImGui::CollapsingHeader(name.c_str()))
+	{
+		ImGui::InputText("Name", tag.GetName(), 256);
+		ImGui::Spacing();
+
+		// DragFloat3 for the position, rotation and scale
+		//ImGui::DragFloat3("Position", &transform.m_Position.x, 0.1f);
+		//ImGui::DragFloat3("Rotation", &transform.m_Rotation.x, 0.1f);
+		//ImGui::DragFloat3("Scale", &transform.m_Scale.x, 0.1f);
+
+		//// If the entity has a quad component, we can edit the color
+		//if (e.has<components::Quad>())
+		//{
+		//	ImGui::Spacing();
+		//	auto quad = e.get_ref<components::Quad>().get();
+		//	ImGui::ColorEdit4("Color", &quad->m_Color.x);
+		//}
+		//// If the entity has a text component, we can edit the text
+		//if (e.has<components::Text>())
+		//{
+		//	ImGui::Spacing();
+		//	auto text = e.get_ref<components::Text>().get();
+
+		//	strcpy_s(m_TextBuffer, 256, text->m_Text.c_str());
+		//	ImGui::InputText("Text", m_TextBuffer, 256);
+		//	text->m_Text = m_TextBuffer;
+
+		//	// Color edit for the text color
+		//	ImGui::Spacing();
+		//	ImGui::ColorEdit4("Color", &text->m_Color.x);
+		//}
+	}
+
+	// Pop the id so we can edit the next transform
+	ImGui::PopID();
 }
 
 void ImGuiLayer::UpdateViewPorts()
