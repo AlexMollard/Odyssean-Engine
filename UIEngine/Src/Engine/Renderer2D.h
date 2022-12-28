@@ -4,6 +4,7 @@
 #include <freetype/freetype.h>
 #include <glm/glm.hpp>
 #include <vector>
+#include <string>
 
 class Shader;
 class Texture;

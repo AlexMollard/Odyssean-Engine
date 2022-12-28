@@ -24,10 +24,30 @@ void TestingScene::Enter()
 				glm::vec4(0.0f, noise, noise, 1.0f));
 		}
 	}
+
+	m_Renderer   = new Renderer2D();
+	m_litShader  = new Shader("LitShader", "../Resources/Shaders/lit.vert", "../Resources/Shaders/lit.frag");
+	m_textShader = new Shader("TextShader", "../Resources/Shaders/font.vert", "../Resources/Shaders/font.frag");
+	m_Renderer->Init(nullptr, m_litShader, m_textShader);
 }
 
-void TestingScene::Exit() {}
+void TestingScene::Exit()
+{
+	delete m_textShader;
+	delete m_litShader;
+	delete m_Renderer;
+}
 
 void TestingScene::Update(float deltaTime) {}
 
-void TestingScene::Draw() {}
+void TestingScene::Draw()
+{
+	auto& world = ECS::GetWorldStatic();
+
+	flecs::filter<components::Quad, components::Transform> f = world.filter<components::Quad, components::Transform>();
+	f.each([this](components::Quad& q, components::Transform& t) {
+		m_Renderer->DrawQuad(t.GetPosition(), q.GetSize() * t.GetScale(), q.GetColor(), q.GetAnchorPoint(), 0);
+	});
+
+	m_Renderer->Draw();
+}

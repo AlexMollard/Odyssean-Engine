@@ -8,6 +8,7 @@
 class Shader : public Resource
 {
 public:
+	Shader() = default;
 	Shader(std::string name, const char* vertexPath, const char* fragmentPath, const char* geometryPath = nullptr);
 
 	explicit Shader(std::string name);

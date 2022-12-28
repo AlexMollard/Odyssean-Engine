@@ -9,16 +9,22 @@ int main()
 {
 	// Memory leak detection
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+
+	GraphicsAPI graphicsAPI = GraphicsAPI::Vulkan;
+
 	UIEngine::Engine engine = UIEngine::Engine();
-	engine.Init("UIEngine", 1920, 1080, GraphicsAPI::OpenGL);
+	engine.Init("UIEngine", 1920, 1080, graphicsAPI);
 
 	SceneStateMachine stateMachine;
-	TestingScene testScene("Testing Scene");
-	VulkanScene vulkanScene("Vulkan Scene");
+	Scene* scene = nullptr;
 
-	stateMachine.AddScene(&testScene);
-	stateMachine.AddScene(&vulkanScene);
-	stateMachine.SetCurrentScene(&vulkanScene);
+	if (graphicsAPI == GraphicsAPI::OpenGL)
+		scene = new TestingScene("TestingScene");
+	else if (graphicsAPI == GraphicsAPI::Vulkan)
+		scene = new VulkanScene("Vulkan Scene");
+
+	stateMachine.AddScene(scene);
+	stateMachine.SetCurrentScene(scene);
 
 	while (!engine.GetClose())
 	{
@@ -33,4 +39,7 @@ int main()
 		stateMachine.render();
 		engine.Render();
 	}
+
+	scene->Exit();
+	delete scene;
 }

@@ -22,7 +22,7 @@ public:
 
 	const unsigned int GetTextureID() const { return m_TextureID; }
 
-	glm::vec2 m_Size;
+	glm::vec2 m_Size = glm::vec2(10.0f);
 	glm::vec4 m_Color;
 	glm::vec2 m_AnchorPoint = glm::vec2(0.0f, 0.0f);
 	

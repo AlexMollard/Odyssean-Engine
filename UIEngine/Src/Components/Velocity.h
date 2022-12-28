@@ -12,13 +12,12 @@ class Velocity
 public:
 	float x = 0.0f;
 	float y = 0.0f;
-	float z = 0.0f;
 
 	// Default constructor
 	Velocity() = default;
 
-	Velocity(float x, float y, float z) : x(x), y(y), z(z) {}
+	Velocity(float x, float y, float z) : x(x), y(y) {}
 
-	glm::vec3 GetVelocity() const { return {x, y, z}; }
+	glm::vec2 GetVelocity() const { return {x, y}; }
 };
 } // namespace components
