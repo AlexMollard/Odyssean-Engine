@@ -9,15 +9,4 @@ This project was written using *Visual Studio 2022*.
  - Visual Studio 2022.
  
 ### Libs:
- - GLFW3
-   https://github.com/glfw/glfw
- - GLEW
-   https://github.com/nigels-com/glew
- - GLM
-   https://github.com/g-truc/glm
- - FLECS
-   https://github.com/SanderMertens/flecs
- - FREE TYPE
-   https://github.com/freetype/freetype
- - SOIL2
-   https://github.com/SpartanJ/SOIL2
+ - [View All](UIEngine/vcpkg.json)
