@@ -1,6 +1,6 @@
 #pragma once
-#include "Camera.h"
-#include "Quad.h"
+#include "Components/Camera.h"
+#include "Components/Quad.h"
 #include <freetype/freetype.h>
 #include <glm/glm.hpp>
 #include <vector>

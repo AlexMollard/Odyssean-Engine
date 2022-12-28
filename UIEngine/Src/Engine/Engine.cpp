@@ -2,8 +2,8 @@
 
 #include "Engine.h"
 
-#include "OpenGL/OpenGLEngine.h"
-#include "Vulkan/VulkanEngine.h"
+#include "Engine/OpenGlAPI/OpenGLEngine.h"
+#include "Engine/VulkanAPI/VulkanEngine.h"
 
 namespace UIEngine
 {

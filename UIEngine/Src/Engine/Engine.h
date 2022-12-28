@@ -1,6 +1,6 @@
 #pragma once
-#include "BaseEngine.h"
-#include "BaseRenderer.h"
+#include "Engine/BaseEngine.h"
+#include "Engine/BaseRenderer.h"
 
 // Graphics API enum
 enum class GraphicsAPI

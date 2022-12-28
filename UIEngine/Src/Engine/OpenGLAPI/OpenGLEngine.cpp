@@ -2,12 +2,12 @@
 
 #include "OpenGLEngine.h"
 
-#include "ECS.h"
-#include "OpenGL/OpenGLWindow.h"
-#include "ResourceManager.h"
-#include "SceneStateMachine.h"
-#include "Shader.h"
-#include "Texture.h"
+#include "Engine/ECS.h"
+#include "Engine/OpenGLAPI/OpenGLWindow.h"
+#include "Engine/ResourceManager.h"
+#include "Engine/SceneStateMachine.h"
+#include "Engine/Shader.h"
+#include "Engine/Texture.h"
 #include "imgui_impl_opengl3.h"
 #include <Tracy.hpp>
 

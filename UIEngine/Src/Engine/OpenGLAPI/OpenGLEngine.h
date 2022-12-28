@@ -1,8 +1,8 @@
 #pragma once
 
-#include "BaseEngine.h"
-#include "ImGuiLayer.h"
-#include "OpenGl/OpenGLRenderer.h"
+#include "Engine/BaseEngine.h"
+#include "Engine/ImGuiLayer.h"
+#include "Engine/OpenGlAPI/OpenGLRenderer.h"
 
 class OpenGLEngine : BaseEngine
 {

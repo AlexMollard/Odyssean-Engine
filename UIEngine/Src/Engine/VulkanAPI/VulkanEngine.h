@@ -1,7 +1,10 @@
 #pragma once
 
-#include "BaseEngine.h"
+#include "Engine/BaseEngine.h"
 #include "VulkanRenderer.h"
+#include <vulkan/vulkan.hpp>
+
+struct GLFWwindow;
 
 class VulkanEngine : BaseEngine
 {
@@ -19,10 +22,19 @@ public:
 
 	void* GetWindow();
 
-	const VulkanRenderer* GetRenderer() const { return &m_renderer; }
+	const VulkanRenderer* GetRenderer() const { return &m_Renderer; }
 
 private:
+
+	GLFWwindow* window;
+
+	void InitWindow();
+	void InitVulkan();
+	void Cleanup();
+	void CreateInstance();
+
 	bool m_close = true;
 
-	VulkanRenderer m_renderer;
+	VulkanRenderer m_Renderer;
+	vk::Instance m_Instance;
 };

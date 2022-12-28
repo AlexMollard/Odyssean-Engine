@@ -1,8 +1,8 @@
 #pragma once
 // All the components that are included here for convenience
-#include "Text.h"
-#include "Quad.h"
-#include "Camera.h"
-#include "Velocity.h"
-#include "Transform.h"
-#include "Tag.h"
+#include "Components/Text.h"
+#include "Components/Quad.h"
+#include "Components/Camera.h"
+#include "Components/Velocity.h"
+#include "Components/Transform.h"
+#include "Components/Tag.h"

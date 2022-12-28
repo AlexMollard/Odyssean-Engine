@@ -1,6 +1,7 @@
+#include "pch.h"
 #include "TestingScene.h"
 
-#include "ECS.h"
+#include "Engine/ECS.h"
 #include "glm/gtc/noise.hpp"
 
 void TestingScene::Enter()

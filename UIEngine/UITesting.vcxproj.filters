@@ -15,7 +15,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Src\Engine.cpp">
+    <ClCompile Include="Src\Engine\Engine.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Src\Engine\ECS.cpp">
@@ -24,7 +24,7 @@
     <ClCompile Include="Src\Engine\ImGuiLayer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Src\Engine\pch.cpp">
+    <ClCompile Include="Src\pch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Src\Engine\Renderer2D.cpp">
@@ -51,27 +51,36 @@
     <ClCompile Include="Src\Engine\Texture.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Src\Engine\OpenGL\OpenGLWindow.cpp">
+    <ClCompile Include="Src\Engine\OpenGLAPI\OpenGLWindow.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Src\Engine\Vulkan\VulkanLayer.cpp">
+    <ClCompile Include="Src\Engine\VulkanAPI\VulkanWindow.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Src\Engine\OpenGL\OpenGLEngine.cpp">
+    <ClCompile Include="Src\Engine\OpenGLAPI\OpenGLEngine.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Src\Engine\Vulkan\VulkanEngine.cpp">
+    <ClCompile Include="Src\Engine\VulkanAPI\VulkanEngine.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Src\Engine\Vulkan\VulkanRenderer.cpp">
+    <ClCompile Include="Src\Engine\VulkanAPI\VulkanRenderer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Src\Engine\OpenGL\OpenGLRenderer.cpp">
+    <ClCompile Include="Src\Engine\OpenGLAPI\OpenGLRenderer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Scenes\TestingScene.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Scenes\VulkanScene.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Src\Engine.h">
+    <ClInclude Include="Src\Engine\Engine.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Src\Components\Camera.h">
@@ -104,9 +113,6 @@
     <ClInclude Include="Src\Engine\ImGuiLayer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Src\Engine\pch.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Src\Engine\Renderer2D.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -131,28 +137,37 @@
     <ClInclude Include="Src\Engine\Texture.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Src\Engine\OpenGL\OpenGLWindow.h">
+    <ClInclude Include="Src\Engine\OpenGLAPI\OpenGLWindow.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Src\Engine\Vulkan\VulkanLayer.h">
+    <ClInclude Include="Src\Engine\VulkanAPI\VulkanWindow.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Src\Engine\OpenGL\OpenGLEngine.h">
+    <ClInclude Include="Src\Engine\OpenGLAPI\OpenGLEngine.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Src\Engine\BaseEngine.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Src\Engine\Vulkan\VulkanEngine.h">
+    <ClInclude Include="Src\Engine\VulkanAPI\VulkanRenderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Src\Engine\Vulkan\VulkanRenderer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Src\Engine\OpenGL\OpenGLRenderer.h">
+    <ClInclude Include="Src\Engine\OpenGLAPI\OpenGLRenderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Src\Engine\BaseRenderer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Engine\VulkanAPI\VulkanEngine.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Scenes\TestingScene.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Scenes\VulkanScene.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\pch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

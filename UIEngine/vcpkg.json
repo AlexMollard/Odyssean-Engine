@@ -10,12 +10,12 @@
     "opengl",
     "freetype",
     "tracy",
-    "vulkan",
-    "vulkan-hpp",
+    "vulkan-headers",
     {
       "name": "imgui",
       "features": [
         "opengl3-binding",
+        "vulkan-binding",
         "glfw-binding",
         "docking-experimental"
       ]
