@@ -2,7 +2,8 @@
 // Wrappers and helper functions for imgui library
 #include "ECS.h"
 #include "imgui.h"
-#include <GLFW/glfw3.h>
+
+struct GLFWwindow;
 
 
 class ImGuiLayer

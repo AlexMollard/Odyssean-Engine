@@ -1,7 +1,8 @@
 #include "pch.h"
 
 #include "OpenGLWindow.h"
-
+#include "GL/glew.h"
+#include <GLFW/glfw3.h>
 #include "Tracy.hpp"
 #include "TracyOpenGL.hpp"
 

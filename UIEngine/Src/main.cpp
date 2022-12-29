@@ -12,7 +12,7 @@ int main()
 	// Memory leak detection
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
-	GraphicsAPI graphicsAPI = GraphicsAPI::OpenGL;
+	GraphicsAPI graphicsAPI = GraphicsAPI::Vulkan;
 
 	UIEngine::Engine engine = UIEngine::Engine();
 	engine.Init("UIEngine", 1920, 1080, graphicsAPI);

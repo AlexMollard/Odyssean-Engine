@@ -1,6 +1,4 @@
 #pragma once
-#include "gl/glew.h"
-#include <GLFW/glfw3.h>
 #include <string>
 
 class Texture
@@ -11,15 +9,15 @@ public:
 	Texture() = default;
 	~Texture();
 
-	void Bind() { glBindTexture(GL_TEXTURE_2D, m_TextureID); };
-	unsigned int GetID() { return m_TextureID; };
-	void SetID(unsigned int newID) { m_TextureID = newID; };
+	void Bind();
+	unsigned int GetID();
+	void SetID(unsigned int newID);
 
-	unsigned int GetWidth() { return m_Width; };
-	unsigned int GetHeight() { return m_Height; };
+	unsigned int GetWidth();
+	unsigned int GetHeight();
 
-	void SetWidth(unsigned int newWidth) { m_Width = newWidth; };
-	void SetHeight(unsigned int newHeight) { m_Height = newHeight; };
+	void SetWidth(unsigned int newWidth);
+	void SetHeight(unsigned int newHeight);
 
 	unsigned int m_TextureID = 0;
 	unsigned int m_Width     = 0;

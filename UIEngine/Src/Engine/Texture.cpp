@@ -1,7 +1,8 @@
 #include "pch.h"
 
 #include "Texture.h"
-
+#include "gl/glew.h"
+#include <GLFW/glfw3.h>
 #include "SOIL2/SOIL2.h"
 
 
@@ -22,3 +23,38 @@ Texture::Texture(std::string dir)
 Texture::Texture(unsigned int* id) : m_TextureID(*id) {}
 
 Texture::~Texture() = default;
+
+void Texture::Bind()
+{
+	glBindTexture(GL_TEXTURE_2D, m_TextureID);
+}
+
+unsigned int Texture::GetID()
+{
+	return m_TextureID;
+}
+
+void Texture::SetID(unsigned int newID)
+{
+	m_TextureID = newID;
+}
+
+unsigned int Texture::GetWidth()
+{
+	return m_Width;
+}
+
+unsigned int Texture::GetHeight()
+{
+	return m_Height;
+}
+
+void Texture::SetWidth(unsigned int newWidth)
+{
+	m_Width = newWidth;
+}
+
+void Texture::SetHeight(unsigned int newHeight)
+{
+	m_Height = newHeight;
+}

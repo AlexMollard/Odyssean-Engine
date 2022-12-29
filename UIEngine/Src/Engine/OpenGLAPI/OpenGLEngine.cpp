@@ -9,7 +9,7 @@
 #include "Engine/OpenGLAPI/OpenGLWindow.h"
 #include "Engine/ResourceManager.h"
 #include "Engine/SceneStateMachine.h"
-#include "Engine/Shader.h"
+#include "Engine/OpenGLAPI/ShaderOpenGL.h"
 #include "Engine/Texture.h"
 
 
@@ -20,7 +20,7 @@ OpenGLEngine::~OpenGLEngine()
 	ECS::Instance()->Destroy();
 }
 
-void OpenGLEngine::Init(const char* windowName, int width, int height)
+void OpenGLEngine::Initialize(const char* windowName, int width, int height)
 {
 	// Create Window
 	m_Window.Initialise(width, height, windowName);

@@ -6,6 +6,7 @@
 #include "imgui_impl_opengl3.h"
 #include "imgui_internal.h"
 #include <Tracy.hpp>
+#include <GLFW/glfw3.h>
 
 ImGuiLayer::~ImGuiLayer()
 {

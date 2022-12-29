@@ -7,7 +7,7 @@ public:
 	BaseEngine()  = default;
 	~BaseEngine() = default;
 
-	virtual void Init(const char* windowName, int width, int height) = 0;
+	virtual void Initialize(const char* windowName, int width, int height) = 0;
 
 	// Returns DT
 	virtual float Update() = 0;

@@ -2,7 +2,7 @@
 
 #include "Renderer2D.h"
 
-#include "Shader.h"
+#include "Engine/OpenGLAPI/ShaderOpenGL.h"
 #include "Texture.h"
 #include <Tracy.hpp>
 #include <algorithm>
@@ -19,7 +19,7 @@ static const size_t maxTextures    = 31;
 static unsigned int m_TextVAO;
 static unsigned int m_TextVBO;
 
-static Shader* m_TextShader;
+static ShaderOpenGL* m_TextShader;
 
 struct Vertex
 {
@@ -100,15 +100,15 @@ Renderer2D::~Renderer2D()
 void Renderer2D::Draw()
 {
 	ZoneScoped;
-	m_BasicShader->Use();
+	ShaderOpenGL::Use(*m_BasicShader);
 	float width  = 1920.0f;
 	float height = 1080.0f;
 
 	// Setup the projection matrix to be orthographic with 0 being bottom left
 	glm::mat4 projection = glm::ortho(0.0f, -width, 0.0f, -height, -100.0f, 100.0f);
 
-	m_BasicShader->setMat4("OrthoMatrix", projection);
-	m_BasicShader->setMat4("Model", glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f)));
+	ShaderOpenGL::setMat4(*m_BasicShader , "OrthoMatrix", projection);
+	ShaderOpenGL::setMat4(*m_BasicShader , "Model", glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f)));
 
 	EndBatch();
 	Flush();
@@ -152,8 +152,8 @@ void Renderer2D::DrawText(std::string text, glm::vec2 position, glm::vec4 color,
 	ZoneScoped;
 	glUseProgram(m_TextShader->GetID());
 
-	m_TextShader->setVec3("textColor", color);
-	m_TextShader->setMat4("projection", glm::ortho(0.0f, 1920.0f, 0.0f, 1080.0f));
+	ShaderOpenGL::setVec3(*m_TextShader, "textColor", color);
+	ShaderOpenGL::setMat4(*m_TextShader, "projection", glm::ortho(0.0f, 1920.0f, 0.0f, 1080.0f));
 
 	glBindVertexArray(m_TextVAO);
 	float x = position.x;
@@ -198,14 +198,14 @@ void Renderer2D::DrawText(std::string text, glm::vec2 position, glm::vec4 color,
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-void Renderer2D::Init(components::Camera* camera, Shader* basicShader, Shader* textShader)
+void Renderer2D::Init(components::Camera* camera, ShaderOpenGL* basicShader, ShaderOpenGL* textShader)
 {
 	m_Camera = camera;
 
 	m_BasicShader = basicShader;
 	m_TextShader  = textShader;
 
-	m_BasicShader->Use();
+	ShaderOpenGL::Use(*m_BasicShader);
 
 	auto loc = glGetUniformLocation(m_BasicShader->GetID(), "Textures");
 	int samplers[maxTextures];

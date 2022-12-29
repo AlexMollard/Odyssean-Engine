@@ -7,7 +7,7 @@
 #include <vector>
 
 
-class Shader;
+class ShaderOpenGL;
 class Texture;
 
 class Renderer2D
@@ -16,7 +16,7 @@ public:
 	Renderer2D() = default;
 	~Renderer2D();
 
-	void Init(components::Camera* camera, Shader* basicShader, Shader* textShader);
+	void Init(components::Camera* camera, ShaderOpenGL* basicShader, ShaderOpenGL* textShader);
 	void ShutDown();
 
 	void Draw();
@@ -31,12 +31,12 @@ public:
 
 private:
 	glm::vec3 currentColor  = glm::vec3(-404);
-	Shader* currentShader   = nullptr;
+	ShaderOpenGL* currentShader   = nullptr;
 	Texture* currentTexture = nullptr;
 
 	std::vector<Texture*> texturePool;
-	std::vector<Shader*> shaderPool;
+	std::vector<ShaderOpenGL*> shaderPool;
 
-	Shader* m_BasicShader;
+	ShaderOpenGL* m_BasicShader;
 	components::Camera* m_Camera;
 };

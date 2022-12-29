@@ -29,8 +29,8 @@ void TestingScene::Enter()
 	}
 
 	m_Renderer   = new Renderer2D();
-	m_litShader  = new Shader("LitShader", "../Resources/Shaders/lit.vert", "../Resources/Shaders/lit.frag");
-	m_textShader = new Shader("TextShader", "../Resources/Shaders/font.vert", "../Resources/Shaders/font.frag");
+	m_litShader  = new ShaderOpenGL("LitShader", "../Resources/Shaders/lit.vert", "../Resources/Shaders/lit.frag");
+	m_textShader = new ShaderOpenGL("TextShader", "../Resources/Shaders/font.vert", "../Resources/Shaders/font.frag");
 	m_Renderer->Init(nullptr, m_litShader, m_textShader);
 }
 

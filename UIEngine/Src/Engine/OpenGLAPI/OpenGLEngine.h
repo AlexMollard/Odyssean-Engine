@@ -10,7 +10,7 @@ public:
 	OpenGLEngine() = default;
 	~OpenGLEngine();
 
-	void Init(const char* windowName, int width, int height);
+	void Initialize(const char* windowName, int width, int height);
 
 	// Returns DT
 	float Update();

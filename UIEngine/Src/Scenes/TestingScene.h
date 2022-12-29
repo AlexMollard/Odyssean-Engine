@@ -4,7 +4,7 @@
 
 #include "Engine/Renderer2D.h"
 #include "Engine/Scene.h"
-#include "Engine/Shader.h"
+#include "Engine/OpenGLAPI/ShaderOpenGL.h"
 
 
 class TestingScene : public Scene
@@ -26,7 +26,7 @@ private:
 
 	glm::vec3 direction = glm::vec3(0.2f, 0.2f, 0.0f);
 
-	Shader* m_litShader    = nullptr;
-	Shader* m_textShader   = nullptr;
+	ShaderOpenGL* m_litShader    = nullptr;
+	ShaderOpenGL* m_textShader   = nullptr;
 	Renderer2D* m_Renderer = nullptr;
 };
