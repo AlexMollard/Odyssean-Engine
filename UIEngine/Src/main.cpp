@@ -1,16 +1,18 @@
 #include "pch.h"
 
-#include "Engine/Engine.h"
-#include "Engine/SceneStateMachine.h"
 #include "Scenes/TestingScene.h"
 #include "Scenes/VulkanScene.h"
+
+#include "Engine/Engine.h"
+#include "Engine/SceneStateMachine.h"
+
 
 int main()
 {
 	// Memory leak detection
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
-	GraphicsAPI graphicsAPI = GraphicsAPI::Vulkan;
+	GraphicsAPI graphicsAPI = GraphicsAPI::OpenGL;
 
 	UIEngine::Engine engine = UIEngine::Engine();
 	engine.Init("UIEngine", 1920, 1080, graphicsAPI);

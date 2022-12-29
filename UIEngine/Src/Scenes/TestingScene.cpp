@@ -1,8 +1,11 @@
 #include "pch.h"
+
 #include "TestingScene.h"
 
-#include "Engine/ECS.h"
 #include "glm/gtc/noise.hpp"
+
+#include "Engine/ECS.h"
+
 
 void TestingScene::Enter()
 {
@@ -21,8 +24,7 @@ void TestingScene::Enter()
 		for (int j = 0; j < quadsPerColumn; j++)
 		{
 			float noise = glm::perlin(glm::vec2(i, j) * 0.1f);
-			ECS::CreateQuad(glm::vec3((i * quadWidth) + 100, (j * quadHeight) + 100, 0.0f), glm::vec2(quadWidth, quadHeight),
-				glm::vec4(0.0f, noise, noise, 1.0f));
+			ECS::CreateQuad(glm::vec3((i * quadWidth) + 100, (j * quadHeight) + 100, 0.0f), glm::vec2(quadWidth, quadHeight), glm::vec4(0.0f, noise, noise, 1.0f));
 		}
 	}
 
@@ -46,9 +48,7 @@ void TestingScene::Draw(const BaseRenderer& renderer)
 	auto& world = ECS::GetWorldStatic();
 
 	flecs::filter<components::Quad, components::Transform> f = world.filter<components::Quad, components::Transform>();
-	f.each([this](components::Quad& q, components::Transform& t) {
-		m_Renderer->DrawQuad(t.GetPosition(), q.GetSize() * t.GetScale(), q.GetColor(), q.GetAnchorPoint(), 0);
-	});
+	f.each([this](components::Quad& q, components::Transform& t) { m_Renderer->DrawQuad(t.GetPosition(), q.GetSize() * t.GetScale(), q.GetColor(), q.GetAnchorPoint(), 0); });
 
 	m_Renderer->Draw();
 }

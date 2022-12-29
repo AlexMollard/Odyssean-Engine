@@ -3,8 +3,9 @@
 #include "Components/Quad.h"
 #include <freetype/freetype.h>
 #include <glm/glm.hpp>
-#include <vector>
 #include <string>
+#include <vector>
+
 
 class Shader;
 class Texture;

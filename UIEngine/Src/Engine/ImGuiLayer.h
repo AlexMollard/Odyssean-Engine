@@ -1,15 +1,16 @@
 #pragma once
 // Wrappers and helper functions for imgui library
-#include <GLFW/glfw3.h>
-#include "imgui.h"
 #include "ECS.h"
+#include "imgui.h"
+#include <GLFW/glfw3.h>
+
 
 class ImGuiLayer
 {
 public:
 	ImGuiLayer() = default;
 	~ImGuiLayer();
-	
+
 	void Init(GLFWwindow* window);
 
 	void SetStyle();

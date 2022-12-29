@@ -5,9 +5,7 @@ class Text
 {
 public:
 	Text() = default;
-	Text(const std::string& text, const std::string& font, float scale, const glm::vec4& color)
-	: m_Text(text), m_Font(font), m_Scale(scale), m_Color(color)
-	{}
+	Text(const std::string& text, const std::string& font, float scale, const glm::vec4& color) : m_Text(text), m_Font(font), m_Scale(scale), m_Color(color) {}
 	~Text() = default;
 
 	// Getters
@@ -26,8 +24,8 @@ public:
 
 	std::string m_Text;
 	std::string m_Font;
-	float m_Scale     = 1.0f;
-	glm::vec4 m_Color = glm::vec4(1.0f);
+	float m_Scale        = 1.0f;
+	glm::vec4 m_Color    = glm::vec4(1.0f);
 	glm::vec3 m_Position = glm::vec3(0.0f);
 };
 } // namespace components

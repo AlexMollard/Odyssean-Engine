@@ -170,5 +170,8 @@
     <ClInclude Include="Src\pch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Src\Engine\VulkanAPI\Vertex.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

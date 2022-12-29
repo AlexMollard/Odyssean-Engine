@@ -58,11 +58,9 @@ void ECS::Init()
 	m_World.component<components::Quad>();
 
 	// apply velocity to position
-	m_World.system<components::Velocity, components::Transform>("ApplyVelocity")
-		.kind(flecs::OnUpdate)
-		.each([&](flecs::entity e, components::Velocity& velocity, components::Transform& transform) {
-			transform.SetPosition(transform.GetPosition() + (velocity.GetVelocity() * delta_time()));
-		});
+	m_World.system<components::Velocity, components::Transform>("ApplyVelocity").kind(flecs::OnUpdate).each([&](flecs::entity e, components::Velocity& velocity, components::Transform& transform) {
+		transform.SetPosition(transform.GetPosition() + (velocity.GetVelocity() * delta_time()));
+	});
 }
 
 void ECS::Update()

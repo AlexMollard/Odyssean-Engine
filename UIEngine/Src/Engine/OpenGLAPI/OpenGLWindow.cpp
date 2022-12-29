@@ -12,7 +12,7 @@ OpenGLWindow::~OpenGLWindow()
 	Window_destroy();
 }
 
-void OpenGLWindow::Initialise(int width, int height, std::string_view name) 
+void OpenGLWindow::Initialise(int width, int height, std::string_view name)
 {
 	if (!Window_intit(width, height, name))
 	{

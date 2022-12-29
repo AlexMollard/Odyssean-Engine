@@ -25,7 +25,7 @@ public:
 	glm::vec2 m_Size = glm::vec2(10.0f);
 	glm::vec4 m_Color;
 	glm::vec2 m_AnchorPoint = glm::vec2(0.0f, 0.0f);
-	
+
 	unsigned int m_TextureID = 0;
 };
 } // namespace components

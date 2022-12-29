@@ -4,11 +4,12 @@
 
 #include "Shader.h"
 #include "Texture.h"
+#include <Tracy.hpp>
 #include <algorithm>
 #include <array>
 #include <iostream>
 #include <map>
-#include <Tracy.hpp>
+
 
 static const size_t maxQuadCount   = 2000;
 static const size_t maxVertexCount = maxQuadCount * 4;
@@ -311,15 +312,7 @@ void Renderer2D::Init(components::Camera* camera, Shader* basicShader, Shader* t
 		unsigned int glyphTexture;
 		glGenTextures(1, &glyphTexture);
 		glBindTexture(GL_TEXTURE_2D, glyphTexture);
-		glTexImage2D(GL_TEXTURE_2D,
-			0,
-			GL_RED,
-			face->glyph->bitmap.width,
-			face->glyph->bitmap.rows,
-			0,
-			GL_RED,
-			GL_UNSIGNED_BYTE,
-			face->glyph->bitmap.buffer);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, face->glyph->bitmap.width, face->glyph->bitmap.rows, 0, GL_RED, GL_UNSIGNED_BYTE, face->glyph->bitmap.buffer);
 
 		// set texture options
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);

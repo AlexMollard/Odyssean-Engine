@@ -11,14 +11,14 @@ Audio::Audio()
 {
 	ERRCHECK(FMOD::Studio::System::create(&system), -0); // Create the main system object.
 	context.system = system;
-	
+
 	// Retrieving the Core system
 	ERRCHECK(system->getCoreSystem(&coreSystem), -2);
 	// Initializing the core system
 	ERRCHECK(coreSystem->setSoftwareFormat(0, FMOD_SPEAKERMODE_5POINT1, 0), -3);
 	context.coreSystem = coreSystem;
 	ERRCHECK(system->initialize(512, FMOD_STUDIO_INIT_NORMAL | FMOD_STUDIO_INIT_LIVEUPDATE, FMOD_INIT_NORMAL, 0), -4);
-	
+
 	auto s = Common_MediaPath("Audio\\Desktop\\Master.bank");
 	ERRCHECK(system->loadBankFile(s, FMOD_STUDIO_LOAD_BANK_NORMAL, &masterBank), -5);
 	free((void*)s);
@@ -54,7 +54,6 @@ Audio::~Audio()
 	coreSystem->release();
 	coreSystem = NULL;
 }
-
 
 void Audio::AudioInit()
 {
@@ -99,13 +98,13 @@ const char* Audio::Common_MediaPath(const char* fileName)
 		}
 	}
 
-	strcat_s(filePath, 256,pathPrefix);
+	strcat_s(filePath, 256, pathPrefix);
 	strcat_s(filePath, 256, fileName);
 
 	return filePath;
 }
 
-void Audio::ERRCHECK(FMOD_RESULT result, int errorCode) 
+void Audio::ERRCHECK(FMOD_RESULT result, int errorCode)
 {
 	if (result != FMOD_OK)
 	{
@@ -114,14 +113,11 @@ void Audio::ERRCHECK(FMOD_RESULT result, int errorCode)
 	}
 }
 
-void Audio::PlayProgrammerSound() 
+void Audio::PlayProgrammerSound()
 {
 	ERRCHECK(programmerInstance->setUserData(&context), -7);
 	// Assign the callback
-	ERRCHECK(programmerInstance->setCallback(programmerSoundCallback,
-				 FMOD_STUDIO_EVENT_CALLBACK_CREATE_PROGRAMMER_SOUND | FMOD_STUDIO_EVENT_CALLBACK_DESTROY_PROGRAMMER_SOUND |
-					 FMOD_STUDIO_EVENT_CALLBACK_SOUND_STOPPED),
-						-8);
+	ERRCHECK(programmerInstance->setCallback(programmerSoundCallback, FMOD_STUDIO_EVENT_CALLBACK_CREATE_PROGRAMMER_SOUND | FMOD_STUDIO_EVENT_CALLBACK_DESTROY_PROGRAMMER_SOUND | FMOD_STUDIO_EVENT_CALLBACK_SOUND_STOPPED), -8);
 
 	// Play the programmer sound
 	ERRCHECK(programmerInstance->start(), -9);
@@ -145,8 +141,7 @@ FMOD_RESULT F_CALLBACK programmerSoundCallback(FMOD_STUDIO_EVENT_CALLBACK_TYPE t
 			exit(-13);
 
 		FMOD::Sound* sound = NULL;
-		context->coreSystem->createSound(context->filePath.c_str(),
-			FMOD_LOOP_NORMAL | FMOD_CREATECOMPRESSEDSAMPLE | FMOD_NONBLOCKING, 0, &sound);
+		context->coreSystem->createSound(context->filePath.c_str(), FMOD_LOOP_NORMAL | FMOD_CREATECOMPRESSEDSAMPLE | FMOD_NONBLOCKING, 0, &sound);
 
 		// Pass the sound to FMOD
 		props->sound         = (FMOD_SOUND*)sound;

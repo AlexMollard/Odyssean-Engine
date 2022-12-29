@@ -11,7 +11,7 @@ class Tag
 	char m_Name[256];
 
 public:
-	Tag() = default;
+	Tag()  = default;
 	~Tag() = default;
 
 	// Getters

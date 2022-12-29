@@ -83,7 +83,7 @@ void Engine::Render()
 	}
 }
 
-const void* Engine::GetRenderer() 
+const void* Engine::GetRenderer()
 {
 	if (m_graphicsAPI == GraphicsAPI::OpenGL)
 	{

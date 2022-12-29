@@ -18,6 +18,6 @@ public:
 
 	Velocity(float x, float y, float z) : x(x), y(y) {}
 
-	glm::vec2 GetVelocity() const { return {x, y}; }
+	glm::vec2 GetVelocity() const { return { x, y }; }
 };
 } // namespace components

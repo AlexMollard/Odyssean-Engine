@@ -10,7 +10,6 @@
     "opengl",
     "freetype",
     "tracy",
-    "vulkan-headers",
     {
       "name": "imgui",
       "features": [

@@ -32,10 +32,7 @@ public:
 	}
 
 	// So far only used for shaders
-	std::shared_ptr<T> Load(const std::string& filename, const std::string& secondFileName)
-	{
-		return Load(std::string(filename), (void*)secondFileName.c_str());
-	}
+	std::shared_ptr<T> Load(const std::string& filename, const std::string& secondFileName) { return Load(std::string(filename), (void*)secondFileName.c_str()); }
 
 	std::shared_ptr<T> Load(std::shared_ptr<T> resource)
 	{

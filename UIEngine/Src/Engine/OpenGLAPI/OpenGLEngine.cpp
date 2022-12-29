@@ -2,14 +2,16 @@
 
 #include "OpenGLEngine.h"
 
+#include "imgui_impl_opengl3.h"
+#include <Tracy.hpp>
+
 #include "Engine/ECS.h"
 #include "Engine/OpenGLAPI/OpenGLWindow.h"
 #include "Engine/ResourceManager.h"
 #include "Engine/SceneStateMachine.h"
 #include "Engine/Shader.h"
 #include "Engine/Texture.h"
-#include "imgui_impl_opengl3.h"
-#include <Tracy.hpp>
+
 
 static OpenGLWindow m_Window;
 

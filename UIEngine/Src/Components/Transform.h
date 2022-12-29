@@ -14,9 +14,7 @@ public:
 	Transform() = default;
 
 	// Constructor
-	Transform(const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale)
-	: m_Position(position), m_Rotation(rotation), m_Scale(scale)
-	{}
+	Transform(const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale) : m_Position(position), m_Rotation(rotation), m_Scale(scale) {}
 
 	// Destructor
 	~Transform() = default;

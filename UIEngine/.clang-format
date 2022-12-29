@@ -46,7 +46,7 @@ BreakConstructorInitializers: BeforeComma
 BreakAfterJavaFieldAnnotations: false
 BreakStringLiterals: true
 PackConstructorInitializers: NextLine
-ColumnLimit: 138 #able to have 2 panes open in VS side by side with a side pane on a 4k monitor with 150% text size
+ColumnLimit: 238
 CommentPragmas: "^ IWYU pragma:"
 CompactNamespaces: true
 ConstructorInitializerIndentWidth: 0
