@@ -9,7 +9,6 @@
     "flecs",
     "opengl",
     "freetype",
-    "tracy",
     {
       "name": "imgui",
       "features": [

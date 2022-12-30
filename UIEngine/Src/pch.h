@@ -16,5 +16,8 @@
 #include <glm/glm.hpp>
 #include <glm/gtx/quaternion.hpp>
 
-// include glew
-#include <GL/glew.h>
+#ifdef _DEBUG
+#define _NEW new (_NORMAL_BLOCK, __FILE__, __LINE__)
+#else
+#define _NEW new
+#endif

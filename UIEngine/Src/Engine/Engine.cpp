@@ -13,14 +13,14 @@ void Engine::Init(const char* windowName, int width, int height, GraphicsAPI gra
 	m_graphicsAPI = graphicsAPI;
 	if (graphicsAPI == GraphicsAPI::OpenGL)
 	{
-		auto engine = new OpenGLEngine;
+		auto engine = _NEW OpenGLEngine;
 		engine->Initialize(windowName, width, height);
 		m_engine = engine;
 		m_close  = false;
 	}
 	else if (graphicsAPI == GraphicsAPI::Vulkan)
 	{
-		auto engine = new VulkanEngine;
+		auto engine = _NEW VulkanEngine;
 		engine->Initialize(windowName, width, height);
 		m_engine = engine;
 		m_close  = false;

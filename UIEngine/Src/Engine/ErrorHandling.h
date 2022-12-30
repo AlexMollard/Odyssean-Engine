@@ -35,6 +35,9 @@
 	}
 #endif
 
+// Warning but not with file info
+#define S_WARN_NO_FILE(message) std::clog << "\nWARN: " << message << '\n';
+
 #if defined(__clang__)
 // BreakPoint on line and output in console just in case
 #define S_ASSERT(inValue, message)

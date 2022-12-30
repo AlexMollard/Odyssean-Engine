@@ -3,7 +3,6 @@
 #include "OpenGLEngine.h"
 
 #include "imgui_impl_opengl3.h"
-#include <Tracy.hpp>
 
 #include "Engine/ECS.h"
 #include "Engine/OpenGLAPI/OpenGLWindow.h"
@@ -44,7 +43,6 @@ float OpenGLEngine::Update()
 		return -FLT_MAX;
 	}
 
-	ZoneScopedN("Frame");
 	// Update Window
 	m_Window.Update_Window();
 	float dt = m_Window.GetDeltaTime();
@@ -66,7 +64,6 @@ void OpenGLEngine::Render()
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
 	m_ImguiLayer.UpdateViewPorts();
-	FrameMark;
 }
 
 void* OpenGLEngine::GetWindow()

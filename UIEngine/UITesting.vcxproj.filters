@@ -42,9 +42,6 @@
     <ClCompile Include="Src\Engine\SceneStateMachine.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Src\Engine\Shader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Src\Engine\TextComponent.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -76,6 +73,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Src\Scenes\VulkanScene.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Engine\VulkanAPI\VkBootstrap.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Engine\OpenGLAPI\ShaderOpenGL.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -128,9 +131,6 @@
     <ClInclude Include="Src\Engine\SceneStateMachine.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Src\Engine\Shader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Src\Engine\TextComponent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -171,6 +171,18 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Src\Engine\VulkanAPI\Vertex.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Engine\VulkanAPI\common.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Engine\VulkanAPI\VkBootstrap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Engine\VulkanAPI\VkBootstrapDispatch.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Engine\OpenGLAPI\ShaderOpenGL.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

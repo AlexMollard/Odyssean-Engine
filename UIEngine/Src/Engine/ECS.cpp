@@ -3,20 +3,17 @@
 #include "ECS.h"
 
 #include "imgui.h"
-#include <Tracy.hpp>
 
 static int s_IDIncrementor = 0;
 
 ECS* ECS::s_Instance = nullptr;
 flecs::entity ECS::CreateEntity()
 {
-	ZoneScoped;
 	return m_World.entity();
 }
 
 flecs::entity& ECS::CreateQuad(const glm::vec3& position, const glm::vec2& size, const glm::vec4& color)
 {
-	ZoneScoped;
 	std::ostringstream out;
 	out << "Quad: " << s_IDIncrementor++;
 
@@ -35,7 +32,6 @@ flecs::entity& ECS::CreateQuad(const glm::vec3& position, const glm::vec2& size,
 
 flecs::entity& ECS::CreateText(const std::string& inText, const glm::vec3& position, const glm::vec4& color)
 {
-	ZoneScoped;
 	std::ostringstream out;
 	out << "Text: " << s_IDIncrementor++;
 
@@ -65,14 +61,12 @@ void ECS::Init()
 
 void ECS::Update()
 {
-	ZoneScopedN("ECS Update");
 	// Update the ECS
 	m_World.progress();
 
 	// Fps counter
 	ImGui::Begin("Stats");
 	{
-		ZoneScopedN("Stats");
 		const ecs_world_info_t* stats = ecs_get_world_info(m_World);
 
 		m_FPS = 1.0f / stats->delta_time;

@@ -5,7 +5,6 @@
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 #include "imgui_internal.h"
-#include <Tracy.hpp>
 #include <GLFW/glfw3.h>
 
 ImGuiLayer::~ImGuiLayer()
@@ -110,7 +109,6 @@ void ImGuiLayer::SetStyle()
 
 void ImGuiLayer::NewFrame()
 {
-	ZoneScopedN("ImGui New Frame");
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
@@ -136,7 +134,6 @@ void ImGuiLayer::NewFrame()
 
 	ImGui::Begin("Hierarchy");
 	{
-		ZoneScopedN("ImGui Hierarchy");
 		q.each([&](components::Tag& t) { DrawEntity(t); });
 	}
 	ImGui::End();
@@ -144,7 +141,6 @@ void ImGuiLayer::NewFrame()
 
 void ImGuiLayer::DrawEntity(components::Tag& tag)
 {
-	ZoneScopedN("Hierarchy Draw Entity");
 	// Making sure the transforms id are different so we can edit them individually
 	ImGui::PushID(&tag);
 	ImGui::Spacing();
@@ -191,7 +187,6 @@ void ImGuiLayer::DrawEntity(components::Tag& tag)
 
 void ImGuiLayer::UpdateViewPorts()
 {
-	ZoneScopedN("UpdateViewPorts");
 	// Update and Render additional Platform Windows
 	// (Platform functions may change the current OpenGL context, so we save/restore it to make it easier to paste this code elsewhere.
 	//  For this specific demo app we could also call glfwMakeContextCurrent(window) directly)

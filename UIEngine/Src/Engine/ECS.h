@@ -11,7 +11,7 @@ public:
 	{
 		if (s_Instance == nullptr)
 		{
-			s_Instance = new ECS();
+			s_Instance = _NEW ECS();
 		}
 		return s_Instance;
 	}

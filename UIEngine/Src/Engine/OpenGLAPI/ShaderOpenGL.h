@@ -3,6 +3,7 @@
 #include "glm/glm.hpp"
 
 #include "Engine/Resource.h"
+#include <GL/glew.h>
 
 class ShaderOpenGL : public Resource
 {

@@ -2,17 +2,17 @@
 
 #include "Scenes/TestingScene.h"
 #include "Scenes/VulkanScene.h"
+#include <crtdbg.h>
 
 #include "Engine/Engine.h"
 #include "Engine/SceneStateMachine.h"
 
-
 int main()
 {
-	// Memory leak detection
+	//Turn on debugging for memory leaks. This is automatically turned off when the build is Release.
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
-	GraphicsAPI graphicsAPI = GraphicsAPI::Vulkan;
+	GraphicsAPI graphicsAPI = GraphicsAPI::OpenGL;
 
 	UIEngine::Engine engine = UIEngine::Engine();
 	engine.Init("UIEngine", 1920, 1080, graphicsAPI);
@@ -24,9 +24,9 @@ int main()
 
 	// Create a new scene based on the graphics API and get renderer
 	if (graphicsAPI == GraphicsAPI::OpenGL)
-		scene = new TestingScene("TestingScene");
+		scene = _NEW TestingScene("TestingScene");
 	else if (graphicsAPI == GraphicsAPI::Vulkan)
-		scene = new VulkanScene("Vulkan Scene");
+		scene = _NEW VulkanScene("Vulkan Scene");
 
 	stateMachine.AddScene(scene);
 	stateMachine.SetCurrentScene(scene);

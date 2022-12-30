@@ -320,7 +320,7 @@ int create_graphics_pipeline(Init& init, RenderData& data)
 
 	if (init->vkCreateGraphicsPipelines(init.device, VK_NULL_HANDLE, 1, &pipeline_info, nullptr, &data.graphics_pipeline) != VK_SUCCESS)
 	{
-		std::cout << "failed to create pipline\n";
+		std::cout << "failed to create pipeline\n";
 		return -1; // failed to create graphics pipeline
 	}
 
@@ -602,8 +602,8 @@ VulkanEngine::~VulkanEngine()
 
 void VulkanEngine::Initialize(const char* windowName, int width, int height)
 {
-	init = new Init();
-	render_data = new RenderData();
+	init        = _NEW Init();
+	render_data = _NEW RenderData();
 
 	if (0 != device_initialization(*init))
 		return;

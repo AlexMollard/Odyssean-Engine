@@ -4,7 +4,6 @@
 
 #include "Engine/OpenGLAPI/ShaderOpenGL.h"
 #include "Texture.h"
-#include <Tracy.hpp>
 #include <algorithm>
 #include <array>
 #include <iostream>
@@ -99,7 +98,6 @@ Renderer2D::~Renderer2D()
 
 void Renderer2D::Draw()
 {
-	ZoneScoped;
 	ShaderOpenGL::Use(*m_BasicShader);
 	float width  = 1920.0f;
 	float height = 1080.0f;
@@ -117,7 +115,6 @@ void Renderer2D::Draw()
 
 void Renderer2D::DrawQuad(glm::vec2 position, glm::vec2 size, glm::vec4 color, glm::vec2 anchorPoint, const unsigned int texId)
 {
-	ZoneScoped;
 	if (data.indexCount >= maxIndexCount)
 	{
 		EndBatch();
@@ -149,7 +146,6 @@ void Renderer2D::DrawQuad(glm::vec2 position, glm::vec2 size, glm::vec4 color, g
 
 void Renderer2D::DrawText(std::string text, glm::vec2 position, glm::vec4 color, float scale, std::string font)
 {
-	ZoneScoped;
 	glUseProgram(m_TextShader->GetID());
 
 	ShaderOpenGL::setVec3(*m_TextShader, "textColor", color);
@@ -214,7 +210,7 @@ void Renderer2D::Init(components::Camera* camera, ShaderOpenGL* basicShader, Sha
 
 	glUniform1iv(loc, maxTextures, samplers);
 
-	data.quadBuffer = new Vertex[maxVertexCount];
+	data.quadBuffer = _NEW Vertex[maxVertexCount];
 	BeginBatch();
 
 	glCreateVertexArrays(1, &data.quadVA);

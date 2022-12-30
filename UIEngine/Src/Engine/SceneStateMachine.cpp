@@ -3,7 +3,6 @@
 #include "SceneStateMachine.h"
 
 #include "Scene.h"
-#include "tracy/Tracy.hpp"
 
 // Add a scene to the state machine.
 void SceneStateMachine::AddScene(Scene* scene)
@@ -55,14 +54,12 @@ Scene* SceneStateMachine::GetCurrentScene() const
 
 void SceneStateMachine::Update(float deltaTime)
 {
-	ZoneScopedN("StateMachine Update");
 	if (currentScene)
 		currentScene->Update(deltaTime);
 }
 
 void SceneStateMachine::Render(const BaseRenderer& renderer)
 {
-	ZoneScopedN("StateMachine Render");
 	if (currentScene)
 		currentScene->Draw(renderer);
 }

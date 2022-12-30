@@ -1,10 +1,9 @@
 #include "pch.h"
 
 #include "OpenGLWindow.h"
+
 #include "GL/glew.h"
 #include <GLFW/glfw3.h>
-#include "Tracy.hpp"
-#include "TracyOpenGL.hpp"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
@@ -58,24 +57,15 @@ int OpenGLWindow::Window_intit(int width, int height, std::string_view name)
 
 	// Outputting OpenGL Version and build
 	std::cout << "OpenGL Version: " << glGetString(GL_VERSION) << std::endl;
-	TracyGpuContext;
 
 	return 1;
 }
 
 void OpenGLWindow::Update_Window()
 {
-	ZoneScopedN("window Update");
+	glfwSwapBuffers(window);
 
-	{
-		ZoneScopedN("SwapBuffers");
-		glfwSwapBuffers(window);
-	}
-
-	{
-		ZoneScopedN("glfwPollEvents");
-		glfwPollEvents();
-	}
+	glfwPollEvents();
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
