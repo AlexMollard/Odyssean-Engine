@@ -9,6 +9,7 @@
     "flecs",
     "opengl",
     "freetype",
+    "assimp",
     {
       "name": "imgui",
       "features": [

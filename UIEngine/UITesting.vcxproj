@@ -70,12 +70,12 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;_CRTDBG_MAP_ALLOC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;_CRTDBG_MAP_ALLOC;STB_IMAGE_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <AdditionalIncludeDirectories>Src;vcpkg_installed\x64-windows-static\x64-windows-static\include;vcpkg_installed\x64-windows-static\x64-windows-static\include\tracy;C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\core\inc;C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\fsbank\inc;C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\studio\inc;C:\VulkanSDK\1.3.236.0\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>Src;Src\Engine\VulkanAPI\vk;vcpkg_installed\x64-windows-static\x64-windows-static\include;vcpkg_installed\x64-windows-static\x64-windows-static\include\tracy;C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\core\inc;C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\fsbank\inc;C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\studio\inc;C:\VulkanSDK\1.3.236.0\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
       <EnableModules>true</EnableModules>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
@@ -111,7 +111,7 @@ xcopy /y "C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\co
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
-      <AdditionalIncludeDirectories>Src;vcpkg_installed\x64-windows-static\x64-windows-static\include;vcpkg_installed\x64-windows-static\x64-windows-static\include\tracy;C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\core\inc;C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\fsbank\inc;C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\studio\inc;C:\VulkanSDK\1.3.236.0\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>Src;Src\Engine\VulkanAPI\vk;vcpkg_installed\x64-windows-static\x64-windows-static\include;vcpkg_installed\x64-windows-static\x64-windows-static\include\tracy;C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\core\inc;C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\fsbank\inc;C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\studio\inc;C:\VulkanSDK\1.3.236.0\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
       <EnableModules>true</EnableModules>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
@@ -133,8 +133,16 @@ xcopy /y "C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\co
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Src\Engine\VulkanAPI\common.h" />
+    <ClInclude Include="Src\Engine\VulkanAPI\ShaderVulkan.h" />
+    <ClInclude Include="Src\Engine\VulkanAPI\Vertex.h" />
     <ClInclude Include="Src\Engine\VulkanAPI\VkBootstrap.h" />
     <ClInclude Include="Src\Engine\VulkanAPI\VkBootstrapDispatch.h" />
+    <ClInclude Include="Src\Engine\VulkanAPI\VkTypes.h" />
+    <ClInclude Include="Src\Engine\VulkanAPI\vk_mem_alloc.h" />
+    <ClInclude Include="Src\Engine\VulkanAPI\VulkanEngine.h" />
+    <ClInclude Include="Src\Engine\VulkanAPI\VulkanInit.h" />
+    <ClInclude Include="Src\Engine\VulkanAPI\VulkanRenderer.h" />
+    <ClInclude Include="Src\Engine\VulkanAPI\VulkanWindow.h" />
     <ClInclude Include="Src\pch.h" />
     <ClInclude Include="Src\Engine\BaseRenderer.h" />
     <ClInclude Include="Src\Engine\OpenGLAPI\OpenGLRenderer.h" />
@@ -160,15 +168,17 @@ xcopy /y "C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\co
     <ClInclude Include="Src\Engine\TextComponent.h" />
     <ClInclude Include="Src\Engine\Texture.h" />
     <ClInclude Include="Src\Engine\OpenGLAPI\OpenGLWindow.h" />
-    <ClInclude Include="Src\Engine\VulkanAPI\VulkanEngine.h" />
-    <ClInclude Include="Src\Engine\VulkanAPI\VulkanWindow.h" />
-    <ClInclude Include="Src\Engine\VulkanAPI\VulkanRenderer.h" />
     <ClInclude Include="Src\Scenes\TestingScene.h" />
     <ClInclude Include="Src\Scenes\VulkanScene.h" />
-    <ClInclude Include="Src\Engine\VulkanAPI\Vertex.h" />
+    <ClInclude Include="Src\Engine\VulkanAPI\VkMesh.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Src\Engine\VulkanAPI\ShaderVulkan.cpp" />
     <ClCompile Include="Src\Engine\VulkanAPI\VkBootstrap.cpp" />
+    <ClCompile Include="Src\Engine\VulkanAPI\VulkanEngine.cpp" />
+    <ClCompile Include="Src\Engine\VulkanAPI\VulkanInit.cpp" />
+    <ClCompile Include="Src\Engine\VulkanAPI\VulkanRenderer.cpp" />
+    <ClCompile Include="Src\Engine\VulkanAPI\VulkanWindow.cpp" />
     <ClCompile Include="Src\main.cpp" />
     <ClCompile Include="Src\Engine\OpenGLAPI\OpenGLRenderer.cpp" />
     <ClCompile Include="Src\Engine\OpenGLAPI\OpenGLEngine.cpp" />
@@ -185,11 +195,9 @@ xcopy /y "C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\co
     <ClCompile Include="Src\Engine\TextComponent.cpp" />
     <ClCompile Include="Src\Engine\Texture.cpp" />
     <ClCompile Include="Src\Engine\OpenGLAPI\OpenGLWindow.cpp" />
-    <ClCompile Include="Src\Engine\VulkanAPI\VulkanWindow.cpp" />
-    <ClCompile Include="Src\Engine\VulkanAPI\VulkanEngine.cpp" />
-    <ClCompile Include="Src\Engine\VulkanAPI\VulkanRenderer.cpp" />
     <ClCompile Include="Src\Scenes\TestingScene.cpp" />
     <ClCompile Include="Src\Scenes\VulkanScene.cpp" />
+    <ClCompile Include="Src\Engine\VulkanAPI\VkMesh.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />
