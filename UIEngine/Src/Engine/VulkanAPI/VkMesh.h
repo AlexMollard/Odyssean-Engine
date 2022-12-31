@@ -87,12 +87,25 @@ struct Mesh
 	// Destructor
 	void Destroy(VkDevice& device)
 	{
-		// Free the buffers
-		vkDestroyBuffer(device, vertexBuffer.buffer, nullptr);
-		vkFreeMemory(device, vertexBuffer.memory, nullptr);
+		vk::Device vk_device = device;
 
-		vkDestroyBuffer(device, indexBuffer.buffer, nullptr);
-		vkFreeMemory(device, indexBuffer.memory, nullptr);
+		// Free the buffers
+		vk_device.freeMemory(vertexBuffer.memory);
+		vk_device.destroyBuffer(vertexBuffer.buffer);
+		vk_device.freeMemory(indexBuffer.memory);
+		vk_device.destroyBuffer(indexBuffer.buffer);
+
+		// Free the descriptor set
+		vk_device.freeMemory(modelMatrixBuffer.memory);
+		vk_device.destroyBuffer(modelMatrixBuffer.buffer);
+		vk_device.destroyDescriptorPool(descriptorPool);
+		vk_device.destroyDescriptorSetLayout(descriptorSetLayout);
+
+		// Destroy the texture
+		vk_device.destroyImage(texture.image);
+		vk_device.freeMemory(texture.memory);
+		vk_device.destroyImageView(texture.imageView);
+		vk_device.destroySampler(texture.sampler);
 	}
 
 	void AddToCommandBuffer(vk::CommandBuffer& commandBuffer, vk::PipelineLayout& pipelineLayout)

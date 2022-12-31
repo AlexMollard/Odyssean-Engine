@@ -8,7 +8,7 @@ struct Init
 	GLFWwindow* window;
 	VulkanLibrary vk_lib;
 	vkb::Instance instance;
-	VkSurfaceKHR surface;
+	vk::SurfaceKHR surface;
 	vkb::Device device;
 	vkb::Swapchain swapchain;
 	//convenience
@@ -17,32 +17,29 @@ struct Init
 
 struct RenderData
 {
-	VkQueue graphics_queue;
-	VkQueue present_queue;
+	vk::Queue graphics_queue;
+	vk::Queue present_queue;
 
 	std::vector<VkImage> swapchain_images;
 	std::vector<VkImageView> swapchain_image_views;
 	std::vector<VkFramebuffer> framebuffers;
 
-	VkRenderPass render_pass;
-	VkPipelineLayout pipeline_layout;
-	VkPipeline graphics_pipeline;
+	vk::RenderPass render_pass;
+	vk::PipelineLayout pipeline_layout;
+	vk::Pipeline graphics_pipeline;
 
 	vk::DescriptorSetLayout descriptor_set_layout;
 
-	VkCommandPool command_pool;
-	std::vector<VkCommandBuffer> command_buffers;
+	vk::CommandPool command_pool;
+	std::vector<vk::CommandBuffer> command_buffers;
 
 	// Descrpitor Sets
 	std::vector<VkDescriptorSet> descriptorSets;
 
-	// Uniform Buffers
-	std::vector<VkBuffer> uniform_buffers;
-
-	std::vector<VkSemaphore> available_semaphores;
-	std::vector<VkSemaphore> finished_semaphore;
-	std::vector<VkFence> in_flight_fences;
-	std::vector<VkFence> image_in_flight;
+	std::vector<vk::Semaphore> available_semaphores;
+	std::vector<vk::Semaphore> finished_semaphore;
+	std::vector<vk::Fence> in_flight_fences;
+	std::vector<vk::Fence> image_in_flight;
 	size_t current_frame = 0;
 };
 

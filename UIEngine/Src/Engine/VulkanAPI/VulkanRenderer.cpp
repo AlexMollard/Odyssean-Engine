@@ -95,47 +95,51 @@ int VulkanRenderer::GetQueues(Init& init, RenderData& data)
 
 int VulkanRenderer::CreateRenderPass(Init& init, RenderData& data)
 {
-	VkAttachmentDescription color_attachment = {};
-	color_attachment.format                  = init.swapchain.image_format;
-	color_attachment.samples                 = VK_SAMPLE_COUNT_1_BIT;
-	color_attachment.loadOp                  = VK_ATTACHMENT_LOAD_OP_CLEAR;
-	color_attachment.storeOp                 = VK_ATTACHMENT_STORE_OP_STORE;
-	color_attachment.stencilLoadOp           = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-	color_attachment.stencilStoreOp          = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-	color_attachment.initialLayout           = VK_IMAGE_LAYOUT_UNDEFINED;
-	color_attachment.finalLayout             = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+	vk::Device device = init.device.device;
 
-	VkAttachmentReference color_attachment_ref = {};
-	color_attachment_ref.attachment            = 0;
-	color_attachment_ref.layout                = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+	vk::AttachmentDescription color_attachment = {};
+	color_attachment.format                    = (vk::Format)init.swapchain.image_format;
+	color_attachment.samples                   = vk::SampleCountFlagBits::e1;
+	color_attachment.loadOp                    = vk::AttachmentLoadOp::eClear;
+	color_attachment.storeOp                   = vk::AttachmentStoreOp::eStore;
+	color_attachment.stencilLoadOp             = vk::AttachmentLoadOp::eDontCare;
+	color_attachment.stencilStoreOp            = vk::AttachmentStoreOp::eDontCare;
+	color_attachment.initialLayout             = vk::ImageLayout::eUndefined;
+	color_attachment.finalLayout               = vk::ImageLayout::ePresentSrcKHR;
 
-	VkSubpassDescription subpass = {};
-	subpass.pipelineBindPoint    = VK_PIPELINE_BIND_POINT_GRAPHICS;
-	subpass.colorAttachmentCount = 1;
-	subpass.pColorAttachments    = &color_attachment_ref;
+	vk::AttachmentReference color_attachment_ref = {};
+	color_attachment_ref.attachment              = 0;
+	color_attachment_ref.layout                  = vk::ImageLayout::eColorAttachmentOptimal;
 
-	VkSubpassDependency dependency = {};
-	dependency.srcSubpass          = VK_SUBPASS_EXTERNAL;
-	dependency.dstSubpass          = 0;
-	dependency.srcStageMask        = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-	dependency.srcAccessMask       = 0;
-	dependency.dstStageMask        = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-	dependency.dstAccessMask       = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+	vk::SubpassDescription subpass = {};
+	subpass.pipelineBindPoint      = vk::PipelineBindPoint::eGraphics;
+	subpass.colorAttachmentCount   = 1;
+	subpass.pColorAttachments      = &color_attachment_ref;
 
-	VkRenderPassCreateInfo render_pass_info = {};
-	render_pass_info.sType                  = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-	render_pass_info.attachmentCount        = 1;
-	render_pass_info.pAttachments           = &color_attachment;
-	render_pass_info.subpassCount           = 1;
-	render_pass_info.pSubpasses             = &subpass;
-	render_pass_info.dependencyCount        = 1;
-	render_pass_info.pDependencies          = &dependency;
+	vk::SubpassDependency dependency = {};
+	dependency.srcSubpass            = VK_SUBPASS_EXTERNAL;
+	dependency.dstSubpass            = 0;
+	dependency.srcStageMask          = vk::PipelineStageFlagBits::eColorAttachmentOutput;
+	dependency.srcAccessMask         = {};
+	dependency.dstStageMask          = vk::PipelineStageFlagBits::eColorAttachmentOutput;
+	dependency.dstAccessMask         = vk::AccessFlagBits::eColorAttachmentRead | vk::AccessFlagBits::eColorAttachmentWrite;
 
-	if (init->vkCreateRenderPass(init.device, &render_pass_info, nullptr, &data.render_pass) != VK_SUCCESS)
+	vk::RenderPassCreateInfo render_pass_info = {};
+	render_pass_info.attachmentCount          = 1;
+	render_pass_info.pAttachments             = &color_attachment;
+	render_pass_info.subpassCount             = 1;
+	render_pass_info.pSubpasses               = &subpass;
+	render_pass_info.dependencyCount          = 1;
+	render_pass_info.pDependencies            = &dependency;
+
+	auto render_pass = device.createRenderPass(render_pass_info);
+	if (!render_pass)
 	{
 		std::cout << "failed to create render pass\n";
-		return -1; // failed to create render pass!
+		return -1;
 	}
+
+	data.render_pass = render_pass;
 	return 0;
 }
 
@@ -145,31 +149,31 @@ int VulkanRenderer::SetUpPipelineLayout(Init& init, RenderData& renderData)
 
 	// Create the descriptor set layout (uniform buffer and sampler)
 	vk::DescriptorSetLayoutBinding ubo_layout_binding = {};
-	ubo_layout_binding.binding = 0;
-	ubo_layout_binding.descriptorType = vk::DescriptorType::eUniformBuffer;
-	ubo_layout_binding.descriptorCount = 1;
-	ubo_layout_binding.stageFlags = vk::ShaderStageFlagBits::eVertex;
-	ubo_layout_binding.pImmutableSamplers = nullptr; // Optional
+	ubo_layout_binding.binding                        = 0;
+	ubo_layout_binding.descriptorType                 = vk::DescriptorType::eUniformBuffer;
+	ubo_layout_binding.descriptorCount                = 1;
+	ubo_layout_binding.stageFlags                     = vk::ShaderStageFlagBits::eVertex;
+	ubo_layout_binding.pImmutableSamplers             = nullptr; // Optional
 
 	vk::DescriptorSetLayoutBinding sampler_layout_binding = {};
-	sampler_layout_binding.binding = 1;
-	sampler_layout_binding.descriptorCount = 1;
-	sampler_layout_binding.descriptorType = vk::DescriptorType::eCombinedImageSampler;
-	sampler_layout_binding.pImmutableSamplers = nullptr;
-	sampler_layout_binding.stageFlags = vk::ShaderStageFlagBits::eFragment;
+	sampler_layout_binding.binding                        = 1;
+	sampler_layout_binding.descriptorCount                = 1;
+	sampler_layout_binding.descriptorType                 = vk::DescriptorType::eCombinedImageSampler;
+	sampler_layout_binding.pImmutableSamplers             = nullptr;
+	sampler_layout_binding.stageFlags                     = vk::ShaderStageFlagBits::eFragment;
 
-	std::array<vk::DescriptorSetLayoutBinding, 2> bindings = { ubo_layout_binding, sampler_layout_binding };
-	vk::DescriptorSetLayoutCreateInfo layout_info = {};
-	layout_info.bindingCount = static_cast<uint32_t>(bindings.size());
-	layout_info.pBindings = bindings.data();
+	std::array<vk::DescriptorSetLayoutBinding, 2> bindings    = { ubo_layout_binding, sampler_layout_binding };
+	vk::DescriptorSetLayoutCreateInfo             layout_info = {};
+	layout_info.bindingCount                                  = static_cast<uint32_t>(bindings.size());
+	layout_info.pBindings                                     = bindings.data();
 
 	// Create the descriptor set layout
 	renderData.descriptor_set_layout = device.createDescriptorSetLayout(layout_info);
 
 	// Create the pipeline layout
 	vk::PipelineLayoutCreateInfo pipeline_layout_info = {};
-	pipeline_layout_info.setLayoutCount = 1;
-	pipeline_layout_info.pSetLayouts = &renderData.descriptor_set_layout;
+	pipeline_layout_info.setLayoutCount               = 1;
+	pipeline_layout_info.pSetLayouts                  = &renderData.descriptor_set_layout;
 
 	// Create the pipeline layout
 	renderData.pipeline_layout = device.createPipelineLayout(pipeline_layout_info);
@@ -330,37 +334,30 @@ int VulkanRenderer::CreateFramebuffers(Init& init, RenderData& data)
 
 int VulkanRenderer::CreateCommandPool(Init& init, RenderData& data)
 {
-	VkCommandPoolCreateInfo pool_info = {};
-	pool_info.sType                   = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-	pool_info.queueFamilyIndex        = init.device.get_queue_index(vkb::QueueType::graphics).value();
+	vk::Device device = init.device.device;
 
-	// Set VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT
-	// to allow command buffers to be reset individually
-	pool_info.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+	vk::CommandPoolCreateInfo command_pool_create_info;
+	command_pool_create_info.flags            = vk::CommandPoolCreateFlagBits::eResetCommandBuffer;
+	command_pool_create_info.queueFamilyIndex = init.device.get_queue_index(vkb::QueueType::graphics).value();
 
-	if (init->vkCreateCommandPool(init.device, &pool_info, nullptr, &data.command_pool) != VK_SUCCESS)
-	{
-		std::cout << "failed to create command pool\n";
-		return -1; // failed to create command pool
-	}
+	data.command_pool = device.createCommandPool(command_pool_create_info);
+
 	return 0;
 }
 
 int VulkanRenderer::CreateCommandBuffers(Init& init, RenderData& data)
 {
+	vk::Device device = init.device.device;
+
 	data.command_buffers.resize(data.framebuffers.size());
 
-	VkCommandBufferAllocateInfo alloc_info = {};
-	alloc_info.sType                       = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-	alloc_info.commandPool                 = data.command_pool;
-	alloc_info.level                       = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-	alloc_info.commandBufferCount          = (uint32_t) data.command_buffers.size();
+	vk::CommandBufferAllocateInfo alloc_info = {};
+	alloc_info.commandPool                   = data.command_pool;
+	alloc_info.level                         = vk::CommandBufferLevel::ePrimary;
+	alloc_info.commandBufferCount            = (uint32_t)data.command_buffers.size();
 
-	if (init->vkAllocateCommandBuffers(init.device, &alloc_info, data.command_buffers.data()) != VK_SUCCESS)
-	{
-		std::cout << "failed to allocate command buffers" << std::endl;
-		return -1; // failed to allocate command buffers
-	}
+	data.command_buffers = device.allocateCommandBuffers(alloc_info);
+
 	return 0;
 }
 
@@ -371,22 +368,19 @@ int VulkanRenderer::CreateSyncObjects(Init& init, RenderData& data)
 	data.in_flight_fences.resize(MAX_FRAMES_IN_FLIGHT);
 	data.image_in_flight.resize(init.swapchain.image_count, VK_NULL_HANDLE);
 
-	VkSemaphoreCreateInfo semaphore_info = {};
-	semaphore_info.sType                 = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+	vk::Device device = init.device.device;
 
-	VkFenceCreateInfo fence_info = {};
-	fence_info.sType             = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
-	fence_info.flags             = VK_FENCE_CREATE_SIGNALED_BIT;
+	vk::SemaphoreCreateInfo semaphore_info;
+	vk::FenceCreateInfo     fence_info;
+	fence_info.flags = vk::FenceCreateFlagBits::eSignaled;
 
 	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
 	{
-		if (init->vkCreateSemaphore(init.device, &semaphore_info, nullptr, &data.available_semaphores[i]) != VK_SUCCESS || init->vkCreateSemaphore(init.device, &semaphore_info, nullptr, &data.finished_semaphore[i]) != VK_SUCCESS ||
-			init->vkCreateFence(init.device, &fence_info, nullptr, &data.in_flight_fences[i]) != VK_SUCCESS)
-		{
-			std::cout << "failed to create sync objects\n";
-			return -1; // failed to create synchronization objects for a frame
-		}
+		data.available_semaphores[i] = device.createSemaphore(semaphore_info);
+		data.finished_semaphore[i]   = device.createSemaphore(semaphore_info);
+		data.in_flight_fences[i]     = device.createFence(fence_info);
 	}
+
 	return 0;
 }
 
@@ -424,112 +418,145 @@ int VulkanRenderer::CreateSyncObjects(Init& init, RenderData& data)
 // Here is the DrawFrame function:
 int VulkanRenderer::DrawFrame(Init& init, RenderData& data)
 {
+	vk::Device device = init.device.device;
+
 	// Wait for the fence to be signaled.
-	init->vkWaitForFences(init.device, 1, &data.in_flight_fences[data.current_frame], VK_TRUE, UINT64_MAX);
+	device.waitForFences(1, &data.in_flight_fences[data.current_frame], VK_TRUE, UINT64_MAX);
 
 	// Get the index of the next image to be rendered to
 	uint32_t image_index = 0;
 	// Wait for the next image to be available
-	VkResult result = init->vkAcquireNextImageKHR(init.device, init.swapchain, UINT64_MAX, data.available_semaphores[data.current_frame], VK_NULL_HANDLE, &image_index);
+	vk::Result result = device.acquireNextImageKHR(init.swapchain.swapchain, UINT64_MAX, data.available_semaphores[data.current_frame], VK_NULL_HANDLE, &image_index);
 
 	// If the swapchain is out of date, we need to recreate it
-	if (result == VK_ERROR_OUT_OF_DATE_KHR) { return RecreateSwapchain(init, data); }
+	if (result == vk::Result::eErrorOutOfDateKHR)
+	{
+		RecreateSwapchain(init, data);
+		return 0;
+	}
+	else if (result != vk::Result::eSuccess && result != vk::Result::eSuboptimalKHR)
+	{
+		throw std::runtime_error("Failed to acquire swapchain image!");
+	}
 
 	// Wait for the image to be available
-	if (data.image_in_flight[image_index] != VK_NULL_HANDLE) { init->vkWaitForFences(init.device, 1, &data.image_in_flight[image_index], VK_TRUE, UINT64_MAX); }
-
+	// If the image is in use, wait for the fence to be signaled
+	if (data.image_in_flight[image_index])
+	{
+		device.waitForFences(1, &data.image_in_flight[image_index], VK_TRUE, UINT64_MAX);
+	}
+	
 	// Mark the image as in use
 	data.image_in_flight[image_index] = data.in_flight_fences[data.current_frame];
 
 	// Create the submit information structure
-	VkSubmitInfo submitInfo = {};
-	submitInfo.sType        = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+	vk::SubmitInfo submit_info;
 
-	// Create the wait semaphores
-	VkSemaphore          wait_semaphores[] = { data.available_semaphores[data.current_frame] };
-	VkPipelineStageFlags wait_stages[]     = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
-	submitInfo.waitSemaphoreCount          = 1;
-	submitInfo.pWaitSemaphores             = wait_semaphores;
-	submitInfo.pWaitDstStageMask           = wait_stages;
+	// Create an array of wait semaphores, which is just the semaphore that we will wait on before executing the command buffer
+	vk::Semaphore wait_semaphores[] = { data.available_semaphores[data.current_frame] };
 
-	// Set the command buffer to submit
-	submitInfo.commandBufferCount = 1;
-	submitInfo.pCommandBuffers    = &data.command_buffers[image_index];
+	// Create an array of wait stages, which is the stage that we will wait on
+	// We will wait on the color attachment output stage, which means that the render pass has finished writing to the image
+	vk::PipelineStageFlags wait_stages[] = { vk::PipelineStageFlagBits::eColorAttachmentOutput };
+	submit_info.waitSemaphoreCount = 1;
+	submit_info.pWaitSemaphores = wait_semaphores;
+	submit_info.pWaitDstStageMask = wait_stages;
+	submit_info.commandBufferCount = 1;
+	submit_info.pCommandBuffers = &data.command_buffers[image_index];
 
-	// Set the signal semaphores
-	VkSemaphore signal_semaphores[] = { data.finished_semaphore[data.current_frame] };
-	submitInfo.signalSemaphoreCount = 1;
-	submitInfo.pSignalSemaphores    = signal_semaphores;
+	// Create an array of signal semaphores, which is just the semaphore that we will signal once the command buffer has finished executing
+	vk::Semaphore signal_semaphores[] = { data.finished_semaphore[data.current_frame] };
+	submit_info.signalSemaphoreCount = 1;
+	submit_info.pSignalSemaphores = signal_semaphores;
 
 	// Reset the fence
-	init->vkResetFences(init.device, 1, &data.in_flight_fences[data.current_frame]);
+	device.resetFences(1, &data.in_flight_fences[data.current_frame]);
 
-	// submit the command buffer to the graphics queue
-	if (init->vkQueueSubmit(data.graphics_queue, 1, &submitInfo, data.in_flight_fences[data.current_frame]) != VK_SUCCESS)
-	{
-		std::cout << "failed to submit draw command buffer\n";
-		return -1; //"failed to submit draw command buffer
-	}
+	// Submit the command buffer to the graphics queue
+	data.graphics_queue.submit(1, &submit_info, data.in_flight_fences[data.current_frame]);
 
-	// Create a present info struct to pass to the queue present function
-	VkPresentInfoKHR present_info = {};
-	present_info.sType            = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+	// Create the present info structure
+	vk::PresentInfoKHR present_info;
 
-	// Wait for the signal semaphore to be signaled before presenting
+	// Create an array of wait semaphores, which is just the semaphore that we will wait on before presenting the image
+	vk::Semaphore wait_semaphores2[] = { data.finished_semaphore[data.current_frame] };
 	present_info.waitSemaphoreCount = 1;
-	present_info.pWaitSemaphores    = signal_semaphores;
+	present_info.pWaitSemaphores = wait_semaphores2;
 
-	// Tell the present function which swapchain to present from
-	VkSwapchainKHR swapChains[] = { init.swapchain };
+	// Create an array of swapchains, which is just the swapchain that we will present the image to
+	vk::SwapchainKHR swapchains[] = { init.swapchain.swapchain };
 	present_info.swapchainCount = 1;
-	present_info.pSwapchains    = swapChains;
+	present_info.pSwapchains = swapchains;
 
-	// Tell the present function which image index to present from
+	// Create an array of image indices, which is just the index of the image that we will present
 	present_info.pImageIndices = &image_index;
 
 	// Present the image
-	result = init->vkQueuePresentKHR(data.present_queue, &present_info);
-	if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR)
+	result = data.present_queue.presentKHR(&present_info);
+
+	// If the swapchain is out of date, we need to recreate it
+	if (result == vk::Result::eErrorOutOfDateKHR || result == vk::Result::eSuboptimalKHR)
 	{
-		// The swapchain is out of date (e.g. the window was resized) so we
-		// need to recreate it
-		return RecreateSwapchain(init, data);
+		RecreateSwapchain(init, data);
 	}
-	else if (result != VK_SUCCESS)
+	else if (result != vk::Result::eSuccess)
 	{
-		// Some other error occurred
-		std::cout << "failed to present swapchain image\n";
-		return -1;
+		throw std::runtime_error("Failed to present swapchain image!");
 	}
 
-	// Update the current frame
+	// Move to the next frame
 	data.current_frame = (data.current_frame + 1) % MAX_FRAMES_IN_FLIGHT;
+
 	return 0;
 }
 
 int VulkanRenderer::CleanUp(Init& init, RenderData& data)
 {
+	vk::Device device = init.device.device;
+
+	// Wait for the device to finish
+	device.waitIdle();
+
 	// call destroy on all meshes
 	for (auto mesh : m_Meshes) { mesh.Destroy(init.device.device); }
 
+	// Destroy the descriptor set layout
+	device.destroyDescriptorSetLayout(data.descriptor_set_layout);
+
+	// Destroy the command pool
+	device.destroyCommandPool(data.command_pool);
+
+	// Destroy the semaphores
 	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
 	{
-		init->vkDestroySemaphore(init.device, data.finished_semaphore[i], nullptr);
-		init->vkDestroySemaphore(init.device, data.available_semaphores[i], nullptr);
-		init->vkDestroyFence(init.device, data.in_flight_fences[i], nullptr);
+		device.destroySemaphore(data.available_semaphores[i]);
+		device.destroySemaphore(data.finished_semaphore[i]);
+		device.destroyFence(data.in_flight_fences[i]);
 	}
 
-	init->vkDestroyCommandPool(init.device, data.command_pool, nullptr);
-
-	for (auto framebuffer : data.framebuffers) { init->vkDestroyFramebuffer(init.device, framebuffer, nullptr); }
-
-	init->vkDestroyPipeline(init.device, data.graphics_pipeline, nullptr);
-	init->vkDestroyPipelineLayout(init.device, data.pipeline_layout, nullptr);
-	init->vkDestroyRenderPass(init.device, data.render_pass, nullptr);
-
-	init.swapchain.destroy_image_views(data.swapchain_image_views);
-
+	// Destroy the swapchain
 	vkb::destroy_swapchain(init.swapchain);
+	
+	// Destroy pipeline
+	device.destroyPipeline(data.graphics_pipeline);
+
+	// Destroy pipeline layout
+	device.destroyPipelineLayout(data.pipeline_layout);
+
+	// Destroy the image views
+	for (auto image_view : data.swapchain_image_views)
+	{
+		device.destroyImageView(image_view);
+	}
+
+	// Destroy framebuffers
+	for (auto framebuffer : data.framebuffers)
+	{
+		device.destroyFramebuffer(framebuffer);
+	}
+
+	// Destroy the render pass
+	device.destroyRenderPass(data.render_pass);
 
 	VulkanInit::DestroyVulkan(init);
 
