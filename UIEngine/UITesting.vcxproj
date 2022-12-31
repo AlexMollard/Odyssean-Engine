@@ -132,6 +132,7 @@ xcopy /y "C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\co
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Src\Engine\VulkanAPI\ImGuiVulkan.h" />
     <ClInclude Include="Src\Engine\VulkanAPI\common.h" />
     <ClInclude Include="Src\Engine\VulkanAPI\ShaderVulkan.h" />
     <ClInclude Include="Src\Engine\VulkanAPI\VkBootstrap.h" />
@@ -172,6 +173,7 @@ xcopy /y "C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\co
     <ClInclude Include="Src\Engine\VulkanAPI\VkMesh.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Src\Engine\VulkanAPI\ImGuiVulkan.cpp" />
     <ClCompile Include="Src\Engine\VulkanAPI\ShaderVulkan.cpp" />
     <ClCompile Include="Src\Engine\VulkanAPI\VkBootstrap.cpp" />
     <ClCompile Include="Src\Engine\VulkanAPI\VulkanEngine.cpp" />

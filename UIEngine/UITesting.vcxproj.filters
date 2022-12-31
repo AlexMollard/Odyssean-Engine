@@ -90,6 +90,9 @@
     <ClCompile Include="Src\Engine\VulkanAPI\VkMesh.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Src\Engine\VulkanAPI\ImGuiVulkan.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Src\Engine\Engine.h">
@@ -204,6 +207,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Src\Engine\VulkanAPI\VkTypes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Engine\VulkanAPI\ImGuiVulkan.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

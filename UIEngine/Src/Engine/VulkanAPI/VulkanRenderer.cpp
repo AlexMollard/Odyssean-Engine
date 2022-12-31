@@ -9,6 +9,7 @@
 #include "assimp/scene.h"
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
+#include "ImGuiVulkan.h"
 
 // All meshes added to this vector will be cleaned up when the program closes
 // Aswell as be drawn in the draw frame function
@@ -43,7 +44,12 @@ RenderData VulkanRenderer::SetupRenderData(Init& init)
 
 int VulkanRenderer::CreateSwapchain(Init& init)
 {
+	vk::SurfaceFormatKHR surface_format;
+	surface_format.format     = vk::Format::eB8G8R8A8Unorm;
+	surface_format.colorSpace = vk::ColorSpaceKHR::eAdobergbLinearEXT;
+
 	vkb::SwapchainBuilder swapchain_builder{ init.device };
+	swapchain_builder.set_desired_format(surface_format);
 	auto                  swap_ret = swapchain_builder.set_old_swapchain(init.swapchain).build();
 	if (!swap_ret)
 	{
@@ -476,6 +482,8 @@ int VulkanRenderer::DrawFrame(Init& init, RenderData& data)
 
 	// Submit the command buffer to the graphics queue
 	data.graphics_queue.submit(1, &submit_info, data.in_flight_fences[data.current_frame]);
+
+	ImGuiVulkan::DrawImgui(init, data);
 
 	// Create the present info structure
 	vk::PresentInfoKHR present_info;

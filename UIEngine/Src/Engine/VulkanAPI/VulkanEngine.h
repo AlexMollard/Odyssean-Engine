@@ -1,8 +1,8 @@
 #pragma once
+#include "VulkanInit.h"
 #include "VulkanRenderer.h"
 
 #include "Engine/BaseEngine.h"
-#include "VulkanInit.h"
 
 struct GLFWwindow;
 class VulkanEngine : BaseEngine
@@ -15,19 +15,28 @@ public:
 
 	// Returns DT
 	float Update() override;
-	void Render() override;
+	void  Render() override;
 
-	bool GetClose() const override { return m_close; }
-	void* GetWindow() const { return m_Window; }
+	bool GetClose() const override
+	{
+		return m_close;
+	}
+	void* GetWindow() const
+	{
+		return m_Window;
+	}
 
-	const VulkanRenderer* GetRenderer() const { return &m_Renderer; }
+	const VulkanRenderer* GetRenderer() const
+	{
+		return &m_Renderer;
+	}
 
 private:
 
 	GLFWwindow* m_Window;
-	bool m_close = false;
+	bool        m_close = false;
 
-	Init m_Init;
+	Init       m_Init;
 	RenderData m_RenderData;
 
 	vulkan::Mesh m_Mesh;
@@ -35,6 +44,6 @@ private:
 	VulkanRenderer m_Renderer;
 
 	// Delta Time
-	float m_DT = 0.0f;
+	float m_DT        = 0.0f;
 	float m_LastFrame = 0.0f;
 };
