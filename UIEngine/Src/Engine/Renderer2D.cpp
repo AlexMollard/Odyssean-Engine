@@ -2,13 +2,13 @@
 
 #include "Renderer2D.h"
 
-#include "Engine/OpenGLAPI/ShaderOpenGL.h"
 #include "Texture.h"
 #include <algorithm>
 #include <array>
 #include <iostream>
 #include <map>
 
+#include "Engine/OpenGLAPI/ShaderOpenGL.h"
 
 static const size_t maxQuadCount   = 2000;
 static const size_t maxVertexCount = maxQuadCount * 4;
@@ -25,7 +25,7 @@ struct Vertex
 	glm::vec3 position;
 	glm::vec4 color;
 	glm::vec2 texCoords;
-	float texIndex;
+	float     texIndex;
 };
 
 struct RendererData
@@ -34,7 +34,7 @@ struct RendererData
 	GLuint quadVB = 0;
 	GLuint quadIB = 0;
 
-	GLuint whiteTexture       = 0;
+	GLuint   whiteTexture     = 0;
 	uint32_t whiteTextureSlot = 0;
 
 	uint32_t indexCount = 0;
@@ -42,15 +42,15 @@ struct RendererData
 	Vertex* quadBuffer    = nullptr;
 	Vertex* quadBufferPtr = nullptr;
 
-	std::array<uint32_t, maxTextures> textureSlots = {};
-	uint32_t textureSlotIndex                      = 1;
+	std::array<uint32_t, maxTextures> textureSlots     = {};
+	uint32_t                          textureSlotIndex = 1;
 };
 
 struct Character
 {
 	unsigned int texture;
-	glm::vec2 size;
-	glm::ivec2 bearing;
+	glm::vec2    size;
+	glm::ivec2   bearing;
 	unsigned int advance;
 };
 
@@ -67,9 +67,15 @@ public:
 	CharacterManager(CharacterManager const&) = delete;
 	void operator=(CharacterManager const&)   = delete;
 
-	void AddCharacter(char c, Character character) { Characters.insert(std::pair<char, Character>(c, character)); }
+	void AddCharacter(char c, Character character)
+	{
+		Characters.insert(std::pair<char, Character>(c, character));
+	}
 
-	Character GetCharacter(char c) { return Characters[c]; }
+	Character GetCharacter(char c)
+	{
+		return Characters[c];
+	}
 
 private:
 	CharacterManager() = default;
@@ -103,10 +109,42 @@ void Renderer2D::Draw()
 	float height = 1080.0f;
 
 	// Setup the projection matrix to be orthographic with 0 being bottom left
-	glm::mat4 projection = glm::ortho(0.0f, -width, 0.0f, -height, -100.0f, 100.0f);
+	glm::mat4 proj = glm::ortho(0.0f, width, 0.0f, height, -100.0f, 100.0f);
+	
+	glm::mat4 model = glm::mat4(1.0f);
+	
+	// Adjust the view matrix to be centered so that 0,0 is the bottom left of the screen
+	glm::mat4 view  = glm::mat4(1.0f);
 
-	ShaderOpenGL::setMat4(*m_BasicShader , "OrthoMatrix", projection);
-	ShaderOpenGL::setMat4(*m_BasicShader , "Model", glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f)));
+	// This is the ubo layout in the shader
+	// layout(binding = 0) uniform UniformBufferObject
+	// {
+	// 	mat4 model;
+	// 	mat4 view;
+	// 	mat4 proj;
+	// }
+	// ubo;
+
+	// create the ubo
+	unsigned int ubo;
+
+	glGenBuffers(1, &ubo);
+	glBindBuffer(GL_UNIFORM_BUFFER, ubo);
+	glBufferData(GL_UNIFORM_BUFFER, 3 * sizeof(glm::mat4), nullptr, GL_STATIC_DRAW);
+
+	// update the ubo
+	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(model));
+	glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(view));
+	glBufferSubData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(proj));
+
+	// bind the ubo to the shader
+	glBindBufferBase(GL_UNIFORM_BUFFER, 0, ubo);
+
+	// Test to make sure the ubo is working
+	ShaderOpenGL::setMat4(*m_BasicShader, "model", model);
+	ShaderOpenGL::setMat4(*m_BasicShader, "view", view);
+	ShaderOpenGL::setMat4(*m_BasicShader, "proj", proj);
+
 
 	EndBatch();
 	Flush();
@@ -204,9 +242,8 @@ void Renderer2D::Init(components::Camera* camera, ShaderOpenGL* basicShader, Sha
 	ShaderOpenGL::Use(*m_BasicShader);
 
 	auto loc = glGetUniformLocation(m_BasicShader->GetID(), "Textures");
-	int samplers[maxTextures];
-	for (int i = 0; i < maxTextures; i++)
-		samplers[i] = i;
+	int  samplers[maxTextures];
+	for (int i = 0; i < maxTextures; i++) samplers[i] = i;
 
 	glUniform1iv(loc, maxTextures, samplers);
 
@@ -262,29 +299,20 @@ void Renderer2D::Init(components::Camera* camera, ShaderOpenGL* basicShader, Sha
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, &color);
 
 	data.textureSlots[0] = data.whiteTexture;
-	for (size_t i = 1; i < maxTextures; i++)
-	{
-		data.textureSlots[i] = 0;
-	}
+	for (size_t i = 1; i < maxTextures; i++) { data.textureSlots[i] = 0; }
 
 	// Setup text rendering
 	// TEXT STUFF BELOW --------------
 	// Font stuff
 	FT_Library library;
-	FT_Face face; /* handle to face object */
+	FT_Face    face; /* handle to face object */
 
 	int error = FT_Init_FreeType(&library);
 	S_ASSERT(!error, "Something went wrong")
 
 	error = FT_New_Face(library, "../Resources/Fonts/Manrope-Regular.ttf", 0, &face);
-	if (error == FT_Err_Unknown_File_Format)
-	{
-		S_ASSERT(false, "Font file could be opened and read, but it appears that its font format is unsupported");
-	}
-	else if (error)
-	{
-		S_ASSERT(false, "The font file could not be opened or read, or maybe it is broken");
-	}
+	if (error == FT_Err_Unknown_File_Format) { S_ASSERT(false, "Font file could be opened and read, but it appears that its font format is unsupported"); }
+	else if (error) { S_ASSERT(false, "The font file could not be opened or read, or maybe it is broken"); }
 
 	// Set font size
 	error = FT_Set_Pixel_Sizes(face, 0, 32);
@@ -318,13 +346,13 @@ void Renderer2D::Init(components::Camera* camera, ShaderOpenGL* basicShader, Sha
 
 		// now store character for later use
 		Character character = { // texture
-			glyphTexture,
-			// size
-			glm::vec2(face->glyph->bitmap.width, face->glyph->bitmap.rows),
-			// bearing
-			glm::ivec2(face->glyph->bitmap_left, face->glyph->bitmap_top),
-			// advance
-			(unsigned int)face->glyph->advance.x
+								glyphTexture,
+								// size
+								glm::vec2(face->glyph->bitmap.width, face->glyph->bitmap.rows),
+								// bearing
+								glm::ivec2(face->glyph->bitmap_left, face->glyph->bitmap_top),
+								// advance
+								(unsigned int)face->glyph->advance.x
 		};
 
 		charManager.AddCharacter(c, character);
@@ -371,8 +399,7 @@ void Renderer2D::EndBatch()
 
 void Renderer2D::Flush()
 {
-	for (uint32_t i = 0; i < data.textureSlotIndex; i++)
-		glBindTextureUnit(i, data.textureSlots[i]);
+	for (uint32_t i = 0; i < data.textureSlotIndex; i++) glBindTextureUnit(i, data.textureSlots[i]);
 
 	glBindVertexArray(data.quadVA);
 	glDrawElements(GL_TRIANGLES, data.indexCount, GL_UNSIGNED_INT, nullptr);

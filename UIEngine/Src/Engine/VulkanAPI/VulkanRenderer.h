@@ -18,6 +18,7 @@ public:
 	static int GetQueues(Init& init, RenderData& data);
 	
 	static int CreateRenderPass(Init& init, RenderData& data);
+	static int SetUpPipelineLayout(Init& init, RenderData& renderData);
 	static int CreateGraphicsPipeline(Init& init, RenderData& data);
 	static int CreateFramebuffers(Init& init, RenderData& data);
 	static int CreateCommandPool(Init& init, RenderData& data);
@@ -30,7 +31,6 @@ public:
 	static int SetUpTexture(Init& init, RenderData& renderData, vulkan::Mesh& mesh);
 	static int SetUpMeshDescriptorInfo(Init& init, vulkan::Mesh& mesh);
 	static int SetUpMeshDescriptorSets(Init& init, vulkan::Mesh& mesh);
-	static int SetUpPipelineLayout(Init& init, RenderData& renderData, vulkan::Mesh& mesh);
 	static int RecordCommandBuffers(Init& init, RenderData& renderData, vulkan::Mesh& mesh);
 	static int AddMesh(vulkan::Mesh& mesh);
 

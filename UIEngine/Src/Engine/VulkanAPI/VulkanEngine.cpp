@@ -24,7 +24,6 @@ void VulkanEngine::Initialize(const char* windowName, int width, int height)
 	VulkanRenderer::SetUpTexture(m_Init, m_RenderData, mesh);
 	VulkanRenderer::SetUpMeshDescriptorInfo(m_Init, mesh);
 	VulkanRenderer::SetUpMeshDescriptorSets(m_Init, mesh);
-	VulkanRenderer::SetUpPipelineLayout(m_Init, m_RenderData, mesh);
 	VulkanRenderer::RecordCommandBuffers(m_Init, m_RenderData, mesh);
 	VulkanRenderer::AddMesh(mesh);
 	

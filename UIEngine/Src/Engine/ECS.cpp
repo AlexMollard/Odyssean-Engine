@@ -6,26 +6,32 @@
 
 static int s_IDIncrementor = 0;
 
-ECS* ECS::s_Instance = nullptr;
+ECS*          ECS::s_Instance = nullptr;
 flecs::entity ECS::CreateEntity()
 {
 	return m_World.entity();
 }
 
-flecs::entity& ECS::CreateQuad(const glm::vec3& position, const glm::vec2& size, const glm::vec4& color)
+flecs::entity& ECS::CreateQuad(const glm::vec3& position, const glm::vec2& size, const glm::vec4& color, const char* name)
 {
-	std::ostringstream out;
-	out << "Quad: " << s_IDIncrementor++;
+	std::string newName = name;
+
+	if (name == nullptr)
+	{
+		std::ostringstream out;
+		out << "Quad: " << s_IDIncrementor++;
+		newName = out.str();
+	}
 
 	flecs::entity quadEntity = Instance()->m_World.entity();
 	quadEntity.set([&](components::Quad& quad, components::Transform& transform, components::Tag& tag) {
 		transform.SetPosition(position);
 		quad.SetSize(size);
 		quad.SetColor(color);
-		tag.SetName(out.str().c_str());
+		tag.SetName(newName.c_str());
 	});
 
-	quadEntity.set_name(out.str().c_str());
+	quadEntity.set_name(newName.c_str());
 
 	return *quadEntity.get_ref<flecs::entity>().get();
 }
@@ -77,27 +83,18 @@ void ECS::Update()
 		// add fps to a vector
 		m_FpsHistory.push_back(m_FPS);
 		// if the vector is bigger than 100, remove the first element
-		if (m_FpsHistory.size() > 400)
-		{
-			m_FpsHistory.erase(m_FpsHistory.begin());
-		}
+		if (m_FpsHistory.size() > 400) { m_FpsHistory.erase(m_FpsHistory.begin()); }
 
 		// Average fps
 		float averageFps = 0.0f;
-		for (auto& fps : m_FpsHistory)
-		{
-			averageFps += fps;
-		}
+		for (auto& fps : m_FpsHistory) { averageFps += fps; }
 		averageFps /= m_FpsHistory.size();
 		ImGui::Text("Average FPS: %f", averageFps);
 
 		// Store Average FPS for plot graph
 		m_AverageFpsHistory.push_back(averageFps);
 		// if the vector is bigger than 100, remove the first element
-		if (m_AverageFpsHistory.size() > 400)
-		{
-			m_AverageFpsHistory.erase(m_AverageFpsHistory.begin());
-		}
+		if (m_AverageFpsHistory.size() > 400) { m_AverageFpsHistory.erase(m_AverageFpsHistory.begin()); }
 
 		// Draw the fps graph
 		ImGui::PlotLines("FPS", m_AverageFpsHistory.data(), m_AverageFpsHistory.size(), 0, nullptr, 0.0f, 100.0f, ImVec2(0, 80));
@@ -112,14 +109,8 @@ void ECS::Update()
 		}
 		else
 		{
-			if (m_FPS > m_FPSHigh)
-			{
-				m_FPSHigh = m_FPS;
-			}
-			if (m_FPS < m_FPSLow)
-			{
-				m_FPSLow = m_FPS;
-			}
+			if (m_FPS > m_FPSHigh) { m_FPSHigh = m_FPS; }
+			if (m_FPS < m_FPSLow) { m_FPSLow = m_FPS; }
 		}
 	}
 	ImGui::End();

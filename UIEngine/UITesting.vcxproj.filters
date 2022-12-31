@@ -179,9 +179,6 @@
     <ClInclude Include="Src\Engine\VulkanAPI\ShaderVulkan.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Src\Engine\VulkanAPI\Vertex.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Src\Engine\VulkanAPI\VkBootstrap.h">
       <Filter>Header Files</Filter>
     </ClInclude>

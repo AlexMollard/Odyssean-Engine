@@ -37,7 +37,7 @@ public:
 	static flecs::world& GetWorldStatic() { return Instance()->m_World; }
 
 	// Create a basic quad entity (quad, transform)
-	static flecs::entity& CreateQuad(const glm::vec3& position, const glm::vec2& size, const glm::vec4& color);
+	static flecs::entity& CreateQuad(const glm::vec3& position, const glm::vec2& size, const glm::vec4& color, const char* name = nullptr);
 
 	// Create a basic text entity (text, transform)
 	static flecs::entity& CreateText(const std::string& text, const glm::vec3& position, const glm::vec4& color);

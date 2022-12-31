@@ -1,21 +1,15 @@
 #version 450
+#extension GL_KHR_vulkan_glsl : enable
 
 layout(location = 0) out vec4 FragColor;
 
-in vec4 Color;
-in vec2 TexCoord;
-in float TexIndex;
+layout(location = 0) in vec4 vColor;
+layout(location = 1) in vec2 vTexCoord;
+layout(location = 2) in float vTexIndex;
 
-uniform sampler2D Textures[31];
-
-uniform vec3 color;
+layout(binding = 0) uniform sampler2D uTextures[32];
 
 void main()
 {
-	int index = int(TexIndex);
-
-	if (texture(Textures[index], TexCoord).a < 0.01)
-		discard;
-
-	FragColor = (texture(Textures[index], TexCoord) * Color);
+    FragColor = texture(uTextures[int(vTexIndex)], vTexCoord) * vColor;
 }

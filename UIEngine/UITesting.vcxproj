@@ -134,7 +134,6 @@ xcopy /y "C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\co
   <ItemGroup>
     <ClInclude Include="Src\Engine\VulkanAPI\common.h" />
     <ClInclude Include="Src\Engine\VulkanAPI\ShaderVulkan.h" />
-    <ClInclude Include="Src\Engine\VulkanAPI\Vertex.h" />
     <ClInclude Include="Src\Engine\VulkanAPI\VkBootstrap.h" />
     <ClInclude Include="Src\Engine\VulkanAPI\VkBootstrapDispatch.h" />
     <ClInclude Include="Src\Engine\VulkanAPI\VkTypes.h" />
