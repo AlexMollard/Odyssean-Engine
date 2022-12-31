@@ -12,6 +12,9 @@ SET CURRENTDIR=%~dp0
 REM Set the path to the output directory
 SET OUTPUTDIR=%CURRENTDIR%compiled
 
+REM Set a variable to false to indicate that the script failed
+SET FAILED=FALSE
+
 REM Create the output directory if it doesn't exist
 IF NOT EXIST %OUTPUTDIR% MKDIR %OUTPUTDIR%
 
@@ -23,6 +26,7 @@ FOR %%f IN (%CURRENTDIR%*.vert) DO (
         ECHO %%~nf.vert compiled successfully.
     ) ELSE (
         ECHO ******* %%~nf.vert failed to compile. *******
+        SET FAILED=TRUE
     )
     ECHO.
 )
@@ -35,9 +39,13 @@ FOR %%f IN (%CURRENTDIR%*.frag) DO (
         ECHO %%~nf.frag compiled successfully.
     ) ELSE (
         ECHO ******* %%~nf.frag failed to compile. *******
+        SET FAILED=TRUE
     )
     ECHO.
 )
 
-REM Pause the script so you can see the output
-PAUSE
+REM Pause the script if it failed
+if (%FAILED%) == (TRUE) PAUSE
+
+REM Sleep for 25 seconds
+TIMEOUT /T 15 /NOBREAK

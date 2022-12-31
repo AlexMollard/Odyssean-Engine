@@ -67,6 +67,8 @@ int VulkanRenderer::RecreateSwapchain(Init& init, RenderData& data)
 	init.swapchain.destroy_image_views(data.swapchain_image_views);
 
 	if (0 != CreateSwapchain(init)) return -1;
+	if (0 != CreateRenderPass(init, data)) return -1;
+	if (0 != SetUpPipelineLayout(init, data)) return -1;
 	if (0 != CreateFramebuffers(init, data)) return -1;
 	if (0 != CreateCommandPool(init, data)) return -1;
 	if (0 != CreateCommandBuffers(init, data)) return -1;
@@ -603,7 +605,7 @@ vulkan::Mesh VulkanRenderer::LoadModel(const char* path)
 {
 	vulkan::Mesh     mesh;
 	Assimp::Importer importer;
-	const aiScene*   scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
+	const aiScene*   scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace | aiProcess_PreTransformVertices);
 
 	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
 	{
@@ -621,6 +623,8 @@ vulkan::Mesh VulkanRenderer::LoadModel(const char* path)
 
 int VulkanRenderer::SetUpMeshBuffers(Init& init, RenderData& renderData, vulkan::Mesh& mesh)
 {
+	vk::Device device = init.device.device;
+
 	// Vertex buffer
 	vk::DeviceSize buffer_size = sizeof(mesh.vertices[0]) * mesh.vertices.size();
 
@@ -633,8 +637,14 @@ int VulkanRenderer::SetUpMeshBuffers(Init& init, RenderData& renderData, vulkan:
 	// Create vertex buffer
 	VulkanInit::CreateBuffer(init, buffer_size, vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eVertexBuffer, vk::MemoryPropertyFlagBits::eDeviceLocal, mesh.vertexBuffer.buffer, mesh.vertexBuffer.memory);
 
+	// Fill the staging buffer
+	void* data;
+	device.mapMemory(staging_buffer.memory, 0, buffer_size, vk::MemoryMapFlags(), &data);
+	memcpy(data, mesh.vertices.data(), (size_t)buffer_size);
+	device.unmapMemory(staging_buffer.memory);
+
 	// Copy the data to the staging buffer
-	VulkanInit::CopyBuffer(init, renderData, staging_buffer.buffer, mesh.vertexBuffer.buffer, buffer_size);
+	VulkanInit::CopyBuffer(init, renderData, staging_buffer.buffer, mesh.vertexBuffer.buffer, buffer_size);	
 
 	// Destroy the staging buffer
 	VulkanInit::DestroyBuffer(init, staging_buffer.buffer, staging_buffer.memory);
@@ -648,6 +658,11 @@ int VulkanRenderer::SetUpMeshBuffers(Init& init, RenderData& renderData, vulkan:
 	// Create index buffer
 	VulkanInit::CreateBuffer(init, buffer_size, vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eIndexBuffer, vk::MemoryPropertyFlagBits::eDeviceLocal, mesh.indexBuffer.buffer, mesh.indexBuffer.memory);
 
+	// Fill the staging buffer
+	device.mapMemory(staging_buffer.memory, 0, buffer_size, vk::MemoryMapFlags(), &data);
+	memcpy(data, mesh.indices.data(), (size_t)buffer_size);
+	device.unmapMemory(staging_buffer.memory);
+	
 	// Copy the data to the staging buffer
 	VulkanInit::CopyBuffer(init, renderData, staging_buffer.buffer, mesh.indexBuffer.buffer, buffer_size);
 

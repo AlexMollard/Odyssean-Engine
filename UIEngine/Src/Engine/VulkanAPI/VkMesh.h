@@ -33,7 +33,7 @@ struct Mesh
 	vk::DescriptorSet descriptorSet; 
 	vk::DescriptorPool descriptorPool;
 
-	// Buffer info (uniform and texture)
+	// Buffer info (mvp and texture)
 	AllocatedBuffer modelMatrixBuffer;
 	vk::DescriptorBufferInfo modelMatrixDescriptorInfo;
 	vk::DescriptorImageInfo textureDescriptorInfo;

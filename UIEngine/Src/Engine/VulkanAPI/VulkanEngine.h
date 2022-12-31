@@ -30,5 +30,11 @@ private:
 	Init m_Init;
 	RenderData m_RenderData;
 
+	vulkan::Mesh m_Mesh;
+
 	VulkanRenderer m_Renderer;
+
+	// Delta Time
+	float m_DT = 0.0f;
+	float m_LastFrame = 0.0f;
 };
