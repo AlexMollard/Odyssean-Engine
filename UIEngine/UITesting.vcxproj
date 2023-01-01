@@ -132,6 +132,7 @@ xcopy /y "C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\co
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Src\Nodes\Node.h" />
     <ClInclude Include="Src\Engine\VulkanAPI\ImGuiVulkan.h" />
     <ClInclude Include="Src\Engine\VulkanAPI\common.h" />
     <ClInclude Include="Src\Engine\VulkanAPI\ShaderVulkan.h" />
@@ -149,13 +150,13 @@ xcopy /y "C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\co
     <ClInclude Include="Src\Engine\BaseEngine.h" />
     <ClInclude Include="Src\Engine\OpenGLAPI\OpenGLEngine.h" />
     <ClInclude Include="Src\Engine\Engine.h" />
-    <ClInclude Include="Src\Components\Camera.h" />
-    <ClInclude Include="Src\Components\Quad.h" />
-    <ClInclude Include="Src\Components\Tag.h" />
-    <ClInclude Include="Src\Components\Text.h" />
-    <ClInclude Include="Src\Components\Transform.h" />
-    <ClInclude Include="Src\Components\Velocity.h" />
-    <ClInclude Include="Src\Engine\Components.h" />
+    <ClInclude Include="Src\Nodes\Camera.h" />
+    <ClInclude Include="Src\Nodes\Quad.h" />
+    <ClInclude Include="Src\Nodes\Tag.h" />
+    <ClInclude Include="Src\Nodes\Text.h" />
+    <ClInclude Include="Src\Nodes\Transform.h" />
+    <ClInclude Include="Src\Nodes\Velocity.h" />
+    <ClInclude Include="Src\Engine\Nodes.h" />
     <ClInclude Include="Src\Engine\ECS.h" />
     <ClInclude Include="Src\Engine\ErrorHandling.h" />
     <ClInclude Include="Src\Engine\ImGuiLayer.h" />
@@ -173,6 +174,7 @@ xcopy /y "C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\co
     <ClInclude Include="Src\Engine\VulkanAPI\VkMesh.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Src\Nodes\Node.cpp" />
     <ClCompile Include="Src\Engine\VulkanAPI\ImGuiVulkan.cpp" />
     <ClCompile Include="Src\Engine\VulkanAPI\ShaderVulkan.cpp" />
     <ClCompile Include="Src\Engine\VulkanAPI\VkBootstrap.cpp" />

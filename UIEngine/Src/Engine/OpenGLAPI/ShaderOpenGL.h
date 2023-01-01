@@ -1,9 +1,9 @@
 #pragma once
 
 #include "glm/glm.hpp"
+#include <GL/glew.h>
 
 #include "Engine/Resource.h"
-#include <GL/glew.h>
 
 class ShaderOpenGL : public Resource
 {
@@ -53,9 +53,11 @@ public:
 	static void setMat4(unsigned int shader_ID, const std::string& name, const glm::mat4& mat);
 
 	// overrided cast operator to get the shader ID
-	operator unsigned int() const { return shader_ID; }
+	operator unsigned int() const
+	{
+		return shader_ID;
+	}
 
 private:
-unsigned int shader_ID = 0;
-}
-;
+	unsigned int shader_ID = 0;
+};

@@ -1,4 +1,5 @@
 #pragma once
+#include "SceneStateMachine.h"
 // This is the base class for all graphics API's
 
 class BaseEngine
@@ -10,8 +11,11 @@ public:
 	virtual void Initialize(const char* windowName, int width, int height) = 0;
 
 	// Returns DT
-	virtual float Update() = 0;
-	virtual void Render()  = 0;
+	virtual float Update()
+	{
+		return -FLT_MAX;
+	}
+	virtual void  Render(){};
 
 	virtual bool GetClose() const = 0;
 

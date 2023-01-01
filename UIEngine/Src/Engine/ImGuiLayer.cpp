@@ -5,6 +5,7 @@
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 #include "imgui_internal.h"
+#include "windows.h"
 #include <GLFW/glfw3.h>
 
 ImGuiLayer::~ImGuiLayer()
@@ -29,14 +30,13 @@ void ImGuiLayer::Init(GLFWwindow* window)
 	// Setup Platform/Renderer backends
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
 	ImGui_ImplOpenGL3_Init("#version 330");
-	q = ECS::GetWorldStatic().query<components::Tag>();
 }
 
 void ImGuiLayer::SetStyle()
 {
 	constexpr auto ColorFromBytes = [](uint8_t r, uint8_t g, uint8_t b) { return ImVec4((float)r / 255.0f, (float)g / 255.0f, (float)b / 255.0f, 1.0f); };
 
-	auto& style    = ImGui::GetStyle();
+	auto&   style  = ImGui::GetStyle();
 	ImVec4* colors = style.Colors;
 
 	const ImVec4 bgColor          = ColorFromBytes(37, 37, 38);
@@ -107,82 +107,161 @@ void ImGuiLayer::SetStyle()
 	style.TabRounding       = 0.0f;
 }
 
-void ImGuiLayer::NewFrame()
+void ImGuiLayer::DisplaySystemStats()
+{
+	ImGui::Text("CPU Usage: %f", 0.0f);
+	ImGui::Text("GPU Usage: %f", 0.0f);
+	ImGui::Text("GPU Memory: %f", 0.0f);
+}
+
+void ImGuiLayer::ShowProfilerWindow(bool* p_open)
+{
+	ImGui::SetNextWindowSize(ImVec2(500, 400), ImGuiCond_FirstUseEver);
+	if (!ImGui::Begin("Profiler", p_open))
+	{
+		ImGui::End();
+		return;
+	}
+
+	float frame_rate = ImGui::GetIO().Framerate;
+
+	// Frame rate
+	static float ms_per_frame[120]  = { 0 };
+	static float m_min              = -1.0f;
+	static float m_max              = FLT_MAX;
+	static int   ms_per_frame_idx   = 0;
+	static float ms_per_frame_accum = 0.0f;
+
+	static bool m_paused = false;
+	if (!m_paused)
+	{
+		ms_per_frame_accum -= ms_per_frame[ms_per_frame_idx];
+		ms_per_frame[ms_per_frame_idx] = 1000.0f / frame_rate;
+		ms_per_frame_accum += ms_per_frame[ms_per_frame_idx];
+		ms_per_frame_idx = (ms_per_frame_idx + 1) % IM_ARRAYSIZE(ms_per_frame);
+
+		float range = m_max - m_min;
+
+		// Update the min and max if the current frame rate is lower or higher than the current min and max
+		m_min = std::min(m_min, ms_per_frame[ms_per_frame_idx]);
+		m_max = std::max(m_max, ms_per_frame[ms_per_frame_idx]);
+
+	}
+
+	// Stretch the plot to the full width of the window
+	ImGui::PushItemWidth(-1);
+	// Plot the frame rate over time
+	ImGui::PlotLines("Frame Rate", ms_per_frame, IM_ARRAYSIZE(ms_per_frame), ms_per_frame_idx, NULL, m_min, m_max, ImVec2(0, 80));
+	ImGui::PopItemWidth();
+	// The above but with colors
+	ImVec4 highAvgColor = ImVec4(0.1f, 1.0f, 0.1f, 1.0f);
+	ImVec4 lowAvgColor  = ImVec4(1.0f, 0.1f, 0.1f, 1.0f);
+	float  avgFrameRate = ms_per_frame_accum / IM_ARRAYSIZE(ms_per_frame);
+
+	ImGui::Text("Average Frame Rate: ");
+	ImGui::SameLine();
+	// Blend between the high and low colors based on the average frame rate
+	ImGui::PushStyleColor(ImGuiCol_Text,
+						  ImVec4(ImLerp(highAvgColor.x, lowAvgColor.x, avgFrameRate / 16.666f), ImLerp(highAvgColor.y, lowAvgColor.y, avgFrameRate / 16.666f), ImLerp(highAvgColor.z, lowAvgColor.z, avgFrameRate / 16.666f), 1.0f));
+	ImGui::Text("%.3f ms/frame", avgFrameRate);
+	ImGui::PopStyleColor();
+	ImGui::SameLine();
+	ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.95f, 0.95f, 0.1f, 1.0f));
+	ImGui::Text("(%0.1f FPS)", 1000.0f / avgFrameRate);
+	ImGui::PopStyleColor();
+
+	// Button to pause (Green) or resume (Red) the profiler
+	if (m_paused)
+	{
+		// Color the button green
+		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.2f, 0.8f, 0.2f, 1.0f));
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.1f, 0.9f, 0.1f, 1.0f));
+	}
+	else
+	{
+		// Color the button red
+		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.8f, 0.2f, 0.2f, 1.0f));
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.9f, 0.1f, 0.1f, 1.0f));
+	}
+
+	// Button to pause or resume the profiler (Right aligned below the plots)
+	ImGui::SameLine(ImGui::GetWindowWidth() - 80);
+
+	if (ImGui::Button(m_paused ? "Resume" : "Pause")) { m_paused = !m_paused; }
+
+	ImGui::PopStyleColor(2);
+
+	// Display system stats
+	//DisplaySystemStats();
+
+	ImGui::End();
+}
+
+void ImGuiLayer::NewFrame(BS::thread_pool& pool)
 {
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
 
-	// Make the entire window be a dockspace
-	ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDocking;
-	window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
-	window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
+	auto dockspaceFn = [&]() {
+		// Make the entire window be a dockspace
+		ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDocking;
+		window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
+		window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
 
-	ImGuiViewport* viewport = ImGui::GetMainViewport();
-	ImGui::SetNextWindowPos(viewport->WorkPos);
-	ImGui::SetNextWindowSize(viewport->WorkSize);
-	ImGui::SetNextWindowViewport(viewport->ID);
-	ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
-	ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
-	window_flags |= ImGuiWindowFlags_NoBackground;
+		ImGuiViewport* viewport = ImGui::GetMainViewport();
+		ImGui::SetNextWindowPos(viewport->WorkPos);
+		ImGui::SetNextWindowSize(viewport->WorkSize);
+		ImGui::SetNextWindowViewport(viewport->ID);
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+		window_flags |= ImGuiWindowFlags_NoBackground;
 
-	ImGui::Begin("DockSpace", nullptr, window_flags);
-	ImGui::PopStyleVar(2);
-	ImGuiID dockspace_id = ImGui::GetID("MainDockSpace");
-	ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_PassthruCentralNode);
-	ImGui::End();
+		ImGui::Begin("DockSpace", nullptr, window_flags);
+		ImGui::PopStyleVar(2);
+		ImGuiID dockspace_id = ImGui::GetID("MainDockSpace");
+		ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_PassthruCentralNode);
+		ImGui::End();
 
-	ImGui::Begin("Hierarchy");
-	{
-		q.each([&](components::Tag& t) { DrawEntity(t); });
-	}
-	ImGui::End();
-}
+		// Menu Bar
+		if (ImGui::BeginMainMenuBar())
+		{
+			static bool showProfiler     = true;
+			static bool showImGuiMetrics = false;
+			if (ImGui::BeginMenu("File"))
+			{
+				if (ImGui::MenuItem("New", "Ctrl+N")) {}
+				if (ImGui::MenuItem("Open...", "Ctrl+O")) {}
+				if (ImGui::MenuItem("Save", "Ctrl+S")) {}
+				if (ImGui::MenuItem("Save As...", "")) {}
+				ImGui::Separator();
+				if (ImGui::MenuItem("Exit")) {}
+				ImGui::EndMenu();
+			}
+			if (ImGui::BeginMenu("Edit"))
+			{
+				if (ImGui::MenuItem("Undo", "Ctrl+Z")) {}
+				if (ImGui::MenuItem("Redo", "Ctrl+Y", false, false)) {} // Disabled item
+				ImGui::Separator();
+				if (ImGui::MenuItem("Cut", "Ctrl+X")) {}
+				if (ImGui::MenuItem("Copy", "Ctrl+C")) {}
+				if (ImGui::MenuItem("Paste", "Ctrl+V")) {}
+				ImGui::EndMenu();
+			}
+			if (ImGui::BeginMenu("View"))
+			{
+				if (ImGui::MenuItem("Profiler")) showProfiler = !showProfiler;
+				if (ImGui::MenuItem("Show Imgui Metrics")) showImGuiMetrics = !showImGuiMetrics;
+				ImGui::EndMenu();
+			}
+			ImGui::EndMainMenuBar();
 
-void ImGuiLayer::DrawEntity(components::Tag& tag)
-{
-	// Making sure the transforms id are different so we can edit them individually
-	ImGui::PushID(&tag);
-	ImGui::Spacing();
+			if (showProfiler) { ShowProfilerWindow(&showProfiler); }
 
-	std::string name = tag.GetName();
-
-	// collapsing header for the transform
-	if (ImGui::CollapsingHeader(name.c_str()))
-	{
-		ImGui::InputText("Name", tag.GetName(), 256);
-		ImGui::Spacing();
-
-		// DragFloat3 for the position, rotation and scale
-		//ImGui::DragFloat3("Position", &transform.m_Position.x, 0.1f);
-		//ImGui::DragFloat3("Rotation", &transform.m_Rotation.x, 0.1f);
-		//ImGui::DragFloat3("Scale", &transform.m_Scale.x, 0.1f);
-
-		//// If the entity has a quad component, we can edit the color
-		//if (e.has<components::Quad>())
-		//{
-		//	ImGui::Spacing();
-		//	auto quad = e.get_ref<components::Quad>().get();
-		//	ImGui::ColorEdit4("Color", &quad->m_Color.x);
-		//}
-		//// If the entity has a text component, we can edit the text
-		//if (e.has<components::Text>())
-		//{
-		//	ImGui::Spacing();
-		//	auto text = e.get_ref<components::Text>().get();
-
-		//	strcpy_s(m_TextBuffer, 256, text->m_Text.c_str());
-		//	ImGui::InputText("Text", m_TextBuffer, 256);
-		//	text->m_Text = m_TextBuffer;
-
-		//	// Color edit for the text color
-		//	ImGui::Spacing();
-		//	ImGui::ColorEdit4("Color", &text->m_Color.x);
-		//}
-	}
-
-	// Pop the id so we can edit the next transform
-	ImGui::PopID();
+			if (showImGuiMetrics) { ImGui::ShowMetricsWindow(&showImGuiMetrics); }
+		}
+	};
+	pool.submit(dockspaceFn);
 }
 
 void ImGuiLayer::UpdateViewPorts()

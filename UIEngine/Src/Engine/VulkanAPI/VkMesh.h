@@ -1,9 +1,9 @@
 #pragma once
 
 #include "VkTypes.h"
+#include <glm/glm.hpp>
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
-#include <glm/glm.hpp>
 #include <string>
 #include <vector>
 
@@ -19,7 +19,7 @@ struct Vertex
 
 struct Mesh
 {
-	std::vector<Vertex> vertices;
+	std::vector<Vertex>   vertices;
 	std::vector<uint32_t> indices;
 
 	AllocatedBuffer vertexBuffer;
@@ -30,13 +30,13 @@ struct Mesh
 
 	// Descriptor Set Layout
 	vk::DescriptorSetLayout descriptorSetLayout;
-	vk::DescriptorSet descriptorSet; 
-	vk::DescriptorPool descriptorPool;
+	vk::DescriptorSet       descriptorSet;
+	vk::DescriptorPool      descriptorPool;
 
 	// Buffer info (mvp and texture)
-	AllocatedBuffer modelMatrixBuffer;
+	AllocatedBuffer          modelMatrixBuffer;
 	vk::DescriptorBufferInfo modelMatrixDescriptorInfo;
-	vk::DescriptorImageInfo textureDescriptorInfo;
+	vk::DescriptorImageInfo  textureDescriptorInfo;
 
 	// Texture
 	Texture texture;
@@ -47,28 +47,28 @@ struct Mesh
 		std::vector<vk::VertexInputAttributeDescription> attributes(4);
 
 		// Position
-		attributes[0].binding = 0;
+		attributes[0].binding  = 0;
 		attributes[0].location = 0;
-		attributes[0].format = vk::Format::eR32G32B32Sfloat;
-		attributes[0].offset = offsetof(Vertex, pos);
+		attributes[0].format   = vk::Format::eR32G32B32Sfloat;
+		attributes[0].offset   = offsetof(Vertex, pos);
 
 		// Normal
-		attributes[1].binding = 0;
+		attributes[1].binding  = 0;
 		attributes[1].location = 1;
-		attributes[1].format = vk::Format::eR32G32B32Sfloat;
-		attributes[1].offset = offsetof(Vertex, normal);
+		attributes[1].format   = vk::Format::eR32G32B32Sfloat;
+		attributes[1].offset   = offsetof(Vertex, normal);
 
 		// TexCoord
-		attributes[2].binding = 0;
+		attributes[2].binding  = 0;
 		attributes[2].location = 2;
-		attributes[2].format = vk::Format::eR32G32Sfloat;
-		attributes[2].offset = offsetof(Vertex, texCoord);
+		attributes[2].format   = vk::Format::eR32G32Sfloat;
+		attributes[2].offset   = offsetof(Vertex, texCoord);
 
 		// Color
-		attributes[3].binding = 0;
+		attributes[3].binding  = 0;
 		attributes[3].location = 3;
-		attributes[3].format = vk::Format::eR32G32B32Sfloat;
-		attributes[3].offset = offsetof(Vertex, color);
+		attributes[3].format   = vk::Format::eR32G32B32Sfloat;
+		attributes[3].offset   = offsetof(Vertex, color);
 
 		return attributes;
 	}
@@ -77,13 +77,13 @@ struct Mesh
 	static vk::VertexInputBindingDescription GetBindingDescription()
 	{
 		vk::VertexInputBindingDescription bindingDescription;
-		bindingDescription.binding = 0;
-		bindingDescription.stride = sizeof(Vertex);
+		bindingDescription.binding   = 0;
+		bindingDescription.stride    = sizeof(Vertex);
 		bindingDescription.inputRate = vk::VertexInputRate::eVertex;
 
 		return bindingDescription;
 	}
-	
+
 	// Destructor
 	void Destroy(VkDevice& device)
 	{
@@ -133,9 +133,7 @@ struct Mesh
 		memcpy(data, &modelMatrix, sizeof(glm::mat4));
 		vkUnmapMemory(device, modelMatrixBuffer.memory);
 	}
-	
+
 	glm::mat4 modelMatrix;
-
 };
-
 } // namespace vulkan

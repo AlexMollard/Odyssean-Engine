@@ -93,30 +93,33 @@
     <ClCompile Include="Src\Engine\VulkanAPI\ImGuiVulkan.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Src\Nodes\Node.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Src\Engine\Engine.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Src\Components\Camera.h">
+    <ClInclude Include="Src\Nodes\Camera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Src\Components\Quad.h">
+    <ClInclude Include="Src\Nodes\Quad.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Src\Components\Tag.h">
+    <ClInclude Include="Src\Nodes\Tag.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Src\Components\Text.h">
+    <ClInclude Include="Src\Nodes\Text.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Src\Components\Transform.h">
+    <ClInclude Include="Src\Nodes\Transform.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Src\Components\Velocity.h">
+    <ClInclude Include="Src\Nodes\Velocity.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Src\Engine\Components.h">
+    <ClInclude Include="Src\Engine\Nodes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Src\Engine\ECS.h">
@@ -210,6 +213,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Src\Engine\VulkanAPI\ImGuiVulkan.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Nodes\Node.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

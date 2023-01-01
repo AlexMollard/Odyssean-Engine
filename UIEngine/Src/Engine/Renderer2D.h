@@ -1,11 +1,10 @@
 #pragma once
-#include "Components/Camera.h"
-#include "Components/Quad.h"
+#include "Nodes/Camera.h"
+#include "Nodes/Quad.h"
 #include <freetype/freetype.h>
 #include <glm/glm.hpp>
 #include <string>
 #include <vector>
-
 
 class ShaderOpenGL;
 class Texture;
@@ -16,7 +15,7 @@ public:
 	Renderer2D() = default;
 	~Renderer2D();
 
-	void Init(components::Camera* camera, ShaderOpenGL* basicShader, ShaderOpenGL* textShader);
+	void Init(node::Camera* camera, ShaderOpenGL* basicShader, ShaderOpenGL* textShader);
 	void ShutDown();
 
 	void Draw();
@@ -30,13 +29,13 @@ public:
 	static void Flush();
 
 private:
-	glm::vec3 currentColor  = glm::vec3(-404);
-	ShaderOpenGL* currentShader   = nullptr;
-	Texture* currentTexture = nullptr;
+	glm::vec3     currentColor   = glm::vec3(-404);
+	ShaderOpenGL* currentShader  = nullptr;
+	Texture*      currentTexture = nullptr;
 
-	std::vector<Texture*> texturePool;
+	std::vector<Texture*>      texturePool;
 	std::vector<ShaderOpenGL*> shaderPool;
 
 	ShaderOpenGL* m_BasicShader;
-	components::Camera* m_Camera;
+	node::Camera* m_Camera;
 };

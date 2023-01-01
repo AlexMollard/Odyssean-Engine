@@ -110,11 +110,11 @@ void Renderer2D::Draw()
 
 	// Setup the projection matrix to be orthographic with 0 being bottom left
 	glm::mat4 proj = glm::ortho(0.0f, width, 0.0f, height, -100.0f, 100.0f);
-	
+
 	glm::mat4 model = glm::mat4(1.0f);
-	
+
 	// Adjust the view matrix to be centered so that 0,0 is the bottom left of the screen
-	glm::mat4 view  = glm::mat4(1.0f);
+	glm::mat4 view = glm::mat4(1.0f);
 
 	// This is the ubo layout in the shader
 	// layout(binding = 0) uniform UniformBufferObject
@@ -144,7 +144,6 @@ void Renderer2D::Draw()
 	ShaderOpenGL::setMat4(*m_BasicShader, "model", model);
 	ShaderOpenGL::setMat4(*m_BasicShader, "view", view);
 	ShaderOpenGL::setMat4(*m_BasicShader, "proj", proj);
-
 
 	EndBatch();
 	Flush();
@@ -232,7 +231,7 @@ void Renderer2D::DrawText(std::string text, glm::vec2 position, glm::vec4 color,
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-void Renderer2D::Init(components::Camera* camera, ShaderOpenGL* basicShader, ShaderOpenGL* textShader)
+void Renderer2D::Init(node::Camera* camera, ShaderOpenGL* basicShader, ShaderOpenGL* textShader)
 {
 	m_Camera = camera;
 

@@ -2,11 +2,14 @@
 
 #include "VulkanScene.h"
 
+void VulkanScene::Enter()
+{}
 
-void VulkanScene::Enter() {}
+void VulkanScene::Exit()
+{}
 
-void VulkanScene::Exit() {}
+void VulkanScene::Update(float deltaTime)
+{}
 
-void VulkanScene::Update(float deltaTime) {}
-
-void VulkanScene::Draw(const BaseRenderer& renderer) {}
+void VulkanScene::Draw(const BaseRenderer& renderer)
+{}

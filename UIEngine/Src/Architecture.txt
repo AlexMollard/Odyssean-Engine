@@ -1,0 +1,36 @@
+This file will explain how the average layout of a scene should be.
+It will also explain how to use the different tools in the scene editor. (Not yet finished)
+
+---------------- Scene ----------------
+A scene is a collection of nodes that are rendered together.
+
+
+
+
+--------------- Nodes ----------------
+Node:
+    A node is a object that can be placed in the scene.
+    In order to make a scene you require a root node.
+    The root node is the node that is the parent of all other nodes.
+    This node can be any node, but it is recommended to use either a GroupNode or a SceneNode (See below).
+    If you do not use A SceneNode as your root node, the scene will default to 2D. 
+
+GroupNode:
+    A GroupNode is a node that can contain other nodes.
+    It is used to group nodes together.
+    It is also used to make a hierarchy of nodes.
+    A GroupNode can be used as a root node.
+
+SceneNode:
+    This node comes in 2 flavors: SceneNode and SceneNode2D.
+    The SceneNode is used to render a 3D scene.
+    The SceneNode2D is used to render a 2D scene.
+
+CameraNode:
+    This node is used to render a scene from a certain point of view.
+    It is used in 3D scenes.
+    It is not used in 2D scenes.
+
+LightNode:
+    This node is used to add light to a scene.
+    It can be used in both 2D and 3D scenes.

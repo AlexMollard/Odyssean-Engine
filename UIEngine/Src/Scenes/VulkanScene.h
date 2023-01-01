@@ -4,11 +4,13 @@
 
 #include "Engine/Scene.h"
 
-
 class VulkanScene : public Scene
 {
 public:
-	explicit VulkanScene(std::string_view inName) { name = inName; };
+	explicit VulkanScene(std::string_view inName)
+	{
+		name = inName;
+	};
 
 	void OnCreate() override{ /*To Be Impelmented*/ };
 	void Enter() override;

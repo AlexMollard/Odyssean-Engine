@@ -10,8 +10,7 @@ GLFWwindow* create_window_glfw(const char* window_name = "", bool resize = true)
 {
 	glfwInit();
 	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-	if (!resize)
-		glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+	if (!resize) glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
 	return glfwCreateWindow(1024, 1024, window_name, NULL, NULL);
 }
@@ -25,16 +24,15 @@ void destroy_window_glfw(GLFWwindow* window)
 VkSurfaceKHR create_surface_glfw(VkInstance instance, GLFWwindow* window, VkAllocationCallbacks* allocator = nullptr)
 {
 	VkSurfaceKHR surface = VK_NULL_HANDLE;
-	VkResult err         = glfwCreateWindowSurface(instance, window, allocator, &surface);
+	VkResult     err     = glfwCreateWindowSurface(instance, window, allocator, &surface);
 	if (err)
 	{
 		const char* error_msg;
-		int ret = glfwGetError(&error_msg);
+		int         ret = glfwGetError(&error_msg);
 		if (ret != 0)
 		{
 			std::cout << ret << " ";
-			if (error_msg != nullptr)
-				std::cout << error_msg;
+			if (error_msg != nullptr) std::cout << error_msg;
 			std::cout << "\n";
 		}
 		surface = VK_NULL_HANDLE;
@@ -118,7 +116,7 @@ void VulkanInit::DestroyBuffer(Init& init, vk::Buffer buffer, vk::DeviceMemory m
 void* VulkanInit::LoadImage(Init& init, RenderData& renderData, vulkan::Buffer& stagingBuffer, vulkan::Mesh& mesh, int& width, int& height, int& channels)
 {
 	vk::Device vk_device{ init.device.device };
-	stbi_uc* pixels = stbi_load(mesh.texturePath.c_str(), &width, &height, &channels, STBI_rgb_alpha);
+	stbi_uc*   pixels = stbi_load(mesh.texturePath.c_str(), &width, &height, &channels, STBI_rgb_alpha);
 
 	// Check if the texture loaded correctly
 	if (!pixels)
@@ -126,10 +124,10 @@ void* VulkanInit::LoadImage(Init& init, RenderData& renderData, vulkan::Buffer& 
 		std::cout << "Failed to load texture" << std::endl;
 
 		// Instead of returning we will just create a magenta texture
-		width        = 1;
-		height       = 1;
-		channels     = 4;
-		pixels       = new stbi_uc[4]{ 255, 0, 255, 255 };
+		width    = 1;
+		height   = 1;
+		channels = 4;
+		pixels   = new stbi_uc[4]{ 255, 0, 255, 255 };
 	}
 
 	// Create a staging buffer
@@ -199,15 +197,9 @@ void VulkanInit::TransitionImageLayout(Init& init, RenderData& renderData, vk::I
 	{
 		barrier.subresourceRange.aspectMask = vk::ImageAspectFlagBits::eDepth;
 
-		if (HasStencilComponent(format))
-		{
-			barrier.subresourceRange.aspectMask |= vk::ImageAspectFlagBits::eStencil;
-		}
+		if (HasStencilComponent(format)) { barrier.subresourceRange.aspectMask |= vk::ImageAspectFlagBits::eStencil; }
 	}
-	else
-	{
-		barrier.subresourceRange.aspectMask = vk::ImageAspectFlagBits::eColor;
-	}
+	else { barrier.subresourceRange.aspectMask = vk::ImageAspectFlagBits::eColor; }
 
 	barrier.subresourceRange.baseMipLevel   = 0;
 	barrier.subresourceRange.levelCount     = 1;
@@ -241,10 +233,7 @@ void VulkanInit::TransitionImageLayout(Init& init, RenderData& renderData, vk::I
 		sourceStage      = vk::PipelineStageFlagBits::eTopOfPipe;
 		destinationStage = vk::PipelineStageFlagBits::eEarlyFragmentTests;
 	}
-	else
-	{
-		throw std::invalid_argument("unsupported layout transition!");
-	}
+	else { throw std::invalid_argument("unsupported layout transition!"); }
 
 	commandBuffer.pipelineBarrier(sourceStage, destinationStage, {}, nullptr, nullptr, barrier);
 
@@ -302,7 +291,7 @@ void VulkanInit::CreateDevice(Init& init, std::string_view name)
 	init.window = create_window_glfw(name.data(), true);
 
 	vkb::InstanceBuilder instance_builder;
-	auto instance_ret = instance_builder.use_default_debug_messenger().request_validation_layers().build();
+	auto                 instance_ret = instance_builder.use_default_debug_messenger().request_validation_layers().build();
 	if (!instance_ret)
 	{
 		std::cout << instance_ret.error().message() << "\n";
@@ -315,7 +304,7 @@ void VulkanInit::CreateDevice(Init& init, std::string_view name)
 	init.surface = create_surface_glfw(init.instance, init.window);
 
 	vkb::PhysicalDeviceSelector phys_device_selector(init.instance);
-	auto phys_device_ret = phys_device_selector.set_surface(init.surface).select();
+	auto                        phys_device_ret = phys_device_selector.set_surface(init.surface).select();
 	if (!phys_device_ret)
 	{
 		std::cout << phys_device_ret.error().message() << "\n";
@@ -324,7 +313,7 @@ void VulkanInit::CreateDevice(Init& init, std::string_view name)
 	vkb::PhysicalDevice physical_device = phys_device_ret.value();
 
 	vkb::DeviceBuilder device_builder{ physical_device };
-	auto device_ret = device_builder.build();
+	auto               device_ret = device_builder.build();
 	if (!device_ret)
 	{
 		std::cout << device_ret.error().message() << "\n";

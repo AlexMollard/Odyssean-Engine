@@ -23,14 +23,17 @@ public:
 	float GetDeltaTime() const;
 
 	// Getters
-	GLFWwindow* GetWindow() const { return window; }
+	GLFWwindow* GetWindow() const
+	{
+		return window;
+	}
 
 private:
 	// Main Window
 	GLFWwindow* window;
 
 	// DeltaTime
-	double last = 0.0;
-	double now  = 0.0;
-	float delta = 1.0f;
+	double last  = 0.0;
+	double now   = 0.0;
+	float  delta = 1.0f;
 };

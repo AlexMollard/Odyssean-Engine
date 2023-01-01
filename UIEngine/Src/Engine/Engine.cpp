@@ -7,7 +7,6 @@
 
 namespace UIEngine
 {
-
 void Engine::Init(const char* windowName, int width, int height, GraphicsAPI graphicsAPI)
 {
 	m_graphicsAPI = graphicsAPI;
@@ -17,6 +16,7 @@ void Engine::Init(const char* windowName, int width, int height, GraphicsAPI gra
 		engine->Initialize(windowName, width, height);
 		m_engine = engine;
 		m_close  = false;
+		ECS::Instance()->Init();
 	}
 	else if (graphicsAPI == GraphicsAPI::Vulkan)
 	{
@@ -49,10 +49,9 @@ float Engine::Update()
 
 		m_close = engine->GetClose();
 
-		if (m_close)
-			return -FLT_MAX;
+		if (m_close) return -FLT_MAX;
 
-		return engine->Update();
+		return engine->Update(m_sceneStateMachine);
 	}
 	else if (m_graphicsAPI == GraphicsAPI::Vulkan)
 	{
@@ -60,8 +59,7 @@ float Engine::Update()
 
 		m_close = engine->GetClose();
 
-		if (m_close)
-			return -FLT_MAX;
+		if (m_close) return -FLT_MAX;
 
 		return engine->Update();
 	}
@@ -74,7 +72,7 @@ void Engine::Render()
 	if (m_graphicsAPI == GraphicsAPI::OpenGL)
 	{
 		OpenGLEngine* engine = static_cast<OpenGLEngine*>(m_engine);
-		engine->Render();
+		engine->Render(m_sceneStateMachine);
 	}
 	else if (m_graphicsAPI == GraphicsAPI::Vulkan)
 	{
@@ -97,6 +95,11 @@ const void* Engine::GetRenderer()
 	}
 
 	return nullptr;
+}
+
+SceneStateMachine& Engine::GetSceneStateMachine()
+{
+	return m_sceneStateMachine;
 }
 
 } // namespace UIEngine

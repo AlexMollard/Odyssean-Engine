@@ -3,19 +3,21 @@
 #include "OpenGLEngine.h"
 
 #include "imgui_impl_opengl3.h"
+#include <imgui_impl_glfw.h>
 
 #include "Engine/ECS.h"
 #include "Engine/OpenGLAPI/OpenGLWindow.h"
+#include "Engine/OpenGLAPI/ShaderOpenGL.h"
 #include "Engine/ResourceManager.h"
 #include "Engine/SceneStateMachine.h"
-#include "Engine/OpenGLAPI/ShaderOpenGL.h"
 #include "Engine/Texture.h"
-
 
 static OpenGLWindow m_Window;
 
 OpenGLEngine::~OpenGLEngine()
 {
+	delete pool;
+	pool = nullptr;
 	ECS::Instance()->Destroy();
 }
 
@@ -29,12 +31,12 @@ void OpenGLEngine::Initialize(const char* windowName, int width, int height)
 	// ImGui Setup
 	m_ImguiLayer.Init(m_Window.GetWindow());
 
-	// m_AudioManager.AudioInit();
-
 	m_close = false;
+
+	pool = new BS::thread_pool(4);
 }
 
-float OpenGLEngine::Update()
+float OpenGLEngine::Update(SceneStateMachine& stateMachine)
 {
 	if (m_Window.Window_shouldClose())
 	{
@@ -47,19 +49,27 @@ float OpenGLEngine::Update()
 	m_Window.Update_Window();
 	float dt = m_Window.GetDeltaTime();
 
-	// Start the Dear ImGui frame
-	m_ImguiLayer.NewFrame();
+	m_ImguiLayer.NewFrame(*pool);
 
-	//audioManager.system->update();
-	//audioManager.Update();
+	// TODO:
+	// Pass in the thread pool to the ecs update so we can multithread the expensive imgui stuff
+	auto ECSUpdateFn          = [&]() { ECS::Instance()->Update(*pool); };
+	auto StateMachineUpdateFn = [&]() { stateMachine.Update(dt); };
 
-	ECS::Instance()->Update();
+	pool->submit(ECSUpdateFn);
+	pool->submit(StateMachineUpdateFn);
+
+	pool->wait_for_tasks();
+
+	ImGui::EndFrame();
 
 	return dt;
 }
 
-void OpenGLEngine::Render()
+void OpenGLEngine::Render(SceneStateMachine& stateMachine)
 {
+	stateMachine.Render(*m_renderer);
+
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 

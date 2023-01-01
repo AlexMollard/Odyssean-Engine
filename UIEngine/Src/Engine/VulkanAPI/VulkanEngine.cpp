@@ -1,7 +1,7 @@
 #include "pch.h"
 
-
 #include "VulkanEngine.h"
+
 #include "ImGuiVulkan.h"
 
 VulkanEngine::~VulkanEngine()
@@ -68,11 +68,10 @@ float VulkanEngine::Update()
 void VulkanEngine::Render()
 {
 	int res = VulkanRenderer::DrawFrame(m_Init, m_RenderData);
-	
+
 	if (res != 0)
 	{
 		std::cout << "failed to draw frame \n";
 		return;
 	}
-
 }

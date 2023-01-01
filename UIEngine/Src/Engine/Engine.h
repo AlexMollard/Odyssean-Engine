@@ -11,7 +11,6 @@ enum class GraphicsAPI
 
 namespace UIEngine
 {
-
 class Engine
 {
 public:
@@ -22,11 +21,16 @@ public:
 
 	// Returns DT
 	float Update();
-	void Render();
+	void  Render();
 
-	bool GetClose() const { return m_close; }
+	bool GetClose() const
+	{
+		return m_close;
+	}
 
 	const void* GetRenderer();
+
+	SceneStateMachine& GetSceneStateMachine();
 
 private:
 	bool m_close = true;
@@ -35,5 +39,7 @@ private:
 	GraphicsAPI m_graphicsAPI = GraphicsAPI::OpenGL;
 
 	void* m_engine = nullptr;
+
+	SceneStateMachine m_sceneStateMachine;
 };
 } // namespace UIEngine

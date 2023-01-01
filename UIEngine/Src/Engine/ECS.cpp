@@ -4,7 +4,9 @@
 
 #include "imgui.h"
 
-static int s_IDIncrementor = 0;
+static int           s_IDIncrementor = 0;
+static Node          s_RootNode;
+static flecs::entity s_RootEntity;
 
 ECS*          ECS::s_Instance = nullptr;
 flecs::entity ECS::CreateEntity()
@@ -24,7 +26,7 @@ flecs::entity& ECS::CreateQuad(const glm::vec3& position, const glm::vec2& size,
 	}
 
 	flecs::entity quadEntity = Instance()->m_World.entity();
-	quadEntity.set([&](components::Quad& quad, components::Transform& transform, components::Tag& tag) {
+	quadEntity.set([&](node::Quad& quad, node::Transform& transform, node::Tag& tag) {
 		transform.SetPosition(position);
 		quad.SetSize(size);
 		quad.SetColor(color);
@@ -42,7 +44,7 @@ flecs::entity& ECS::CreateText(const std::string& inText, const glm::vec3& posit
 	out << "Text: " << s_IDIncrementor++;
 
 	flecs::entity textEntity = Instance()->m_World.entity();
-	textEntity.set([&](components::Text& text, components::Transform& transform, components::Tag& tag) {
+	textEntity.set([&](node::Text& text, node::Transform& transform, node::Tag& tag) {
 		transform.SetPosition(position);
 		text.SetColor(color);
 		text.SetText(inText);
@@ -55,65 +57,25 @@ flecs::entity& ECS::CreateText(const std::string& inText, const glm::vec3& posit
 
 void ECS::Init()
 {
-	// Create the components (Not needed I think)
-	m_World.component<components::Text>();
-	m_World.component<components::Quad>();
+	m_World.import <flecs::units>();
+	m_World.import <flecs::monitor>(); // Collect statistics periodically
+	m_World.set<flecs::Rest>({});
+	//m_World.app().enable_rest().enable_monitor().run();
 
-	// apply velocity to position
-	m_World.system<components::Velocity, components::Transform>("ApplyVelocity").kind(flecs::OnUpdate).each([&](flecs::entity e, components::Velocity& velocity, components::Transform& transform) {
-		transform.SetPosition(transform.GetPosition() + (velocity.GetVelocity() * delta_time()));
-	});
+	// Add a observer to the world that will be triggered when a new entity is created
+	//m_World.observer<node::Tag>().event(flecs::OnAdd).each([&](flecs::iter& it, size_t i, node::Tag tag) {
+	//	// Get the entity
+	//	flecs::entity e = it.entity(i);
+
+	//	// If the root entity is not set, set it
+	//	if (!m_RootEntity) { m_RootEntity = e; }
+	//});
 }
 
-void ECS::Update()
+void ECS::Update(BS::thread_pool& pool)
 {
 	// Update the ECS
 	m_World.progress();
-
-	// Fps counter
-	ImGui::Begin("Stats");
-	{
-		const ecs_world_info_t* stats = ecs_get_world_info(m_World);
-
-		m_FPS = 1.0f / stats->delta_time;
-		ImGui::Text("FPS: %f", m_FPS);
-		ImGui::Text("High FPS: %f", m_FPSHigh);
-		ImGui::Text("Low FPS: %f", m_FPSLow);
-
-		// add fps to a vector
-		m_FpsHistory.push_back(m_FPS);
-		// if the vector is bigger than 100, remove the first element
-		if (m_FpsHistory.size() > 400) { m_FpsHistory.erase(m_FpsHistory.begin()); }
-
-		// Average fps
-		float averageFps = 0.0f;
-		for (auto& fps : m_FpsHistory) { averageFps += fps; }
-		averageFps /= m_FpsHistory.size();
-		ImGui::Text("Average FPS: %f", averageFps);
-
-		// Store Average FPS for plot graph
-		m_AverageFpsHistory.push_back(averageFps);
-		// if the vector is bigger than 100, remove the first element
-		if (m_AverageFpsHistory.size() > 400) { m_AverageFpsHistory.erase(m_AverageFpsHistory.begin()); }
-
-		// Draw the fps graph
-		ImGui::PlotLines("FPS", m_AverageFpsHistory.data(), m_AverageFpsHistory.size(), 0, nullptr, 0.0f, 100.0f, ImVec2(0, 80));
-
-		m_FPSTimer += stats->delta_time;
-
-		if (m_FPSTimer >= 1.0f)
-		{
-			m_FPSTimer = 0.0f;
-			m_FPSHigh  = m_FPS;
-			m_FPSLow   = m_FPS;
-		}
-		else
-		{
-			if (m_FPS > m_FPSHigh) { m_FPSHigh = m_FPS; }
-			if (m_FPS < m_FPSLow) { m_FPSLow = m_FPS; }
-		}
-	}
-	ImGui::End();
 }
 
 void ECS::Destroy()

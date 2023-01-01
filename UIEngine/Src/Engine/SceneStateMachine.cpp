@@ -3,6 +3,7 @@
 #include "SceneStateMachine.h"
 
 #include "Scene.h"
+#include <WinBase.h>
 
 // Add a scene to the state machine.
 void SceneStateMachine::AddScene(Scene* scene)
@@ -10,10 +11,7 @@ void SceneStateMachine::AddScene(Scene* scene)
 	// Check if the scene is already in the state machine.
 	for (auto& s : scenes)
 	{
-		if (s == scene)
-		{
-			return;
-		}
+		if (s == scene) { return; }
 	}
 
 	scenes.push_back(scene);
@@ -39,11 +37,11 @@ void SceneStateMachine::RemoveScene(Scene* scene)
 // Set the current scene.
 void SceneStateMachine::SetCurrentScene(Scene* scene)
 {
-	if (currentScene != nullptr)
-		currentScene->Exit();
+	if (currentScene != nullptr) currentScene->Exit();
 
 	currentScene = scene;
 	currentScene->Enter();
+	S_TRACE("");
 }
 
 // Get the current scene.
@@ -54,14 +52,12 @@ Scene* SceneStateMachine::GetCurrentScene() const
 
 void SceneStateMachine::Update(float deltaTime)
 {
-	if (currentScene)
-		currentScene->Update(deltaTime);
+	if (currentScene) currentScene->Update(deltaTime);
 }
 
 void SceneStateMachine::Render(const BaseRenderer& renderer)
 {
-	if (currentScene)
-		currentScene->Draw(renderer);
+	if (currentScene) currentScene->Draw(renderer);
 }
 
 void SceneStateMachine::Destroy()

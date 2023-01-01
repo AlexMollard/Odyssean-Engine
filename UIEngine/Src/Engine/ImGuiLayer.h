@@ -1,10 +1,10 @@
 #pragma once
 // Wrappers and helper functions for imgui library
+#include "BS_thread_pool.hpp"
 #include "ECS.h"
 #include "imgui.h"
 
 struct GLFWwindow;
-
 
 class ImGuiLayer
 {
@@ -15,13 +15,11 @@ public:
 	void Init(GLFWwindow* window);
 
 	void SetStyle();
-	void NewFrame(); // before rendering (where you would call imgui::NewFrame)
+	void DisplaySystemStats();
+	void ShowProfilerWindow(bool* p_open);
+	void NewFrame(BS::thread_pool& pool); // before rendering (where you would call imgui::NewFrame)
 	void UpdateViewPorts();
 
 private:
 	ImGuiIO* io;
-
-	flecs::query<components::Tag> q;
-
-	void DrawEntity(components::Tag& tag);
 };

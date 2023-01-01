@@ -1,13 +1,13 @@
 #pragma once
+#include "Node.h"
 #include "glm/gtx/transform.hpp"
-
-namespace components
+namespace node
 {
 // This is a component class. It is used to store data about the velocity of an entity.
 // It should only contain data and no functions.
 // It should be as small as possible.
 
-class Velocity
+class Velocity : Node
 {
 public:
 	float x = 0.0f;
@@ -16,8 +16,12 @@ public:
 	// Default constructor
 	Velocity() = default;
 
-	Velocity(float x, float y, float z) : x(x), y(y) {}
+	Velocity(float x, float y, float z) : x(x), y(y)
+	{}
 
-	glm::vec2 GetVelocity() const { return { x, y }; }
+	glm::vec2 GetVelocity() const
+	{
+		return { x, y };
+	}
 };
-} // namespace components
+} // namespace node

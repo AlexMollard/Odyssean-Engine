@@ -24,6 +24,22 @@ void TestingScene::Enter()
 	ECS::CreateQuad(glm::vec3(width, 0, 0), glm::vec2(quadWidth, quadHeight), glm::vec4(1, 1, 0, 1), "BottomRightQuad");
 	ECS::CreateQuad(glm::vec3(width / 2, height / 2, 0), glm::vec2(quadWidth, quadHeight), glm::vec4(1, 1, 1, 1), "CenterQuad");
 
+	// Circle the center quad around the screen
+	float x = 0;
+	float y = 0;
+	float total = 100;
+	float radius = 400.0f;
+
+	for (int i = 0; i < total; i++)
+	{
+		float angle = (i / total) * 360.0f;
+		x = width / 2 + radius * cos(glm::radians(angle));
+		y = height / 2 + radius * sin(glm::radians(angle));
+
+		ECS::CreateQuad(glm::vec3(x, y, 0), glm::vec2(quadWidth, quadHeight), glm::vec4(1, 1, 1, 1), std::to_string(x / y).c_str());
+	}
+
+
 	m_Renderer   = _NEW   Renderer2D();
 	m_litShader  = _NEW  ShaderOpenGL("LitShader", "../Resources/Shaders/lit.vert", "../Resources/Shaders/lit.frag");
 	m_textShader = _NEW ShaderOpenGL("TextShader", "../Resources/Shaders/font.vert", "../Resources/Shaders/font.frag");
@@ -38,14 +54,15 @@ void TestingScene::Exit()
 }
 
 void TestingScene::Update(float deltaTime)
-{}
+{
+}
 
 void TestingScene::Draw(const BaseRenderer& renderer)
 {
 	auto& world = ECS::GetWorldStatic();
 
-	flecs::filter<components::Quad, components::Transform> f = world.filter<components::Quad, components::Transform>();
-	f.each([this](components::Quad& q, components::Transform& t) { m_Renderer->DrawQuad(t.GetPosition(), q.GetSize() * t.GetScale(), q.GetColor(), q.GetAnchorPoint(), 0); });
+	flecs::filter<node::Quad, node::Transform> f = world.filter<node::Quad, node::Transform>();
+	f.each([this](node::Quad& q, node::Transform& t) { m_Renderer->DrawQuad(t.GetPosition(), q.GetSize() * t.GetScale(), q.GetColor(), q.GetAnchorPoint(), 0); });
 
 	m_Renderer->Draw();
 }

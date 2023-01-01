@@ -24,9 +24,9 @@ void* ShaderOpenGL::Create(std::string name, const char* vertexPath, const char*
 {
 	this->name = name;
 	// 1. retrieve the vertex/fragment source code from filePath
-	std::string vertexCode;
-	std::string fragmentCode;
-	std::string geometryCode;
+	std::string   vertexCode;
+	std::string   fragmentCode;
+	std::string   geometryCode;
 	std::ifstream vShaderFile;
 	std::ifstream fShaderFile;
 	std::ifstream gShaderFile;
@@ -94,15 +94,13 @@ void* ShaderOpenGL::Create(std::string name, const char* vertexPath, const char*
 	shader_ID = glCreateProgram();
 	glAttachShader(shader_ID, vertex);
 	glAttachShader(shader_ID, fragment);
-	if (geometryPath != nullptr)
-		glAttachShader(shader_ID, geometry);
+	if (geometryPath != nullptr) glAttachShader(shader_ID, geometry);
 	glLinkProgram(shader_ID);
 	CheckCompileErrors(shader_ID, "PROGRAM");
 	// delete the shaders as they're linked into our program now and no longer necessary
 	glDeleteShader(vertex);
 	glDeleteShader(fragment);
-	if (geometryPath != nullptr)
-		glDeleteShader(geometry);
+	if (geometryPath != nullptr) glDeleteShader(geometry);
 
 	return this;
 }
@@ -114,7 +112,7 @@ ShaderOpenGL::~ShaderOpenGL()
 
 unsigned int ShaderOpenGL::CompileShader(unsigned int type, const std::string& source)
 {
-	unsigned int id   = glCreateShader(type);
+	unsigned int  id  = glCreateShader(type);
 	const GLchar* src = source.c_str();
 	glShaderSource(id, 1, &src, nullptr);
 	glCompileShader(id);
@@ -138,7 +136,7 @@ unsigned int ShaderOpenGL::CompileShader(unsigned int type, const std::string& s
 
 void ShaderOpenGL::CheckCompileErrors(GLuint shader, std::string type)
 {
-	GLint success;
+	GLint  success;
 	GLchar infoLog[1024];
 	if (type != "PROGRAM")
 	{

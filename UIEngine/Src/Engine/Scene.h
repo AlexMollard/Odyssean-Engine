@@ -2,7 +2,6 @@
 #include "BaseRenderer.h"
 #include <string>
 
-
 class Scene
 {
 public:

@@ -16,17 +16,14 @@
 
 #pragma once
 
+#include "VkBootstrapDispatch.h"
 #include <cassert>
 #include <cstdio>
 #include <cstring>
-
-#include <vector>
 #include <string>
 #include <system_error>
-
+#include <vector>
 #include <vulkan/vulkan.h>
-
-#include "VkBootstrapDispatch.h"
 
 #ifdef VK_MAKE_API_VERSION
 #define VKB_MAKE_VK_VERSION(variant, major, minor, patch) VK_MAKE_API_VERSION(variant, major, minor, patch)
@@ -50,72 +47,89 @@
 #define VKB_VK_API_VERSION_1_0 VKB_MAKE_VK_VERSION(0, 1, 0, 0)
 #endif
 
-namespace vkb {
-
-struct Error {
+namespace vkb
+{
+struct Error
+{
 	std::error_code type;
-	VkResult vk_result = VK_SUCCESS; // optional error value if a vulkan call failed
+	VkResult        vk_result = VK_SUCCESS; // optional error value if a vulkan call failed
 };
 
-template <typename T> class Result {
-	public:
-	Result(const T& value) noexcept : m_value{ value }, m_init{ true } {}
-	Result(T&& value) noexcept : m_value{ std::move(value) }, m_init{ true } {}
+template <typename T>
+class Result
+{
+public:
+	Result(const T& value) noexcept : m_value{ value }, m_init{ true }
+	{}
+	Result(T&& value) noexcept : m_value{ std::move(value) }, m_init{ true }
+	{}
 
-	Result(Error error) noexcept : m_error{ error }, m_init{ false } {}
+	Result(Error error) noexcept : m_error{ error }, m_init{ false }
+	{}
 
-	Result(std::error_code error_code, VkResult result = VK_SUCCESS) noexcept
-	: m_error{ error_code, result }, m_init{ false } {}
+	Result(std::error_code error_code, VkResult result = VK_SUCCESS) noexcept : m_error{ error_code, result }, m_init{ false }
+	{}
 
-	~Result() noexcept { destroy(); }
-	Result(Result const& expected) noexcept : m_init(expected.m_init) {
+	~Result() noexcept
+	{
+		destroy();
+	}
+	Result(Result const& expected) noexcept : m_init(expected.m_init)
+	{
 		if (m_init)
 			new (&m_value) T{ expected.m_value };
 		else
 			m_error = expected.m_error;
 	}
-	Result& operator=(Result const& result) noexcept {
+	Result& operator=(Result const& result) noexcept
+	{
 		m_init = result.m_init;
 		if (m_init)
 			new (&m_value) T{ result.m_value };
 		else
 			m_error = result.m_error;
 	}
-	Result(Result&& expected) noexcept : m_init(expected.m_init) {
+	Result(Result&& expected) noexcept : m_init(expected.m_init)
+	{
 		if (m_init)
 			new (&m_value) T{ std::move(expected.m_value) };
 		else
 			m_error = std::move(expected.m_error);
 		expected.destroy();
 	}
-	Result& operator=(Result&& result) noexcept {
+	Result& operator=(Result&& result) noexcept
+	{
 		m_init = result.m_init;
 		if (m_init)
 			new (&m_value) T{ std::move(result.m_value) };
 		else
 			m_error = std::move(result.m_error);
 	}
-	Result& operator=(const T& expect) noexcept {
+	Result& operator=(const T& expect) noexcept
+	{
 		destroy();
 		m_init = true;
 		new (&m_value) T{ expect };
 		return *this;
 	}
-	Result& operator=(T&& expect) noexcept {
+	Result& operator=(T&& expect) noexcept
+	{
 		destroy();
 		m_init = true;
 		new (&m_value) T{ std::move(expect) };
 		return *this;
 	}
-	Result& operator=(const Error& error) noexcept {
+	Result& operator=(const Error& error) noexcept
+	{
 		destroy();
-		m_init = false;
+		m_init  = false;
 		m_error = error;
 		return *this;
 	}
-	Result& operator=(Error&& error) noexcept {
+	Result& operator=(Error&& error) noexcept
+	{
 		destroy();
-		m_init = false;
+		m_init  = false;
 		m_error = error;
 		return *this;
 	}
@@ -139,46 +153,59 @@ template <typename T> class Result {
 	// clang-format on
 
 	// check if the result has an error that matches a specific error case
-	template <typename E> bool matches_error(E error_enum_value) const {
+	template <typename E>
+	bool matches_error(E error_enum_value) const
+	{
 		return !m_init && static_cast<E>(m_error.type.value()) == error_enum_value;
 	}
 
-	bool has_value() const { return m_init; }
-	explicit operator bool() const { return m_init; }
+	bool has_value() const
+	{
+		return m_init;
+	}
+	explicit operator bool() const
+	{
+		return m_init;
+	}
 
-	private:
-	void destroy() {
+private:
+	void destroy()
+	{
 		if (m_init) m_value.~T();
 	}
-	union {
-		T m_value;
+	union
+	{
+		T     m_value;
 		Error m_error;
 	};
 	bool m_init;
 };
 
-namespace detail {
-struct GenericFeaturesPNextNode {
+namespace detail
+{
+	struct GenericFeaturesPNextNode
+	{
+		static const uint32_t field_capacity = 256;
 
-	static const uint32_t field_capacity = 256;
+		GenericFeaturesPNextNode();
 
-	GenericFeaturesPNextNode();
+		template <typename T>
+		GenericFeaturesPNextNode(T const& features) noexcept
+		{
+			memset(fields, UINT8_MAX, sizeof(VkBool32) * field_capacity);
+			memcpy(this, &features, sizeof(T));
+		}
 
-	template <typename T> GenericFeaturesPNextNode(T const& features) noexcept {
-		memset(fields, UINT8_MAX, sizeof(VkBool32) * field_capacity);
-		memcpy(this, &features, sizeof(T));
-	}
+		static bool match(GenericFeaturesPNextNode const& requested, GenericFeaturesPNextNode const& supported) noexcept;
 
-	static bool match(GenericFeaturesPNextNode const& requested, GenericFeaturesPNextNode const& supported) noexcept;
-
-	VkStructureType sType = static_cast<VkStructureType>(0);
-	void* pNext = nullptr;
-	VkBool32 fields[field_capacity];
-};
-
+		VkStructureType sType = static_cast<VkStructureType>(0);
+		void*           pNext = nullptr;
+		VkBool32        fields[field_capacity];
+	};
 } // namespace detail
 
-enum class InstanceError {
+enum class InstanceError
+{
 	vulkan_unavailable,
 	vulkan_version_unavailable,
 	vulkan_version_1_1_unavailable,
@@ -189,13 +216,15 @@ enum class InstanceError {
 	requested_extensions_not_present,
 	windowing_extensions_not_present,
 };
-enum class PhysicalDeviceError {
+enum class PhysicalDeviceError
+{
 	no_surface_provided,
 	failed_enumerate_physical_devices,
 	no_physical_devices_found,
 	no_suitable_device,
 };
-enum class QueueError {
+enum class QueueError
+{
 	present_unavailable,
 	graphics_unavailable,
 	compute_unavailable,
@@ -203,10 +232,12 @@ enum class QueueError {
 	queue_index_out_of_range,
 	invalid_queue_family_index
 };
-enum class DeviceError {
+enum class DeviceError
+{
 	failed_create_device,
 };
-enum class SwapchainError {
+enum class SwapchainError
+{
 	surface_handle_not_provided,
 	failed_query_surface_support_details,
 	failed_create_swapchain,
@@ -234,11 +265,12 @@ const char* to_string(SwapchainError err);
 // Gathers useful information about the available vulkan capabilities, like layers and instance
 // extensions. Use this for enabling features conditionally, ie if you would like an extension but
 // can use a fallback if it isn't supported but need to know if support is available first.
-struct SystemInfo {
-	private:
+struct SystemInfo
+{
+private:
 	SystemInfo();
 
-	public:
+public:
 	// Use get_system_info to create a SystemInfo struct. This is because loading vulkan could fail.
 	static Result<SystemInfo> get_system_info();
 	static Result<SystemInfo> get_system_info(PFN_vkGetInstanceProcAddr fp_vkGetInstanceProcAddr);
@@ -248,10 +280,10 @@ struct SystemInfo {
 	// Returns true if an extension is available
 	bool is_extension_available(const char* extension_name) const;
 
-	std::vector<VkLayerProperties> available_layers;
+	std::vector<VkLayerProperties>     available_layers;
 	std::vector<VkExtensionProperties> available_extensions;
-	bool validation_layers_available = false;
-	bool debug_utils_available = false;
+	bool                               validation_layers_available = false;
+	bool                               debug_utils_available       = false;
 };
 
 // Forward declared - check VkBoostrap.cpp for implementations
@@ -260,10 +292,8 @@ const char* to_string_message_type(VkDebugUtilsMessageTypeFlagsEXT s);
 
 // Default debug messenger
 // Feel free to copy-paste it into your own code, change it as needed, then call `set_debug_callback()` to use that instead
-inline VKAPI_ATTR VkBool32 VKAPI_CALL default_debug_callback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
-    VkDebugUtilsMessageTypeFlagsEXT messageType,
-    const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
-    void*) {
+inline VKAPI_ATTR VkBool32 VKAPI_CALL default_debug_callback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void*)
+{
 	auto ms = to_string_message_severity(messageSeverity);
 	auto mt = to_string_message_type(messageType);
 	printf("[%s: %s]\n%s\n", ms, mt, pCallbackData->pMessage);
@@ -274,30 +304,31 @@ inline VKAPI_ATTR VkBool32 VKAPI_CALL default_debug_callback(VkDebugUtilsMessage
 class InstanceBuilder;
 class PhysicalDeviceSelector;
 
-struct Instance {
-	VkInstance instance = VK_NULL_HANDLE;
-	VkDebugUtilsMessengerEXT debug_messenger = VK_NULL_HANDLE;
-	VkAllocationCallbacks* allocation_callbacks = VK_NULL_HANDLE;
+struct Instance
+{
+	VkInstance                instance                 = VK_NULL_HANDLE;
+	VkDebugUtilsMessengerEXT  debug_messenger          = VK_NULL_HANDLE;
+	VkAllocationCallbacks*    allocation_callbacks     = VK_NULL_HANDLE;
 	PFN_vkGetInstanceProcAddr fp_vkGetInstanceProcAddr = nullptr;
-	PFN_vkGetDeviceProcAddr fp_vkGetDeviceProcAddr = nullptr;
+	PFN_vkGetDeviceProcAddr   fp_vkGetDeviceProcAddr   = nullptr;
 
 	// A conversion function which allows this Instance to be used
 	// in places where VkInstance would have been used.
 	operator VkInstance() const;
 
-	private:
-	bool headless = false;
-	bool supports_properties2_ext = false;
-	uint32_t instance_version = VKB_VK_API_VERSION_1_0;
-	uint32_t api_version = VKB_VK_API_VERSION_1_0;
+private:
+	bool     headless                 = false;
+	bool     supports_properties2_ext = false;
+	uint32_t instance_version         = VKB_VK_API_VERSION_1_0;
+	uint32_t api_version              = VKB_VK_API_VERSION_1_0;
 
 	friend class InstanceBuilder;
 	friend class PhysicalDeviceSelector;
 };
 
-void destroy_surface(Instance instance, VkSurfaceKHR surface); // release surface handle
+void destroy_surface(Instance instance, VkSurfaceKHR surface);                                               // release surface handle
 void destroy_surface(VkInstance instance, VkSurfaceKHR surface, VkAllocationCallbacks* callbacks = nullptr); // release surface handle
-void destroy_instance(Instance instance); // release instance resources
+void destroy_instance(Instance instance);                                                                    // release instance resources
 
 /* If headless mode is false, by default vk-bootstrap use the following logic to enable the windowing extensions
 
@@ -319,8 +350,9 @@ Use `InstanceBuilder::enable_extension()` to add new extensions without altering
 Feel free to make a PR or raise an issue to include additional platforms.
 */
 
-class InstanceBuilder {
-	public:
+class InstanceBuilder
+{
+public:
 	// Default constructor, will load vulkan.
 	explicit InstanceBuilder();
 	// Optional: Can use your own PFN_vkGetInstanceProcAddr
@@ -360,12 +392,10 @@ class InstanceBuilder {
 
 	// Prefer a vulkan instance API version. If the desired version isn't available, it will use the
 	// highest version available. Should be constructed with VK_MAKE_VERSION or VK_MAKE_API_VERSION.
-	[[deprecated("Use require_api_version + set_minimum_instance_version instead.")]] InstanceBuilder&
-	desire_api_version(uint32_t preferred_vulkan_version);
+	[[deprecated("Use require_api_version + set_minimum_instance_version instead.")]] InstanceBuilder& desire_api_version(uint32_t preferred_vulkan_version);
 
 	// Prefer a vulkan instance API version. If the desired version isn't available, it will use the highest version available.
-	[[deprecated("Use require_api_version + set_minimum_instance_version instead.")]] InstanceBuilder&
-	desire_api_version(uint32_t major, uint32_t minor, uint32_t patch = 0);
+	[[deprecated("Use require_api_version + set_minimum_instance_version instead.")]] InstanceBuilder& desire_api_version(uint32_t major, uint32_t minor, uint32_t patch = 0);
 
 	// Adds a layer to be enabled. Will fail to create an instance if the layer isn't available.
 	InstanceBuilder& enable_layer(const char* layer_name);
@@ -410,69 +440,64 @@ class InstanceBuilder {
 	// Provide custom allocation callbacks.
 	InstanceBuilder& set_allocation_callbacks(VkAllocationCallbacks* callbacks);
 
-	private:
-	struct InstanceInfo {
+private:
+	struct InstanceInfo
+	{
 		// VkApplicationInfo
-		const char* app_name = nullptr;
-		const char* engine_name = nullptr;
-		uint32_t application_version = 0;
-		uint32_t engine_version = 0;
-		uint32_t minimum_instance_version = 0;
-		uint32_t required_api_version = VKB_VK_API_VERSION_1_0;
-		uint32_t desired_api_version = VKB_VK_API_VERSION_1_0;
+		const char* app_name                 = nullptr;
+		const char* engine_name              = nullptr;
+		uint32_t    application_version      = 0;
+		uint32_t    engine_version           = 0;
+		uint32_t    minimum_instance_version = 0;
+		uint32_t    required_api_version     = VKB_VK_API_VERSION_1_0;
+		uint32_t    desired_api_version      = VKB_VK_API_VERSION_1_0;
 
 		// VkInstanceCreateInfo
-		std::vector<const char*> layers;
-		std::vector<const char*> extensions;
-		VkInstanceCreateFlags flags = static_cast<VkInstanceCreateFlags>(0);
+		std::vector<const char*>         layers;
+		std::vector<const char*>         extensions;
+		VkInstanceCreateFlags            flags = static_cast<VkInstanceCreateFlags>(0);
 		std::vector<VkBaseOutStructure*> pNext_elements;
 
 		// debug callback - use the default so it is not nullptr
-		PFN_vkDebugUtilsMessengerCallbackEXT debug_callback = default_debug_callback;
-		VkDebugUtilsMessageSeverityFlagsEXT debug_message_severity =
-		    VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
-		VkDebugUtilsMessageTypeFlagsEXT debug_message_type = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT |
-		                                                     VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
-		                                                     VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
-		void* debug_user_data_pointer = nullptr;
+		PFN_vkDebugUtilsMessengerCallbackEXT debug_callback          = default_debug_callback;
+		VkDebugUtilsMessageSeverityFlagsEXT  debug_message_severity  = VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
+		VkDebugUtilsMessageTypeFlagsEXT      debug_message_type      = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
+		void*                                debug_user_data_pointer = nullptr;
 
 		// validation features
-		std::vector<VkValidationCheckEXT> disabled_validation_checks;
-		std::vector<VkValidationFeatureEnableEXT> enabled_validation_features;
+		std::vector<VkValidationCheckEXT>          disabled_validation_checks;
+		std::vector<VkValidationFeatureEnableEXT>  enabled_validation_features;
 		std::vector<VkValidationFeatureDisableEXT> disabled_validation_features;
 
 		// Custom allocator
 		VkAllocationCallbacks* allocation_callbacks = VK_NULL_HANDLE;
 
 		bool request_validation_layers = false;
-		bool enable_validation_layers = false;
-		bool use_debug_messenger = false;
-		bool headless_context = false;
+		bool enable_validation_layers  = false;
+		bool use_debug_messenger       = false;
+		bool headless_context          = false;
 
 		PFN_vkGetInstanceProcAddr fp_vkGetInstanceProcAddr = nullptr;
 	} info;
 };
 
-VKAPI_ATTR VkBool32 VKAPI_CALL default_debug_callback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
-    VkDebugUtilsMessageTypeFlagsEXT messageType,
-    const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
-    void* pUserData);
+VKAPI_ATTR VkBool32 VKAPI_CALL default_debug_callback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData);
 
-void destroy_debug_utils_messenger(
-    VkInstance const instance, VkDebugUtilsMessengerEXT const messenger, VkAllocationCallbacks* allocation_callbacks = nullptr);
+void destroy_debug_utils_messenger(VkInstance const instance, VkDebugUtilsMessengerEXT const messenger, VkAllocationCallbacks* allocation_callbacks = nullptr);
 
 // ---- Physical Device ---- //
 class PhysicalDeviceSelector;
 class DeviceBuilder;
 
-struct PhysicalDevice {
-	std::string name;
+struct PhysicalDevice
+{
+	std::string      name;
 	VkPhysicalDevice physical_device = VK_NULL_HANDLE;
-	VkSurfaceKHR surface = VK_NULL_HANDLE;
+	VkSurfaceKHR     surface         = VK_NULL_HANDLE;
 
 	// Note that this reflects selected features carried over from required features, not all features the physical device supports.
-	VkPhysicalDeviceFeatures features{};
-	VkPhysicalDeviceProperties properties{};
+	VkPhysicalDeviceFeatures         features{};
+	VkPhysicalDeviceProperties       properties{};
 	VkPhysicalDeviceMemoryProperties memory_properties{};
 
 	// Has a queue family that supports compute operations but not graphics nor transfer.
@@ -495,10 +520,10 @@ struct PhysicalDevice {
 	// in places where VkPhysicalDevice would have been used.
 	operator VkPhysicalDevice() const;
 
-	private:
-	uint32_t instance_version = VKB_VK_API_VERSION_1_0;
-	std::vector<std::string> extensions;
-	std::vector<VkQueueFamilyProperties> queue_families;
+private:
+	uint32_t                                      instance_version = VKB_VK_API_VERSION_1_0;
+	std::vector<std::string>                      extensions;
+	std::vector<VkQueueFamilyProperties>          queue_families;
 	std::vector<detail::GenericFeaturesPNextNode> extended_features_chain;
 #if defined(VKB_VK_API_VERSION_1_1)
 	VkPhysicalDeviceFeatures2 features2{};
@@ -506,15 +531,28 @@ struct PhysicalDevice {
 	VkPhysicalDeviceFeatures2KHR features2{};
 #endif
 	bool defer_surface_initialization = false;
-	enum class Suitable { yes, partial, no };
+	enum class Suitable
+	{
+		yes,
+		partial,
+		no
+	};
 	Suitable suitable = Suitable::yes;
 	friend class PhysicalDeviceSelector;
 	friend class DeviceBuilder;
 };
 
-enum class PreferredDeviceType { other = 0, integrated = 1, discrete = 2, virtual_gpu = 3, cpu = 4 };
+enum class PreferredDeviceType
+{
+	other       = 0,
+	integrated  = 1,
+	discrete    = 2,
+	virtual_gpu = 3,
+	cpu         = 4
+};
 
-enum class DeviceSelectionMode {
+enum class DeviceSelectionMode
+{
 	// return all suitable and partially suitable devices
 	partially_and_fully_suitable,
 	// return only physical devices which are fully suitable
@@ -524,8 +562,9 @@ enum class DeviceSelectionMode {
 // Enumerates the physical devices on the system, and based on the added criteria, returns a physical device or list of physical devies
 // A device is considered suitable if it meets all the 'required' and 'desired' criteria.
 // A device is considered partially suitable if it meets only the 'required' criteria.
-class PhysicalDeviceSelector {
-	public:
+class PhysicalDeviceSelector
+{
+public:
 	// Requires a vkb::Instance to construct, needed to pass instance creation info.
 	explicit PhysicalDeviceSelector(Instance const& instance);
 	// Requires a vkb::Instance to construct, needed to pass instance creation info, optionally specify the surface here
@@ -536,12 +575,10 @@ class PhysicalDeviceSelector {
 	Result<PhysicalDevice> select(DeviceSelectionMode selection = DeviceSelectionMode::partially_and_fully_suitable) const;
 
 	// Return all devices which are considered suitable - intended for applications which want to let the user pick the physical device
-	Result<std::vector<PhysicalDevice>> select_devices(
-	    DeviceSelectionMode selection = DeviceSelectionMode::partially_and_fully_suitable) const;
+	Result<std::vector<PhysicalDevice>> select_devices(DeviceSelectionMode selection = DeviceSelectionMode::partially_and_fully_suitable) const;
 
 	// Return the names of all devices which are considered suitable - intended for applications which want to let the user pick the physical device
-	Result<std::vector<std::string>> select_device_names(
-	    DeviceSelectionMode selection = DeviceSelectionMode::partially_and_fully_suitable) const;
+	Result<std::vector<std::string>> select_device_names(DeviceSelectionMode selection = DeviceSelectionMode::partially_and_fully_suitable) const;
 
 	// Set the surface in which the physical device should render to.
 	// Be sure to set it if swapchain functionality is to be used.
@@ -583,8 +620,7 @@ class PhysicalDeviceSelector {
 	PhysicalDeviceSelector& add_desired_extensions(std::vector<const char*> extensions);
 
 	// Prefer a physical device that supports a (major, minor) version of vulkan.
-	[[deprecated("Use set_minimum_version + InstanceBuilder::require_api_version.")]] PhysicalDeviceSelector&
-	set_desired_version(uint32_t major, uint32_t minor);
+	[[deprecated("Use set_minimum_version + InstanceBuilder::require_api_version.")]] PhysicalDeviceSelector& set_desired_version(uint32_t major, uint32_t minor);
 
 	// Require a physical device that supports a (major, minor) version of vulkan.
 	PhysicalDeviceSelector& set_minimum_version(uint32_t major, uint32_t minor);
@@ -595,7 +631,9 @@ class PhysicalDeviceSelector {
 
 	// Require a physical device which supports a specific set of general/extension features.
 #if defined(VKB_VK_API_VERSION_1_1)
-	template <typename T> PhysicalDeviceSelector& add_required_extension_features(T const& features) {
+	template <typename T>
+	PhysicalDeviceSelector& add_required_extension_features(T const& features)
+	{
 		criteria.extended_features_chain.push_back(features);
 		return *this;
 	}
@@ -624,48 +662,49 @@ class PhysicalDeviceSelector {
 	// Only use when: The first gpu in the list may be set by global user preferences and an application may wish to respect it.
 	PhysicalDeviceSelector& select_first_device_unconditionally(bool unconditionally = true);
 
-	private:
-	struct InstanceInfo {
-		VkInstance instance = VK_NULL_HANDLE;
-		VkSurfaceKHR surface = VK_NULL_HANDLE;
-		uint32_t version = VKB_VK_API_VERSION_1_0;
-		bool headless = false;
-		bool supports_properties2_ext = false;
+private:
+	struct InstanceInfo
+	{
+		VkInstance   instance                 = VK_NULL_HANDLE;
+		VkSurfaceKHR surface                  = VK_NULL_HANDLE;
+		uint32_t     version                  = VKB_VK_API_VERSION_1_0;
+		bool         headless                 = false;
+		bool         supports_properties2_ext = false;
 	} instance_info;
 
 	// We copy the extension features stored in the selector criteria under the prose of a
 	// "template" to ensure that after fetching everything is compared 1:1 during a match.
 
-	struct SelectionCriteria {
-		std::string name;
-		PreferredDeviceType preferred_type = PreferredDeviceType::discrete;
-		bool allow_any_type = true;
-		bool require_present = true;
-		bool require_dedicated_transfer_queue = false;
-		bool require_dedicated_compute_queue = false;
-		bool require_separate_transfer_queue = false;
-		bool require_separate_compute_queue = false;
-		VkDeviceSize required_mem_size = 0;
-		VkDeviceSize desired_mem_size = 0;
+	struct SelectionCriteria
+	{
+		std::string         name;
+		PreferredDeviceType preferred_type                   = PreferredDeviceType::discrete;
+		bool                allow_any_type                   = true;
+		bool                require_present                  = true;
+		bool                require_dedicated_transfer_queue = false;
+		bool                require_dedicated_compute_queue  = false;
+		bool                require_separate_transfer_queue  = false;
+		bool                require_separate_compute_queue   = false;
+		VkDeviceSize        required_mem_size                = 0;
+		VkDeviceSize        desired_mem_size                 = 0;
 
 		std::vector<std::string> required_extensions;
 		std::vector<std::string> desired_extensions;
 
 		uint32_t required_version = VKB_VK_API_VERSION_1_0;
-		uint32_t desired_version = VKB_VK_API_VERSION_1_0;
+		uint32_t desired_version  = VKB_VK_API_VERSION_1_0;
 
 		VkPhysicalDeviceFeatures required_features{};
 #if defined(VKB_VK_API_VERSION_1_1)
-		VkPhysicalDeviceFeatures2 required_features2{};
+		VkPhysicalDeviceFeatures2                     required_features2{};
 		std::vector<detail::GenericFeaturesPNextNode> extended_features_chain;
 #endif
-		bool defer_surface_initialization = false;
+		bool defer_surface_initialization  = false;
 		bool use_first_gpu_unconditionally = false;
-		bool enable_portability_subset = true;
+		bool enable_portability_subset     = true;
 	} criteria;
 
-	PhysicalDevice populate_device_details(VkPhysicalDevice phys_device,
-	    std::vector<detail::GenericFeaturesPNextNode> const& src_extended_features_chain) const;
+	PhysicalDevice populate_device_details(VkPhysicalDevice phys_device, std::vector<detail::GenericFeaturesPNextNode> const& src_extended_features_chain) const;
 
 	PhysicalDevice::Suitable is_device_suitable(PhysicalDevice const& phys_device) const;
 
@@ -673,23 +712,31 @@ class PhysicalDeviceSelector {
 };
 
 // ---- Queue ---- //
-enum class QueueType { present, graphics, compute, transfer };
+enum class QueueType
+{
+	present,
+	graphics,
+	compute,
+	transfer
+};
 
-namespace detail {
-// Sentinel value, used in implementation only
-const uint32_t QUEUE_INDEX_MAX_VALUE = 65536;
+namespace detail
+{
+	// Sentinel value, used in implementation only
+	const uint32_t QUEUE_INDEX_MAX_VALUE = 65536;
 } // namespace detail
 
 // ---- Device ---- //
 
-struct Device {
-	VkDevice device = VK_NULL_HANDLE;
-	PhysicalDevice physical_device;
-	VkSurfaceKHR surface = VK_NULL_HANDLE;
+struct Device
+{
+	VkDevice                             device = VK_NULL_HANDLE;
+	PhysicalDevice                       physical_device;
+	VkSurfaceKHR                         surface = VK_NULL_HANDLE;
 	std::vector<VkQueueFamilyProperties> queue_families;
-	VkAllocationCallbacks* allocation_callbacks = VK_NULL_HANDLE;
-	PFN_vkGetDeviceProcAddr fp_vkGetDeviceProcAddr = nullptr;
-	uint32_t instance_version = VKB_VK_API_VERSION_1_0;
+	VkAllocationCallbacks*               allocation_callbacks   = VK_NULL_HANDLE;
+	PFN_vkGetDeviceProcAddr              fp_vkGetDeviceProcAddr = nullptr;
+	uint32_t                             instance_version       = VKB_VK_API_VERSION_1_0;
 
 	Result<uint32_t> get_queue_index(QueueType type) const;
 	// Only a compute or transfer queue type is valid. All other queue types do not support a 'dedicated' queue index
@@ -706,27 +753,30 @@ struct Device {
 	// in places where VkDevice would have been used.
 	operator VkDevice() const;
 
-	private:
-	struct {
+private:
+	struct
+	{
 		PFN_vkGetDeviceQueue fp_vkGetDeviceQueue = nullptr;
-		PFN_vkDestroyDevice fp_vkDestroyDevice = nullptr;
+		PFN_vkDestroyDevice  fp_vkDestroyDevice  = nullptr;
 	} internal_table;
 	friend class DeviceBuilder;
 	friend void destroy_device(Device device);
 };
 
 // For advanced device queue setup
-struct CustomQueueDescription {
+struct CustomQueueDescription
+{
 	explicit CustomQueueDescription(uint32_t index, uint32_t count, std::vector<float> priorities);
-	uint32_t index = 0;
-	uint32_t count = 0;
+	uint32_t           index = 0;
+	uint32_t           count = 0;
 	std::vector<float> priorities;
 };
 
 void destroy_device(Device device);
 
-class DeviceBuilder {
-	public:
+class DeviceBuilder
+{
+public:
 	// Any features and extensions that are requested/required in PhysicalDeviceSelector are automatically enabled.
 	explicit DeviceBuilder(PhysicalDevice physical_device);
 
@@ -738,7 +788,9 @@ class DeviceBuilder {
 
 	// Add a structure to the pNext chain of VkDeviceCreateInfo.
 	// The structure must be valid when DeviceBuilder::build() is called.
-	template <typename T> DeviceBuilder& add_pNext(T* structure) {
+	template <typename T>
+	DeviceBuilder& add_pNext(T* structure)
+	{
 		info.pNext_chain.push_back(reinterpret_cast<VkBaseOutStructure*>(structure));
 		return *this;
 	}
@@ -746,30 +798,32 @@ class DeviceBuilder {
 	// Provide custom allocation callbacks.
 	DeviceBuilder& set_allocation_callbacks(VkAllocationCallbacks* callbacks);
 
-	private:
+private:
 	PhysicalDevice physical_device;
-	struct DeviceInfo {
-		VkDeviceCreateFlags flags = static_cast<VkDeviceCreateFlags>(0);
-		std::vector<VkBaseOutStructure*> pNext_chain;
+	struct DeviceInfo
+	{
+		VkDeviceCreateFlags                 flags = static_cast<VkDeviceCreateFlags>(0);
+		std::vector<VkBaseOutStructure*>    pNext_chain;
 		std::vector<CustomQueueDescription> queue_descriptions;
-		VkAllocationCallbacks* allocation_callbacks = VK_NULL_HANDLE;
+		VkAllocationCallbacks*              allocation_callbacks = VK_NULL_HANDLE;
 	} info;
 };
 
 // ---- Swapchain ---- //
-struct Swapchain {
-	VkDevice device = VK_NULL_HANDLE;
-	VkSwapchainKHR swapchain = VK_NULL_HANDLE;
-	uint32_t image_count = 0;
-	VkFormat image_format = VK_FORMAT_UNDEFINED; // The image format actually used when creating the swapchain.
-	VkColorSpaceKHR color_space = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR; // The color space actually used when creating the swapchain.
+struct Swapchain
+{
+	VkDevice          device            = VK_NULL_HANDLE;
+	VkSwapchainKHR    swapchain         = VK_NULL_HANDLE;
+	uint32_t          image_count       = 0;
+	VkFormat          image_format      = VK_FORMAT_UNDEFINED;               // The image format actually used when creating the swapchain.
+	VkColorSpaceKHR   color_space       = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR; // The color space actually used when creating the swapchain.
 	VkImageUsageFlags image_usage_flags = 0;
-	VkExtent2D extent = { 0, 0 };
+	VkExtent2D        extent            = { 0, 0 };
 	// The value of minImageCount actually used when creating the swapchain; note that the presentation engine is always free to create more images than that.
-	uint32_t requested_min_image_count = 0;
-	VkPresentModeKHR present_mode = VK_PRESENT_MODE_IMMEDIATE_KHR; // The present mode actually used when creating the swapchain.
-	uint32_t instance_version = VKB_VK_API_VERSION_1_0;
-	VkAllocationCallbacks* allocation_callbacks = VK_NULL_HANDLE;
+	uint32_t               requested_min_image_count = 0;
+	VkPresentModeKHR       present_mode              = VK_PRESENT_MODE_IMMEDIATE_KHR; // The present mode actually used when creating the swapchain.
+	uint32_t               instance_version          = VKB_VK_API_VERSION_1_0;
+	VkAllocationCallbacks* allocation_callbacks      = VK_NULL_HANDLE;
 
 	// Returns a vector of VkImage handles to the swapchain.
 	Result<std::vector<VkImage>> get_images();
@@ -779,18 +833,19 @@ struct Swapchain {
 	// structure.
 	Result<std::vector<VkImageView>> get_image_views();
 	Result<std::vector<VkImageView>> get_image_views(const void* pNext);
-	void destroy_image_views(std::vector<VkImageView> const& image_views);
+	void                             destroy_image_views(std::vector<VkImageView> const& image_views);
 
 	// A conversion function which allows this Swapchain to be used
 	// in places where VkSwapchainKHR would have been used.
 	operator VkSwapchainKHR() const;
 
-	private:
-	struct {
+private:
+	struct
+	{
 		PFN_vkGetSwapchainImagesKHR fp_vkGetSwapchainImagesKHR = nullptr;
-		PFN_vkCreateImageView fp_vkCreateImageView = nullptr;
-		PFN_vkDestroyImageView fp_vkDestroyImageView = nullptr;
-		PFN_vkDestroySwapchainKHR fp_vkDestroySwapchainKHR = nullptr;
+		PFN_vkCreateImageView       fp_vkCreateImageView       = nullptr;
+		PFN_vkDestroyImageView      fp_vkDestroyImageView      = nullptr;
+		PFN_vkDestroySwapchainKHR   fp_vkDestroySwapchainKHR   = nullptr;
 	} internal_table;
 	friend class SwapchainBuilder;
 	friend void destroy_swapchain(Swapchain const& swapchain);
@@ -798,8 +853,9 @@ struct Swapchain {
 
 void destroy_swapchain(Swapchain const& swapchain);
 
-class SwapchainBuilder {
-	public:
+class SwapchainBuilder
+{
+public:
 	// Construct a SwapchainBuilder with a `vkb::Device`
 	explicit SwapchainBuilder(Device const& device);
 	// Construct a SwapchainBuilder with a specific VkSurfaceKHR handle and `vkb::Device`
@@ -808,10 +864,10 @@ class SwapchainBuilder {
 	// Optionally can provide the uint32_t indices for the graphics and present queue
 	// Note: The constructor will query the graphics & present queue if the indices are not provided
 	explicit SwapchainBuilder(VkPhysicalDevice const physical_device,
-	    VkDevice const device,
-	    VkSurfaceKHR const surface,
-	    uint32_t graphics_queue_index = detail::QUEUE_INDEX_MAX_VALUE,
-	    uint32_t present_queue_index = detail::QUEUE_INDEX_MAX_VALUE);
+							  VkDevice const         device,
+							  VkSurfaceKHR const     surface,
+							  uint32_t               graphics_queue_index = detail::QUEUE_INDEX_MAX_VALUE,
+							  uint32_t               present_queue_index  = detail::QUEUE_INDEX_MAX_VALUE);
 
 	Result<Swapchain> build() const;
 
@@ -819,7 +875,6 @@ class SwapchainBuilder {
 	// For use in rebuilding a swapchain.
 	SwapchainBuilder& set_old_swapchain(VkSwapchainKHR old_swapchain);
 	SwapchainBuilder& set_old_swapchain(Swapchain const& swapchain);
-
 
 	// Desired size of the swapchain. By default, the swapchain will use the size
 	// of the window being drawn to.
@@ -856,7 +911,8 @@ class SwapchainBuilder {
 	// Convenient named constants for passing to set_desired_min_image_count().
 	// Note that it is not an `enum class`, so its constants can be passed as an integer value without casting
 	// In other words, these might as well be `static const int`, but they benefit from being grouped together this way.
-	enum BufferMode {
+	enum BufferMode
+	{
 		SINGLE_BUFFERING = 1,
 		DOUBLE_BUFFERING = 2,
 		TRIPLE_BUFFERING = 3,
@@ -890,7 +946,9 @@ class SwapchainBuilder {
 
 	// Add a structure to the pNext chain of VkSwapchainCreateInfoKHR.
 	// The structure must be valid when SwapchainBuilder::build() is called.
-	template <typename T> SwapchainBuilder& add_pNext(T* structure) {
+	template <typename T>
+	SwapchainBuilder& add_pNext(T* structure)
+	{
 		info.pNext_chain.push_back(reinterpret_cast<VkBaseOutStructure*>(structure));
 		return *this;
 	}
@@ -898,46 +956,56 @@ class SwapchainBuilder {
 	// Provide custom allocation callbacks.
 	SwapchainBuilder& set_allocation_callbacks(VkAllocationCallbacks* callbacks);
 
-	private:
+private:
 	void add_desired_formats(std::vector<VkSurfaceFormatKHR>& formats) const;
 	void add_desired_present_modes(std::vector<VkPresentModeKHR>& modes) const;
 
-	struct SwapchainInfo {
-		VkPhysicalDevice physical_device = VK_NULL_HANDLE;
-		VkDevice device = VK_NULL_HANDLE;
+	struct SwapchainInfo
+	{
+		VkPhysicalDevice                 physical_device = VK_NULL_HANDLE;
+		VkDevice                         device          = VK_NULL_HANDLE;
 		std::vector<VkBaseOutStructure*> pNext_chain;
-		VkSwapchainCreateFlagBitsKHR create_flags = static_cast<VkSwapchainCreateFlagBitsKHR>(0);
-		VkSurfaceKHR surface = VK_NULL_HANDLE;
-		std::vector<VkSurfaceFormatKHR> desired_formats;
-		uint32_t instance_version = VKB_VK_API_VERSION_1_0;
-		uint32_t desired_width = 256;
-		uint32_t desired_height = 256;
-		uint32_t array_layer_count = 1;
-		uint32_t min_image_count = 0;
-		uint32_t required_min_image_count = 0;
-		VkImageUsageFlags image_usage_flags = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-		uint32_t graphics_queue_index = 0;
-		uint32_t present_queue_index = 0;
-		VkSurfaceTransformFlagBitsKHR pre_transform = static_cast<VkSurfaceTransformFlagBitsKHR>(0);
+		VkSwapchainCreateFlagBitsKHR     create_flags = static_cast<VkSwapchainCreateFlagBitsKHR>(0);
+		VkSurfaceKHR                     surface      = VK_NULL_HANDLE;
+		std::vector<VkSurfaceFormatKHR>  desired_formats;
+		uint32_t                         instance_version         = VKB_VK_API_VERSION_1_0;
+		uint32_t                         desired_width            = 256;
+		uint32_t                         desired_height           = 256;
+		uint32_t                         array_layer_count        = 1;
+		uint32_t                         min_image_count          = 0;
+		uint32_t                         required_min_image_count = 0;
+		VkImageUsageFlags                image_usage_flags        = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+		uint32_t                         graphics_queue_index     = 0;
+		uint32_t                         present_queue_index      = 0;
+		VkSurfaceTransformFlagBitsKHR    pre_transform            = static_cast<VkSurfaceTransformFlagBitsKHR>(0);
 #if defined(__ANDROID__)
 		VkCompositeAlphaFlagBitsKHR composite_alpha = VK_COMPOSITE_ALPHA_INHERIT_BIT_KHR;
 #else
 		VkCompositeAlphaFlagBitsKHR composite_alpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
 #endif
 		std::vector<VkPresentModeKHR> desired_present_modes;
-		bool clipped = true;
-		VkSwapchainKHR old_swapchain = VK_NULL_HANDLE;
-		VkAllocationCallbacks* allocation_callbacks = VK_NULL_HANDLE;
+		bool                          clipped              = true;
+		VkSwapchainKHR                old_swapchain        = VK_NULL_HANDLE;
+		VkAllocationCallbacks*        allocation_callbacks = VK_NULL_HANDLE;
 	} info;
 };
-
 } // namespace vkb
 
-
-namespace std {
-template <> struct is_error_code_enum<vkb::InstanceError> : true_type {};
-template <> struct is_error_code_enum<vkb::PhysicalDeviceError> : true_type {};
-template <> struct is_error_code_enum<vkb::QueueError> : true_type {};
-template <> struct is_error_code_enum<vkb::DeviceError> : true_type {};
-template <> struct is_error_code_enum<vkb::SwapchainError> : true_type {};
+namespace std
+{
+template <>
+struct is_error_code_enum<vkb::InstanceError> : true_type
+{};
+template <>
+struct is_error_code_enum<vkb::PhysicalDeviceError> : true_type
+{};
+template <>
+struct is_error_code_enum<vkb::QueueError> : true_type
+{};
+template <>
+struct is_error_code_enum<vkb::DeviceError> : true_type
+{};
+template <>
+struct is_error_code_enum<vkb::SwapchainError> : true_type
+{};
 } // namespace std

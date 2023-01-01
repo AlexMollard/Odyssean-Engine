@@ -14,18 +14,12 @@ OpenGLWindow::~OpenGLWindow()
 
 void OpenGLWindow::Initialise(int width, int height, std::string_view name)
 {
-	if (!Window_intit(width, height, name))
-	{
-		std::cout << "Failed to load window" << std::endl;
-	}
+	if (!Window_intit(width, height, name)) { std::cout << "Failed to load window" << std::endl; }
 }
 
 int OpenGLWindow::Window_intit(int width, int height, std::string_view name)
 {
-	if (!glfwInit())
-	{
-		return -1;
-	}
+	if (!glfwInit()) { return -1; }
 
 	glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
 
@@ -50,10 +44,7 @@ int OpenGLWindow::Window_intit(int width, int height, std::string_view name)
 
 	// Initializing Glew
 	glewExperimental = GL_TRUE;
-	if (glewInit() != GLEW_OK)
-	{
-		std::cout << "Glew is not having a good time" << std::endl;
-	}
+	if (glewInit() != GLEW_OK) { std::cout << "Glew is not having a good time" << std::endl; }
 
 	// Outputting OpenGL Version and build
 	std::cout << "OpenGL Version: " << glGetString(GL_VERSION) << std::endl;
@@ -69,8 +60,7 @@ void OpenGLWindow::Update_Window()
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-		glfwSetWindowShouldClose(window, true);
+	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) glfwSetWindowShouldClose(window, true);
 
 	now   = glfwGetTime();
 	delta = (float)(now - last);

@@ -6,10 +6,10 @@
 #include "VulkanInit.h"
 
 // include assimp
+#include "ImGuiVulkan.h"
 #include "assimp/scene.h"
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
-#include "ImGuiVulkan.h"
 
 // All meshes added to this vector will be cleaned up when the program closes
 // Aswell as be drawn in the draw frame function
@@ -50,7 +50,7 @@ int VulkanRenderer::CreateSwapchain(Init& init)
 
 	vkb::SwapchainBuilder swapchain_builder{ init.device };
 	swapchain_builder.set_desired_format(surface_format);
-	auto                  swap_ret = swapchain_builder.set_old_swapchain(init.swapchain).build();
+	auto swap_ret = swapchain_builder.set_old_swapchain(init.swapchain).build();
 	if (!swap_ret)
 	{
 		std::cout << swap_ret.error().message() << " " << swap_ret.vk_result() << "\n";
@@ -442,18 +442,12 @@ int VulkanRenderer::DrawFrame(Init& init, RenderData& data)
 		RecreateSwapchain(init, data);
 		return 0;
 	}
-	else if (result != vk::Result::eSuccess && result != vk::Result::eSuboptimalKHR)
-	{
-		throw std::runtime_error("Failed to acquire swapchain image!");
-	}
+	else if (result != vk::Result::eSuccess && result != vk::Result::eSuboptimalKHR) { throw std::runtime_error("Failed to acquire swapchain image!"); }
 
 	// Wait for the image to be available
 	// If the image is in use, wait for the fence to be signaled
-	if (data.image_in_flight[image_index])
-	{
-		device.waitForFences(1, &data.image_in_flight[image_index], VK_TRUE, UINT64_MAX);
-	}
-	
+	if (data.image_in_flight[image_index]) { device.waitForFences(1, &data.image_in_flight[image_index], VK_TRUE, UINT64_MAX); }
+
 	// Mark the image as in use
 	data.image_in_flight[image_index] = data.in_flight_fences[data.current_frame];
 
@@ -466,16 +460,16 @@ int VulkanRenderer::DrawFrame(Init& init, RenderData& data)
 	// Create an array of wait stages, which is the stage that we will wait on
 	// We will wait on the color attachment output stage, which means that the render pass has finished writing to the image
 	vk::PipelineStageFlags wait_stages[] = { vk::PipelineStageFlagBits::eColorAttachmentOutput };
-	submit_info.waitSemaphoreCount = 1;
-	submit_info.pWaitSemaphores = wait_semaphores;
-	submit_info.pWaitDstStageMask = wait_stages;
-	submit_info.commandBufferCount = 1;
-	submit_info.pCommandBuffers = &data.command_buffers[image_index];
+	submit_info.waitSemaphoreCount       = 1;
+	submit_info.pWaitSemaphores          = wait_semaphores;
+	submit_info.pWaitDstStageMask        = wait_stages;
+	submit_info.commandBufferCount       = 1;
+	submit_info.pCommandBuffers          = &data.command_buffers[image_index];
 
 	// Create an array of signal semaphores, which is just the semaphore that we will signal once the command buffer has finished executing
 	vk::Semaphore signal_semaphores[] = { data.finished_semaphore[data.current_frame] };
-	submit_info.signalSemaphoreCount = 1;
-	submit_info.pSignalSemaphores = signal_semaphores;
+	submit_info.signalSemaphoreCount  = 1;
+	submit_info.pSignalSemaphores     = signal_semaphores;
 
 	// Reset the fence
 	device.resetFences(1, &data.in_flight_fences[data.current_frame]);
@@ -490,13 +484,13 @@ int VulkanRenderer::DrawFrame(Init& init, RenderData& data)
 
 	// Create an array of wait semaphores, which is just the semaphore that we will wait on before presenting the image
 	vk::Semaphore wait_semaphores2[] = { data.finished_semaphore[data.current_frame] };
-	present_info.waitSemaphoreCount = 1;
-	present_info.pWaitSemaphores = wait_semaphores2;
+	present_info.waitSemaphoreCount  = 1;
+	present_info.pWaitSemaphores     = wait_semaphores2;
 
 	// Create an array of swapchains, which is just the swapchain that we will present the image to
 	vk::SwapchainKHR swapchains[] = { init.swapchain.swapchain };
-	present_info.swapchainCount = 1;
-	present_info.pSwapchains = swapchains;
+	present_info.swapchainCount   = 1;
+	present_info.pSwapchains      = swapchains;
 
 	// Create an array of image indices, which is just the index of the image that we will present
 	present_info.pImageIndices = &image_index;
@@ -505,14 +499,8 @@ int VulkanRenderer::DrawFrame(Init& init, RenderData& data)
 	result = data.present_queue.presentKHR(&present_info);
 
 	// If the swapchain is out of date, we need to recreate it
-	if (result == vk::Result::eErrorOutOfDateKHR || result == vk::Result::eSuboptimalKHR)
-	{
-		RecreateSwapchain(init, data);
-	}
-	else if (result != vk::Result::eSuccess)
-	{
-		throw std::runtime_error("Failed to present swapchain image!");
-	}
+	if (result == vk::Result::eErrorOutOfDateKHR || result == vk::Result::eSuboptimalKHR) { RecreateSwapchain(init, data); }
+	else if (result != vk::Result::eSuccess) { throw std::runtime_error("Failed to present swapchain image!"); }
 
 	// Move to the next frame
 	data.current_frame = (data.current_frame + 1) % MAX_FRAMES_IN_FLIGHT;
@@ -546,7 +534,7 @@ int VulkanRenderer::CleanUp(Init& init, RenderData& data)
 
 	// Destroy the swapchain
 	vkb::destroy_swapchain(init.swapchain);
-	
+
 	// Destroy pipeline
 	device.destroyPipeline(data.graphics_pipeline);
 
@@ -554,16 +542,10 @@ int VulkanRenderer::CleanUp(Init& init, RenderData& data)
 	device.destroyPipelineLayout(data.pipeline_layout);
 
 	// Destroy the image views
-	for (auto image_view : data.swapchain_image_views)
-	{
-		device.destroyImageView(image_view);
-	}
+	for (auto image_view : data.swapchain_image_views) { device.destroyImageView(image_view); }
 
 	// Destroy framebuffers
-	for (auto framebuffer : data.framebuffers)
-	{
-		device.destroyFramebuffer(framebuffer);
-	}
+	for (auto framebuffer : data.framebuffers) { device.destroyFramebuffer(framebuffer); }
 
 	// Destroy the render pass
 	device.destroyRenderPass(data.render_pass);
@@ -652,7 +634,7 @@ int VulkanRenderer::SetUpMeshBuffers(Init& init, RenderData& renderData, vulkan:
 	device.unmapMemory(staging_buffer.memory);
 
 	// Copy the data to the staging buffer
-	VulkanInit::CopyBuffer(init, renderData, staging_buffer.buffer, mesh.vertexBuffer.buffer, buffer_size);	
+	VulkanInit::CopyBuffer(init, renderData, staging_buffer.buffer, mesh.vertexBuffer.buffer, buffer_size);
 
 	// Destroy the staging buffer
 	VulkanInit::DestroyBuffer(init, staging_buffer.buffer, staging_buffer.memory);
@@ -670,7 +652,7 @@ int VulkanRenderer::SetUpMeshBuffers(Init& init, RenderData& renderData, vulkan:
 	device.mapMemory(staging_buffer.memory, 0, buffer_size, vk::MemoryMapFlags(), &data);
 	memcpy(data, mesh.indices.data(), (size_t)buffer_size);
 	device.unmapMemory(staging_buffer.memory);
-	
+
 	// Copy the data to the staging buffer
 	VulkanInit::CopyBuffer(init, renderData, staging_buffer.buffer, mesh.indexBuffer.buffer, buffer_size);
 

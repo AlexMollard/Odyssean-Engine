@@ -8,9 +8,12 @@ class ResourceManager
 {
 private:
 	std::unordered_map<std::string, std::shared_ptr<T>> Map;
-	std::string Name;
+	std::string                                         Name;
 
-	void ReleaseAll() const { Map.clear(); }
+	void ReleaseAll() const
+	{
+		Map.clear();
+	}
 
 public:
 	std::shared_ptr<T> Load(const std::string& filename, void* args = nullptr)
@@ -19,10 +22,7 @@ public:
 
 		auto it = Map.find(filename);
 
-		if (it != Map.end())
-		{
-			return (*it).second;
-		}
+		if (it != Map.end()) { return (*it).second; }
 
 		std::shared_ptr<T> resource = std::make_shared<T>(filename, args);
 
@@ -32,16 +32,16 @@ public:
 	}
 
 	// So far only used for shaders
-	std::shared_ptr<T> Load(const std::string& filename, const std::string& secondFileName) { return Load(std::string(filename), (void*)secondFileName.c_str()); }
+	std::shared_ptr<T> Load(const std::string& filename, const std::string& secondFileName)
+	{
+		return Load(std::string(filename), (void*)secondFileName.c_str());
+	}
 
 	std::shared_ptr<T> Load(std::shared_ptr<T> resource)
 	{
 		auto it = Map.find(resource->GetName());
 
-		if (it != Map.end())
-		{
-			return (*it).second;
-		}
+		if (it != Map.end()) { return (*it).second; }
 
 		Map.insert(std::make_pair(resource->GetName(), resource));
 
@@ -73,7 +73,13 @@ public:
 		Name = name;
 	}
 
-	const std::string& GetName() const { return Name; }
+	const std::string& GetName() const
+	{
+		return Name;
+	}
 
-	const int Size() const { return Map.size(); }
+	const int Size() const
+	{
+		return Map.size();
+	}
 };

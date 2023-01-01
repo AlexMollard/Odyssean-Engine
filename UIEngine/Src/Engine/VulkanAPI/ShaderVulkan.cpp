@@ -1,12 +1,12 @@
 #include "ShaderVulkan.h"
+
 #include "VulkanInit.h"
 #include <fstream>
 
 VkShaderModule ShaderVulkan::CreateShaderModule(Init& init, const std::string& filename)
 {
+	const std::vector<char>& code = ShaderVulkan::ReadFile(filename);
 
-	const std::vector<char>& code        = ShaderVulkan::ReadFile(filename);
-	
 	VkShaderModuleCreateInfo create_info = {};
 	create_info.sType                    = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
 	create_info.codeSize                 = code.size();
@@ -21,17 +21,14 @@ VkShaderModule ShaderVulkan::CreateShaderModule(Init& init, const std::string& f
 	return shaderModule;
 }
 
-const std::vector<char> ShaderVulkan::ReadFile(const std::string& filename) 
+const std::vector<char> ShaderVulkan::ReadFile(const std::string& filename)
 {
 	std::ifstream file(filename, std::ios::ate | std::ios::binary);
 
 	// check if file is open, this will also check if the file exists so make sure the dir exists
-	if (!file.is_open())
-	{
-		throw std::runtime_error("failed to open file!");
-	}
+	if (!file.is_open()) { throw std::runtime_error("failed to open file!"); }
 
-	size_t file_size = (size_t)file.tellg();
+	size_t            file_size = (size_t)file.tellg();
 	std::vector<char> buffer(file_size);
 
 	file.seekg(0);
