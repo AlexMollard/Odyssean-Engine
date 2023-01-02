@@ -23,5 +23,15 @@ public:
 	{
 		return { x, y };
 	}
+
+	// Inspector
+	void Inspector() override
+	{
+		if (!ImGui::CollapsingHeader("Velocity"))
+		{
+			ImGui::DragFloat("X", &x);
+			ImGui::DragFloat("Y", &y);
+		}
+	}
 };
 } // namespace node

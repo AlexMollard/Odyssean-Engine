@@ -5,10 +5,16 @@ struct GLFWwindow;
 class OpenGLWindow
 {
 public:
-	OpenGLWindow() = default;
+	static OpenGLWindow& Instance()
+	{
+		static OpenGLWindow instance;
+		return instance;
+	}
 
-	~OpenGLWindow();
+	OpenGLWindow(const OpenGLWindow&) = delete;
+	OpenGLWindow& operator=(const OpenGLWindow&) = delete;
 
+	// Initialise
 	void Initialise(int width, int height, std::string_view name);
 
 	// Window Functions
@@ -28,7 +34,14 @@ public:
 		return window;
 	}
 
+	int width  = 0;
+	int height = 0;
+
 private:
+	OpenGLWindow() = default;
+
+	~OpenGLWindow();
+
 	// Main Window
 	GLFWwindow* window;
 

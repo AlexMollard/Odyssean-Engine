@@ -22,7 +22,7 @@ void TestingScene::Enter()
 	ECS::CreateQuad(glm::vec3(width, height, 0), glm::vec2(quadWidth, quadHeight), glm::vec4(0, 1, 0, 1), "TopRightQuad");
 	ECS::CreateQuad(glm::vec3(0, 0, 0), glm::vec2(quadWidth, quadHeight), glm::vec4(0, 0, 1, 1), "BottomLeftQuad");
 	ECS::CreateQuad(glm::vec3(width, 0, 0), glm::vec2(quadWidth, quadHeight), glm::vec4(1, 1, 0, 1), "BottomRightQuad");
-	ECS::CreateQuad(glm::vec3(width / 2, height / 2, 0), glm::vec2(quadWidth, quadHeight), glm::vec4(1, 1, 1, 1), "CenterQuad");
+	auto centerQuad = ECS::CreateQuad(glm::vec3(width / 2, height / 2, 0), glm::vec2(quadWidth, quadHeight), glm::vec4(1, 1, 1, 1), "CenterQuad");
 
 	// Circle the center quad around the screen
 	float x = 0;
@@ -36,7 +36,8 @@ void TestingScene::Enter()
 		x = width / 2 + radius * cos(glm::radians(angle));
 		y = height / 2 + radius * sin(glm::radians(angle));
 
-		ECS::CreateQuad(glm::vec3(x, y, 0), glm::vec2(quadWidth, quadHeight), glm::vec4(1, 1, 1, 1), std::to_string(x / y).c_str());
+		auto entity = ECS::CreateQuad(glm::vec3(x, y, 0), glm::vec2(10, 10), glm::vec4(1, 1, 1, 1), std::to_string(x / y).c_str());
+		entity.child_of(centerQuad);
 	}
 
 

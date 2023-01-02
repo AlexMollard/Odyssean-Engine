@@ -16,9 +16,13 @@ public:
 
 	void SetStyle();
 	void DisplaySystemStats();
+	void ShowHierarchyWindow(bool* p_open);
+	void ShowInspectorWindow(bool* p_open, flecs::entity entity);
 	void ShowProfilerWindow(bool* p_open);
 	void NewFrame(BS::thread_pool& pool); // before rendering (where you would call imgui::NewFrame)
 	void UpdateViewPorts();
+
+	void RenderFBO(unsigned int m_fbo);
 
 private:
 	ImGuiIO* io;

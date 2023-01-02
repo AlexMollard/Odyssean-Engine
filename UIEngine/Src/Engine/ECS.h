@@ -1,8 +1,8 @@
 #pragma once
+#include "BS_thread_pool.hpp"
 #include "Nodes.h"
 #include "flecs.h"
 #include <thread>
-#include "BS_thread_pool.hpp"
 
 // Create the singleton ECS class
 class ECS
@@ -11,10 +11,7 @@ public:
 	// Create the singleton instance
 	static ECS* Instance()
 	{
-		if (s_Instance == nullptr)
-		{
-			s_Instance = _NEW ECS();
-		}
+		if (s_Instance == nullptr) { s_Instance = _NEW ECS(); }
 		return s_Instance;
 	}
 
@@ -48,13 +45,15 @@ public:
 	static flecs::entity& CreateQuad(const glm::vec3& position, const glm::vec2& size, const glm::vec4& color, const char* name = nullptr);
 
 	// Create a basic text entity (text, transform)
-	static flecs::entity& CreateText(const std::string& text, const glm::vec3& position, const glm::vec4& color);
+	static flecs::entity* CreateText(const std::string& text, const glm::vec3& position, const glm::vec4& color);
 
-	// Get the root node of the ECS
-	static Node& GetRootNode()
+	static flecs::entity& GetRootEntity()
 	{
-		return Instance()->m_RootNode;
+		return Instance()->m_RootEntity;
 	}
+
+	// Gets a given nodes inspector function that is used to draw the node in the inspector
+	static void GetNodeInspectorFunction(flecs::entity& entity);
 
 	// Thread for the ECS
 	std::thread m_ECSUpdateThread;
@@ -86,7 +85,5 @@ private:
 	float m_FPSTimer = 0.0f;
 
 	// The root node of the ECS
-	static Node          m_RootNode;
-	static flecs::entity m_RootEntity;
-
+	flecs::entity m_RootEntity;
 };

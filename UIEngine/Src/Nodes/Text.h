@@ -58,6 +58,18 @@ public:
 		m_Position = position;
 	}
 
+	// Inspector
+	void Inspector() override
+	{
+		if (!ImGui::CollapsingHeader("Text"))
+		{
+			ImGui::InputText("Text", &m_Text[0], m_Text.size());
+			ImGui::InputText("Font", &m_Font[0], m_Font.size());
+			ImGui::DragFloat("Scale", &m_Scale);
+			ImGui::ColorEdit4("Color", &m_Color[0]);
+		}
+	}
+
 	std::string m_Text;
 	std::string m_Font;
 	float       m_Scale    = 1.0f;

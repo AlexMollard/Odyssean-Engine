@@ -9,6 +9,7 @@
 #include <map>
 
 #include "Engine/OpenGLAPI/ShaderOpenGL.h"
+#include "OpenGLAPI/OpenGLWindow.h"
 
 static const size_t maxQuadCount   = 2000;
 static const size_t maxVertexCount = maxQuadCount * 4;
@@ -105,8 +106,8 @@ Renderer2D::~Renderer2D()
 void Renderer2D::Draw()
 {
 	ShaderOpenGL::Use(*m_BasicShader);
-	float width  = 1920.0f;
-	float height = 1080.0f;
+	float width  = OpenGLWindow::Instance().width;
+	float height = OpenGLWindow::Instance().height;
 
 	// Setup the projection matrix to be orthographic with 0 being bottom left
 	glm::mat4 proj = glm::ortho(0.0f, width, 0.0f, height, -100.0f, 100.0f);
@@ -115,15 +116,6 @@ void Renderer2D::Draw()
 
 	// Adjust the view matrix to be centered so that 0,0 is the bottom left of the screen
 	glm::mat4 view = glm::mat4(1.0f);
-
-	// This is the ubo layout in the shader
-	// layout(binding = 0) uniform UniformBufferObject
-	// {
-	// 	mat4 model;
-	// 	mat4 view;
-	// 	mat4 proj;
-	// }
-	// ubo;
 
 	// create the ubo
 	unsigned int ubo;

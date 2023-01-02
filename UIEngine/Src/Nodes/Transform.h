@@ -49,6 +49,17 @@ public:
 		m_Scale = scale;
 	}
 
+	// Inspector
+	void Inspector() override
+	{
+		if (!ImGui::CollapsingHeader("Transform"))
+		{
+			ImGui::DragFloat2("Position", &m_Position.x);
+			ImGui::DragFloat3("Rotation", &m_Rotation.x);
+			ImGui::DragFloat2("Scale", &m_Scale.x);
+		}
+	}
+
 	glm::vec2 m_Position = glm::vec3(0.0f);
 	glm::vec3 m_Rotation = glm::vec3(0.0f);
 	glm::vec2 m_Scale    = glm::vec3(1.0f);

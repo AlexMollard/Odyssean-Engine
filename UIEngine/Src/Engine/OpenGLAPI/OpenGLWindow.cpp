@@ -86,4 +86,7 @@ float OpenGLWindow::GetDeltaTime() const
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
 	glViewport(0, 0, width, height);
+
+	OpenGLWindow::Instance().width  = width;
+	OpenGLWindow::Instance().height = height;
 }

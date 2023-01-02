@@ -12,13 +12,18 @@
 #include "Engine/SceneStateMachine.h"
 #include "Engine/Texture.h"
 
-static OpenGLWindow m_Window;
+static OpenGLWindow& m_Window = OpenGLWindow::Instance();
 
 OpenGLEngine::~OpenGLEngine()
 {
 	delete pool;
 	pool = nullptr;
 	ECS::Instance()->Destroy();
+
+
+	// Delete FBO
+	glDeleteFramebuffers(1, &m_fbo);
+	glDeleteTextures(1, &m_Texture);
 }
 
 void OpenGLEngine::Initialize(const char* windowName, int width, int height)
@@ -34,6 +39,20 @@ void OpenGLEngine::Initialize(const char* windowName, int width, int height)
 	m_close = false;
 
 	pool = new BS::thread_pool(4);
+
+	// Create FBO
+	glGenFramebuffers(1, &m_fbo);
+	glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
+
+	glGenTextures(1, &m_Texture);
+	glBindTexture(GL_TEXTURE_2D, m_Texture);
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 1920, 1080, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_Texture, 0);
 }
 
 float OpenGLEngine::Update(SceneStateMachine& stateMachine)
@@ -49,31 +68,34 @@ float OpenGLEngine::Update(SceneStateMachine& stateMachine)
 	m_Window.Update_Window();
 	float dt = m_Window.GetDeltaTime();
 
+	ECS::Instance()->Update(*pool);
 	m_ImguiLayer.NewFrame(*pool);
 
-	// TODO:
-	// Pass in the thread pool to the ecs update so we can multithread the expensive imgui stuff
-	auto ECSUpdateFn          = [&]() { ECS::Instance()->Update(*pool); };
 	auto StateMachineUpdateFn = [&]() { stateMachine.Update(dt); };
 
-	pool->submit(ECSUpdateFn);
 	pool->submit(StateMachineUpdateFn);
-
 	pool->wait_for_tasks();
-
-	ImGui::EndFrame();
 
 	return dt;
 }
 
 void OpenGLEngine::Render(SceneStateMachine& stateMachine)
 {
+	// Bind fbo
+	glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
+
+	// Clear fbo
+	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT);
+
+	// Render state machine
 	stateMachine.Render(*m_renderer);
 
-	ImGui::Render();
-	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+	// Unbind fbo
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-	m_ImguiLayer.UpdateViewPorts();
+	// Render fbo to imgui
+	m_ImguiLayer.RenderFBO(m_Texture);
 }
 
 void* OpenGLEngine::GetWindow()

@@ -4,14 +4,16 @@
 
 #include "imgui.h"
 
-static int           s_IDIncrementor = 0;
-static Node          s_RootNode;
-static flecs::entity s_RootEntity;
+static int s_IDIncrementor = 0;
 
-ECS*          ECS::s_Instance = nullptr;
+ECS* ECS::s_Instance = nullptr;
+
 flecs::entity ECS::CreateEntity()
 {
-	return m_World.entity();
+	flecs::entity entity = m_World.entity();
+	entity.child_of(GetRootEntity());
+	// Add the entity to the root node
+	return entity;
 }
 
 flecs::entity& ECS::CreateQuad(const glm::vec3& position, const glm::vec2& size, const glm::vec4& color, const char* name)
@@ -25,7 +27,7 @@ flecs::entity& ECS::CreateQuad(const glm::vec3& position, const glm::vec2& size,
 		newName = out.str();
 	}
 
-	flecs::entity quadEntity = Instance()->m_World.entity();
+	flecs::entity quadEntity = Instance()->CreateEntity();
 	quadEntity.set([&](node::Quad& quad, node::Transform& transform, node::Tag& tag) {
 		transform.SetPosition(position);
 		quad.SetSize(size);
@@ -35,15 +37,16 @@ flecs::entity& ECS::CreateQuad(const glm::vec3& position, const glm::vec2& size,
 
 	quadEntity.set_name(newName.c_str());
 
-	return *quadEntity.get_ref<flecs::entity>().get();
+	// flecs stores the entity as a int64_t, so we need to cast it to a pointer
+	return quadEntity;
 }
 
-flecs::entity& ECS::CreateText(const std::string& inText, const glm::vec3& position, const glm::vec4& color)
+flecs::entity* ECS::CreateText(const std::string& inText, const glm::vec3& position, const glm::vec4& color)
 {
 	std::ostringstream out;
 	out << "Text: " << s_IDIncrementor++;
 
-	flecs::entity textEntity = Instance()->m_World.entity();
+	flecs::entity textEntity = Instance()->CreateEntity();
 	textEntity.set([&](node::Text& text, node::Transform& transform, node::Tag& tag) {
 		transform.SetPosition(position);
 		text.SetColor(color);
@@ -52,7 +55,19 @@ flecs::entity& ECS::CreateText(const std::string& inText, const glm::vec3& posit
 	});
 	textEntity.set_name(out.str().c_str());
 
-	return *textEntity.get_ref<flecs::entity>().get();
+	return textEntity.get_ref<flecs::entity>().get();
+}
+
+void ECS::GetNodeInspectorFunction(flecs::entity& entity)
+{
+	// Transform
+	if (entity.has<node::Transform>()) { entity.get_ref<node::Transform>()->Inspector(); }
+
+	// Quad
+	if (entity.has<node::Quad>()) { entity.get_ref<node::Quad>()->Inspector(); }
+
+	// Text
+	if (entity.has<node::Text>()) { entity.get_ref<node::Text>()->Inspector(); }
 }
 
 void ECS::Init()
@@ -60,16 +75,11 @@ void ECS::Init()
 	m_World.import <flecs::units>();
 	m_World.import <flecs::monitor>(); // Collect statistics periodically
 	m_World.set<flecs::Rest>({});
-	//m_World.app().enable_rest().enable_monitor().run();
 
-	// Add a observer to the world that will be triggered when a new entity is created
-	//m_World.observer<node::Tag>().event(flecs::OnAdd).each([&](flecs::iter& it, size_t i, node::Tag tag) {
-	//	// Get the entity
-	//	flecs::entity e = it.entity(i);
-
-	//	// If the root entity is not set, set it
-	//	if (!m_RootEntity) { m_RootEntity = e; }
-	//});
+	// Add the root node/Entity
+	m_RootEntity = m_World.entity();
+	m_RootEntity.add<node::Transform>();
+	m_RootEntity.set_name("RootNode");
 }
 
 void ECS::Update(BS::thread_pool& pool)

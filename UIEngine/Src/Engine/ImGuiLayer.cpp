@@ -6,6 +6,7 @@
 #include "imgui_impl_opengl3.h"
 #include "imgui_internal.h"
 #include "windows.h"
+
 #include <GLFW/glfw3.h>
 
 ImGuiLayer::~ImGuiLayer()
@@ -114,6 +115,77 @@ void ImGuiLayer::DisplaySystemStats()
 	ImGui::Text("GPU Memory: %f", 0.0f);
 }
 
+void ImGuiLayer::ShowHierarchyWindow(bool* p_open)
+{
+	ImGui::SetNextWindowSize(ImVec2(300, 400), ImGuiCond_FirstUseEver);
+	if (!ImGui::Begin("Hierarchy", p_open))
+	{
+		ImGui::End();
+		return;
+	}
+
+	auto rootEntity = ECS::GetRootEntity();
+
+	static bool          showInspector  = false;
+	static flecs::entity selectedEntity = rootEntity;
+	if (rootEntity)
+	{
+		// Lambda function to recursively display the hierarchy
+		std::function<void(flecs::entity)> displayHierarchy = [&](flecs::entity entity) {
+			entity.children([&](flecs::entity child) {
+				ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick;
+				if (child == selectedEntity) flags |= ImGuiTreeNodeFlags_Selected;
+
+				bool isLeaf = true;
+
+				// flecs doesn't have a way to check if an entity has children, so we have to iterate over them
+				child.children([&](flecs::entity) {
+					isLeaf = false;
+					return false;
+				});
+
+				if (isLeaf) flags |= ImGuiTreeNodeFlags_Leaf;
+
+				bool isOpen = ImGui::TreeNodeEx((void*)(uint64_t)child.id(), flags, child.name().c_str());
+
+				if (ImGui::IsItemClicked()) selectedEntity = child;
+
+				if (isOpen)
+				{
+					displayHierarchy(child);
+					ImGui::TreePop();
+				}
+			});
+		};
+
+		displayHierarchy(rootEntity);
+	}
+
+	// If the selected entity is destroyed, set it to the root entity
+	if (!selectedEntity.is_alive()) selectedEntity = rootEntity;
+	ImGui::End();
+
+	// Show the inspector window if the selected entity is valid
+	if (selectedEntity.is_alive()) ShowInspectorWindow(&showInspector, selectedEntity);
+}
+
+void ImGuiLayer::ShowInspectorWindow(bool* p_open, flecs::entity entity)
+{
+	ImGui::SetNextWindowSize(ImVec2(300, 400), ImGuiCond_FirstUseEver);
+	if (!ImGui::Begin("Inspector", p_open))
+	{
+		ImGui::End();
+		return;
+	}
+
+	ImGui::Text(entity.name().c_str());
+
+	// Get the inspector function for the entity and call it
+	ECS::GetNodeInspectorFunction(entity);
+
+	ImGui::End();
+}
+
 void ImGuiLayer::ShowProfilerWindow(bool* p_open)
 {
 	ImGui::SetNextWindowSize(ImVec2(500, 400), ImGuiCond_FirstUseEver);
@@ -145,7 +217,6 @@ void ImGuiLayer::ShowProfilerWindow(bool* p_open)
 		// Update the min and max if the current frame rate is lower or higher than the current min and max
 		m_min = std::min(m_min, ms_per_frame[ms_per_frame_idx]);
 		m_max = std::max(m_max, ms_per_frame[ms_per_frame_idx]);
-
 	}
 
 	// Stretch the plot to the full width of the window
@@ -199,6 +270,10 @@ void ImGuiLayer::ShowProfilerWindow(bool* p_open)
 
 void ImGuiLayer::NewFrame(BS::thread_pool& pool)
 {
+	static bool showProfiler     = true;
+	static bool showHierarchy    = true;
+	static bool showImGuiMetrics = false;
+
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
@@ -226,8 +301,6 @@ void ImGuiLayer::NewFrame(BS::thread_pool& pool)
 		// Menu Bar
 		if (ImGui::BeginMainMenuBar())
 		{
-			static bool showProfiler     = true;
-			static bool showImGuiMetrics = false;
 			if (ImGui::BeginMenu("File"))
 			{
 				if (ImGui::MenuItem("New", "Ctrl+N")) {}
@@ -250,15 +323,18 @@ void ImGuiLayer::NewFrame(BS::thread_pool& pool)
 			}
 			if (ImGui::BeginMenu("View"))
 			{
+				if (ImGui::MenuItem("Hierarchy")) showHierarchy = !showHierarchy;
 				if (ImGui::MenuItem("Profiler")) showProfiler = !showProfiler;
 				if (ImGui::MenuItem("Show Imgui Metrics")) showImGuiMetrics = !showImGuiMetrics;
 				ImGui::EndMenu();
 			}
 			ImGui::EndMainMenuBar();
 
-			if (showProfiler) { ShowProfilerWindow(&showProfiler); }
+			if (showHierarchy) ShowHierarchyWindow(&showHierarchy);
 
-			if (showImGuiMetrics) { ImGui::ShowMetricsWindow(&showImGuiMetrics); }
+			if (showProfiler) ShowProfilerWindow(&showProfiler);
+
+			if (showImGuiMetrics) ImGui::ShowMetricsWindow(&showImGuiMetrics);
 		}
 	};
 	pool.submit(dockspaceFn);
@@ -276,4 +352,20 @@ void ImGuiLayer::UpdateViewPorts()
 		ImGui::RenderPlatformWindowsDefault();
 		glfwMakeContextCurrent(backup_current_context);
 	}
+}
+
+void ImGuiLayer::RenderFBO(unsigned int m_fbo)
+{
+	// Render the fbo to imgui
+	ImGui::Begin("Render Texture");
+	int tabWidth  = ImGui::GetContentRegionAvail().x;
+	int tabHeight = ImGui::GetContentRegionAvail().y;
+	ImGui::Image((void*)(intptr_t)m_fbo, ImVec2(tabWidth, tabHeight));
+	ImGui::End();
+
+	// Rendering
+	ImGui::Render();
+	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+	UpdateViewPorts();
 }

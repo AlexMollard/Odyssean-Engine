@@ -8,10 +8,11 @@ namespace node
 {
 class Tag : Node
 {
+public:
+
 	unsigned int m_ID = 0;
 	char         m_Name[256];
 
-public:
 	Tag()  = default;
 	~Tag() = default;
 
@@ -33,6 +34,16 @@ public:
 	void SetName(const char* name)
 	{
 		strcpy_s(m_Name, name);
+	}
+
+	// Inspector
+	void Inspector() override
+	{
+		if (!ImGui::CollapsingHeader("Tag"))
+		{
+			ImGui::InputText("Name", m_Name, 256);
+			ImGui::DragInt("ID", (int*)&m_ID);
+		}
 	}
 };
 } // namespace node

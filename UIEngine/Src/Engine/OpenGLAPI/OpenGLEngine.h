@@ -40,4 +40,8 @@ private:
 	ImGuiLayer     m_ImguiLayer;
 
 	BS::thread_pool* pool = nullptr;
+
+	// FBO
+	unsigned int m_fbo;
+	unsigned int m_Texture;
 };
