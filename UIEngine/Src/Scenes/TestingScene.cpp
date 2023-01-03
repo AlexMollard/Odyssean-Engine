@@ -63,7 +63,7 @@ void TestingScene::Draw(const BaseRenderer& renderer)
 	auto& world = ECS::GetWorldStatic();
 
 	flecs::filter<node::Quad, node::Transform> f = world.filter<node::Quad, node::Transform>();
-	f.each([this](node::Quad& q, node::Transform& t) { m_Renderer->DrawQuad(t.GetPosition(), q.GetSize() * t.GetScale(), q.GetColor(), q.GetAnchorPoint(), 0); });
+	f.each([this](node::Quad& q, node::Transform& t) { m_Renderer->DrawQuad(t.GetPosition(), q.GetSize() * t.GetScale(), q.GetColor(), q.GetAnchorPoint(), t.GetRotation(), 0); });
 
 	m_Renderer->Draw();
 }

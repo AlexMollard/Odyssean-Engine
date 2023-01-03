@@ -20,7 +20,7 @@ public:
 
 	void Draw();
 
-	static void DrawQuad(glm::vec2 position, glm::vec2 size, glm::vec4 color, glm::vec2 anchorPoint, const unsigned int texId);
+	static void DrawQuad(glm::vec2 position, glm::vec2 size, glm::vec4 color, glm::vec2 anchorPoint, float rotation, const unsigned int texId);
 
 	static void DrawText(std::string text, glm::vec2 position, glm::vec4 color, float scale, std::string font);
 

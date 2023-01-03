@@ -49,6 +49,9 @@ int OpenGLWindow::Window_intit(int width, int height, std::string_view name)
 	// Outputting OpenGL Version and build
 	std::cout << "OpenGL Version: " << glGetString(GL_VERSION) << std::endl;
 
+	m_Width = width;
+	m_Height = height;
+
 	return 1;
 }
 
@@ -87,6 +90,6 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
 	glViewport(0, 0, width, height);
 
-	OpenGLWindow::Instance().width  = width;
-	OpenGLWindow::Instance().height = height;
+	OpenGLWindow::Instance().m_Width  = width;
+	OpenGLWindow::Instance().m_Height = height;
 }

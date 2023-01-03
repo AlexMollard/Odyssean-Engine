@@ -2,6 +2,7 @@
 
 #include "Renderer2D.h"
 
+#include "OpenGLAPI/OpenGLWindow.h"
 #include "Texture.h"
 #include <algorithm>
 #include <array>
@@ -9,7 +10,7 @@
 #include <map>
 
 #include "Engine/OpenGLAPI/ShaderOpenGL.h"
-#include "OpenGLAPI/OpenGLWindow.h"
+
 
 static const size_t maxQuadCount   = 2000;
 static const size_t maxVertexCount = maxQuadCount * 4;
@@ -106,8 +107,8 @@ Renderer2D::~Renderer2D()
 void Renderer2D::Draw()
 {
 	ShaderOpenGL::Use(*m_BasicShader);
-	float width  = OpenGLWindow::Instance().width;
-	float height = OpenGLWindow::Instance().height;
+	float width  = OpenGLWindow::Instance().m_Width;
+	float height = OpenGLWindow::Instance().m_Height;
 
 	// Setup the projection matrix to be orthographic with 0 being bottom left
 	glm::mat4 proj = glm::ortho(0.0f, width, 0.0f, height, -100.0f, 100.0f);
@@ -142,7 +143,7 @@ void Renderer2D::Draw()
 	BeginBatch();
 }
 
-void Renderer2D::DrawQuad(glm::vec2 position, glm::vec2 size, glm::vec4 color, glm::vec2 anchorPoint, const unsigned int texId)
+void Renderer2D::DrawQuad(glm::vec2 position, glm::vec2 size, glm::vec4 color, glm::vec2 anchorPoint, float rotation, const unsigned int texId)
 {
 	if (data.indexCount >= maxIndexCount)
 	{
@@ -151,16 +152,28 @@ void Renderer2D::DrawQuad(glm::vec2 position, glm::vec2 size, glm::vec4 color, g
 		BeginBatch();
 	}
 
-	float xOffset = size.x / 2;
-	float yOffset = size.y / 2;
+	// Calculate the anchor point (Origin of the quad, 0,0 is bottom left)
+	glm::vec2 anchor = glm::vec2(position.x + (size.x * anchorPoint.x), position.y + (size.y * anchorPoint.y));
 
+	// Calculate the positions of the quad (anticlockwise)
 	glm::vec3 positions[4] = {
-		glm::vec3(position.x - xOffset, position.y - yOffset, 1), // Bottom Left
-		glm::vec3(position.x + xOffset, position.y - yOffset, 1), // Bottom Right
-		glm::vec3(position.x + xOffset, position.y + yOffset, 1), // Top Right
-		glm::vec3(position.x - xOffset, position.y + yOffset, 1)  // top Left
+		glm::vec3(anchor.x - (size.x / 2), anchor.y - (size.y / 2), 0.0f),
+		glm::vec3(anchor.x + (size.x / 2), anchor.y - (size.y / 2), 0.0f),
+		glm::vec3(anchor.x + (size.x / 2), anchor.y + (size.y / 2), 0.0f),
+		glm::vec3(anchor.x - (size.x / 2), anchor.y + (size.y / 2), 0.0f)
 	};
 
+	// Rotate the quad, glm dosent have a rotate function for vec3 so we have to do it manually
+	for (int i = 0; i < 4; i++)
+	{
+		positions[i] = glm::vec3(
+			(positions[i].x - anchor.x) * cos(rotation) - (positions[i].y - anchor.y) * sin(rotation) + anchor.x,
+			(positions[i].x - anchor.x) * sin(rotation) + (positions[i].y - anchor.y) * cos(rotation) + anchor.y,
+			positions[i].z
+		);
+	}
+
+	// Add the quad to the batch
 	for (int i = 0; i < 4; i++)
 	{
 		data.quadBufferPtr->position  = positions[i];

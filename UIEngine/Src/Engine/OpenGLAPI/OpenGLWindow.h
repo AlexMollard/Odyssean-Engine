@@ -34,8 +34,8 @@ public:
 		return window;
 	}
 
-	int width  = 0;
-	int height = 0;
+	int m_Width  = 0;
+	int m_Height = 0;
 
 private:
 	OpenGLWindow() = default;
