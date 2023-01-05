@@ -34,7 +34,8 @@ public:
 private:
 
 	GLFWwindow* m_Window;
-	bool        m_close = false;
+	bool        m_close      = false;
+	bool        m_firstFrame = true;
 
 	Init       m_Init;
 	RenderData m_RenderData;

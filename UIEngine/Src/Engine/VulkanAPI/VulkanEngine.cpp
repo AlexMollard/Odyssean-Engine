@@ -3,12 +3,14 @@
 #include "VulkanEngine.h"
 
 #include "ImGuiVulkan.h"
+#include <imgui_impl_glfw.h>
+#include <imgui_impl_vulkan.h>
 
 VulkanEngine::~VulkanEngine()
 {
 	// wait for the device to finish all operations before destroying it
 	m_Init->vkDeviceWaitIdle(m_Init.device);
-
+	ImGuiVulkan::DestroyImgui(m_Init, m_RenderData);
 	VulkanRenderer::CleanUp(m_Init, m_RenderData);
 }
 
@@ -28,17 +30,15 @@ void VulkanEngine::Initialize(const char* windowName, int width, int height)
 	VulkanRenderer::SetUpMeshDescriptorInfo(m_Init, m_Mesh);
 	VulkanRenderer::SetUpMeshDescriptorSets(m_Init, m_Mesh);
 	m_Mesh.UpdateModelMatrix(device, m_Mesh.modelMatrix);
-	VulkanRenderer::RecordCommandBuffers(m_Init, m_RenderData, m_Mesh);
+	ImGuiVulkan::SetUpImgui(m_Init, m_RenderData);
 	VulkanRenderer::AddMesh(m_Mesh);
+	VulkanRenderer::AddImguiToRender(m_Init, m_RenderData);
 
 	// Output all the m_Mesh details
 	std::cout << "Mesh Details:" << std::endl;
 	std::cout << "Vertices: " << m_Mesh.vertices.size() << std::endl;
 	std::cout << "Indices: " << m_Mesh.indices.size() << std::endl;
 	std::cout << "Directory: " << m_Mesh.directory << std::endl;
-
-	ImGuiVulkan::SetUpImgui(m_Init, m_RenderData);
-	ImGuiVulkan::RecordImguiCommandBuffers(m_Init, m_RenderData);
 }
 
 float VulkanEngine::Update()
@@ -55,12 +55,14 @@ float VulkanEngine::Update()
 	// Test if wants to close
 	if (glfwWindowShouldClose(m_Init.window)) { m_close = true; }
 
+	ImGuiVulkan::UpdateImgui(m_Init, m_RenderData);
+
 	// Rotate the m_Mesh
 	vk::Device device  = m_Init.device.device;
 	m_Mesh.modelMatrix = glm::rotate(m_Mesh.modelMatrix, glm::radians(m_DT * 10.0f), glm::vec3(1.0f, 0.0f, 0.8f));
 	m_Mesh.UpdateModelMatrix(device, m_Mesh.modelMatrix);
 
-	ImGuiVulkan::UpdateImgui(m_Init, m_RenderData);
+	ImGui::EndFrame();
 
 	return 0.0f;
 }
@@ -73,5 +75,11 @@ void VulkanEngine::Render()
 	{
 		std::cout << "failed to draw frame \n";
 		return;
+	}
+
+	// If the command buffer dosen't currently have imgui commands, add them
+	if (!VulkanRenderer::HasImguiCommands(m_RenderData))
+	{
+		VulkanRenderer::AddImguiToRender(m_Init, m_RenderData);
 	}
 }

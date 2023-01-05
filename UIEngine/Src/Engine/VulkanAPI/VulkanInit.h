@@ -60,6 +60,11 @@ struct RenderData
 
 	// Imgui
 	ImguiData imgui_data;
+
+	// Descriptor Pool for imgui
+	vk::DescriptorPool imgui_descriptor_pool;
+	
+	bool has_imgui_commands = false;
 };
 
 class VulkanInit

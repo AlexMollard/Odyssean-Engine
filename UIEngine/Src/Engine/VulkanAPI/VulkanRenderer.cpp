@@ -4,6 +4,8 @@
 
 #include "ShaderVulkan.h"
 #include "VulkanInit.h"
+#include "imgui.h"
+#include "imgui_impl_vulkan.h"
 
 // include assimp
 #include "ImGuiVulkan.h"
@@ -477,7 +479,7 @@ int VulkanRenderer::DrawFrame(Init& init, RenderData& data)
 	// Submit the command buffer to the graphics queue
 	data.graphics_queue.submit(1, &submit_info, data.in_flight_fences[data.current_frame]);
 
-	ImGuiVulkan::DrawImgui(init, data);
+	ImGui::Render();
 
 	// Create the present info structure
 	vk::PresentInfoKHR present_info;
@@ -554,6 +556,140 @@ int VulkanRenderer::CleanUp(Init& init, RenderData& data)
 
 	return 0;
 }
+
+/// ---------------------------- ---------------
+// The following functions are used to add objects to the render queue
+// Doing so will re create the command buffers and re record them
+// This is done to avoid having to re record the command buffers every frame
+// All elements of pCommandBuffers must not be in the pending state this means that they must not be in the middle of recording
+// If they are in the pending state then the function will return VK_ERROR_COMMAND_BUFFER_RESET
+// So if you are using these functions make sure that you are not recording any command buffers at the same time
+
+void RecreateCommandBuffers(Init& init, RenderData& data, std::vector<vulkan::Mesh>& meshes)
+{
+	vk::Device device = init.device.device;
+
+	// wait for fences
+	device.waitForFences(data.in_flight_fences.size(), data.in_flight_fences.data(), VK_TRUE, UINT64_MAX);
+	
+	device.freeCommandBuffers(data.command_pool, data.command_buffers.size(), data.command_buffers.data());
+
+	// Create the command buffers
+	data.command_buffers.resize(data.swapchain_image_views.size());
+	vk::CommandBufferAllocateInfo alloc_info;
+	alloc_info.commandPool        = data.command_pool;
+	alloc_info.level              = vk::CommandBufferLevel::ePrimary;
+	alloc_info.commandBufferCount = (uint32_t)data.command_buffers.size();
+	data.command_buffers          = device.allocateCommandBuffers(alloc_info);
+
+	// Record the command buffers
+	for (size_t i = 0; i < data.command_buffers.size(); i++)
+	{
+		// Begin the command buffer
+		vk::CommandBufferBeginInfo begin_info;
+		begin_info.flags = vk::CommandBufferUsageFlagBits::eSimultaneousUse;
+		data.command_buffers[i].begin(begin_info);
+
+		// Begin the render pass
+		vk::RenderPassBeginInfo render_pass_info;
+		render_pass_info.renderPass        = data.render_pass;
+		render_pass_info.framebuffer       = data.framebuffers[i];
+		render_pass_info.renderArea.offset = vk::Offset2D(0, 0);
+		render_pass_info.renderArea.extent = init.swapchain.extent;
+		vk::ClearValue clear_color         = vk::ClearColorValue(std::array<float, 4>{ 0.0f, 0.0f, 0.0f, 1.0f });
+		render_pass_info.clearValueCount   = 1;
+		render_pass_info.pClearValues      = &clear_color;
+		data.command_buffers[i].beginRenderPass(&render_pass_info, vk::SubpassContents::eInline);
+
+		// Set viewport and scissor
+		vk::Viewport viewport;
+		viewport.x        = 0.0f;
+		viewport.y        = 0.0f;
+		viewport.width    = (float)init.swapchain.extent.width;
+		viewport.height   = (float)init.swapchain.extent.height;
+		viewport.minDepth = 0.0f;
+		viewport.maxDepth = 1.0f;
+		data.command_buffers[i].setViewport(0, 1, &viewport);
+
+		vk::Rect2D scissor;
+		scissor.offset = vk::Offset2D(0, 0);
+		scissor.extent = init.swapchain.extent;
+		data.command_buffers[i].setScissor(0, 1, &scissor);
+
+		// Bind the graphics pipeline
+		data.command_buffers[i].bindPipeline(vk::PipelineBindPoint::eGraphics, data.graphics_pipeline);
+
+		// Bind the vertex buffers
+		vulkan::Mesh& mesh = meshes[0];
+
+		vk::Buffer     vertex_buffers[] = { mesh.vertexBuffer.buffer };
+		vk::DeviceSize offsets[]        = { 0 };
+		data.command_buffers[i].bindVertexBuffers(0, 1, vertex_buffers, offsets);
+
+		// Bind the index buffer
+		data.command_buffers[i].bindIndexBuffer(mesh.indexBuffer.buffer, 0, vk::IndexType::eUint32);
+
+		data.command_buffers[i].bindDescriptorSets(vk::PipelineBindPoint::eGraphics, data.pipeline_layout, 0, 1, &mesh.descriptorSet, 0, nullptr);
+
+		// Draw the mesh
+		data.command_buffers[i].drawIndexed(mesh.indices.size(), 1, 0, 0, 0);
+
+		// Draw the imgui (check if the imgui draw data is valid)
+		if (ImGui::GetDrawData() != NULL)
+		{
+			ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), data.command_buffers[i]);
+			//data.has_imgui_commands = true;
+		}
+		// End the render pass
+		data.command_buffers[i].endRenderPass();
+
+		// End the command buffer
+		data.command_buffers[i].end();
+	}
+}
+
+int VulkanRenderer::AddMeshToRender(Init& init, RenderData& data, vulkan::Mesh& mesh)
+{
+	vk::Device device = init.device.device;
+
+	// Add the mesh to the render queue
+	m_Meshes.push_back(mesh);
+
+	// Recreate the command buffers
+	RecreateCommandBuffers(init, data, m_Meshes);
+
+	return 0;
+}
+
+int VulkanRenderer::AddMeshesToRender(Init& init, RenderData& data, std::vector<vulkan::Mesh>& meshes)
+{
+	vk::Device device = init.device.device;
+
+	// Add the meshes to the render queue
+	m_Meshes.insert(m_Meshes.end(), meshes.begin(), meshes.end());
+
+	// Recreate the command buffers
+	RecreateCommandBuffers(init, data, m_Meshes);
+
+	return 0;
+}
+
+int VulkanRenderer::AddImguiToRender(Init& init, RenderData& data)
+{
+	vk::Device device = init.device.device;
+
+	// Recreate the command buffers
+	RecreateCommandBuffers(init, data, m_Meshes);
+
+	return 0;
+}
+
+bool VulkanRenderer::HasImguiCommands(RenderData& data)
+{
+	return data.has_imgui_commands;
+}
+
+/// ---------------------------- ---------------
 
 void ProcessMesh(vulkan::Mesh& mesh, aiMesh* ai_mesh, const aiScene* scene)
 {
@@ -912,6 +1048,8 @@ int VulkanRenderer::RecordCommandBuffers(Init& init, RenderData& renderData, vul
 
 		// Bind the vertex buffer and index buffer to the command buffer and draw the mesh
 		mesh.AddToCommandBuffer(command_buffer, pipeline_layout);
+
+		//ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), command_buffer);
 
 		// End the render pass
 		command_buffer.endRenderPass();

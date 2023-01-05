@@ -45,6 +45,13 @@ struct VulkanRenderer
 	// Clean Up
 	static int CleanUp(Init& init, RenderData& data);
 
+
+	// Add Meshes to Render (Recreate Command Buffers)
+	static int AddMeshToRender(Init& init, RenderData& data, vulkan::Mesh& mesh);
+	static int AddMeshesToRender(Init& init, RenderData& data, std::vector<vulkan::Mesh>& meshes);
+	static int AddImguiToRender(Init& init, RenderData& data);
+
+	static bool HasImguiCommands(RenderData& data);
 private:
 	// Singleton for storing all the meshes loaded
 	static std::vector<vulkan::Mesh> m_Meshes;
