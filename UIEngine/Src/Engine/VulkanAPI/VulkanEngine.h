@@ -3,6 +3,8 @@
 #include "VulkanRenderer.h"
 
 #include "Engine/BaseEngine.h"
+#include "../ImGuiLayer.h"
+#include "BS_thread_pool.hpp"
 
 struct GLFWwindow;
 class VulkanEngine : BaseEngine
@@ -33,6 +35,9 @@ public:
 
 private:
 
+	ImGuiLayer  m_ImguiLayer;
+	BS::thread_pool* pool = nullptr;
+		
 	GLFWwindow* m_Window;
 	bool        m_close      = false;
 	bool        m_firstFrame = true;

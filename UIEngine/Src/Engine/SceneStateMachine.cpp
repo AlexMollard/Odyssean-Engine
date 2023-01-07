@@ -41,7 +41,7 @@ void SceneStateMachine::SetCurrentScene(Scene* scene)
 
 	currentScene = scene;
 	currentScene->Enter();
-	S_TRACE("");
+	//S_TRACE("");
 }
 
 // Get the current scene.

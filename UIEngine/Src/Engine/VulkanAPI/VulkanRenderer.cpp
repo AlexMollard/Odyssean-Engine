@@ -66,13 +66,28 @@ int VulkanRenderer::CreateSwapchain(Init& init)
 
 int VulkanRenderer::RecreateSwapchain(Init& init, RenderData& data)
 {
-	init->vkDeviceWaitIdle(init.device);
+	vk::Device device = init.device.device;
 
-	init->vkDestroyCommandPool(init.device, data.command_pool, nullptr);
+	// Wait for device to be available
+	device.waitIdle();
 
-	for (auto framebuffer : data.framebuffers) { init->vkDestroyFramebuffer(init.device, framebuffer, nullptr); }
+	// CommandPool
+	device.destroyCommandPool(data.command_pool);
 
+	// FrameBuffers
+	for (auto& framebuffer : data.framebuffers) { device.destroyFramebuffer(framebuffer); }
+
+	// ImageViews
 	init.swapchain.destroy_image_views(data.swapchain_image_views);
+
+	// Pipeline
+	init->vkDestroyPipelineLayout(init.device, data.pipeline_layout, nullptr);
+
+	// Renderpass
+	init->vkDestroyRenderPass(init.device, data.render_pass, nullptr);
+
+	// Descriptor set layout
+	device.destroyDescriptorSetLayout(data.descriptor_set_layout);
 
 	if (0 != CreateSwapchain(init)) return -1;
 	if (0 != CreateRenderPass(init, data)) return -1;
@@ -571,7 +586,7 @@ void RecreateCommandBuffers(Init& init, RenderData& data, std::vector<vulkan::Me
 
 	// wait for fences
 	device.waitForFences(data.in_flight_fences.size(), data.in_flight_fences.data(), VK_TRUE, UINT64_MAX);
-	
+
 	device.freeCommandBuffers(data.command_pool, data.command_buffers.size(), data.command_buffers.data());
 
 	// Create the command buffers

@@ -3,7 +3,6 @@
 #include "ImGuiLayer.h"
 
 #include "imgui_impl_glfw.h"
-#include "imgui_impl_opengl3.h"
 #include "imgui_internal.h"
 #include "windows.h"
 
@@ -12,9 +11,6 @@
 ImGuiLayer::~ImGuiLayer()
 {
 	// Cleanup
-	ImGui_ImplOpenGL3_Shutdown();
-	ImGui_ImplGlfw_Shutdown();
-	ImGui::DestroyContext();
 }
 
 void ImGuiLayer::Init(GLFWwindow* window)
@@ -30,7 +26,6 @@ void ImGuiLayer::Init(GLFWwindow* window)
 
 	// Setup Platform/Renderer backends
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
-	ImGui_ImplOpenGL3_Init("#version 330");
 }
 
 void ImGuiLayer::SetStyle()
@@ -274,7 +269,6 @@ void ImGuiLayer::NewFrame(BS::thread_pool& pool)
 	static bool showHierarchy    = true;
 	static bool showImGuiMetrics = false;
 
-	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
 
@@ -352,20 +346,4 @@ void ImGuiLayer::UpdateViewPorts()
 		ImGui::RenderPlatformWindowsDefault();
 		glfwMakeContextCurrent(backup_current_context);
 	}
-}
-
-void ImGuiLayer::RenderFBO(unsigned int m_fbo)
-{
-	// Render the fbo to imgui
-	ImGui::Begin("Render Texture");
-	int tabWidth  = ImGui::GetContentRegionAvail().x;
-	int tabHeight = ImGui::GetContentRegionAvail().y;
-	ImGui::Image((void*)(intptr_t)m_fbo, ImVec2(tabWidth, tabHeight));
-	ImGui::End();
-
-	// Rendering
-	ImGui::Render();
-	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
-	UpdateViewPorts();
 }

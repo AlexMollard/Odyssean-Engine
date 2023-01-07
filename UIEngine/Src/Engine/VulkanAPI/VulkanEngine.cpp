@@ -8,8 +8,14 @@
 
 VulkanEngine::~VulkanEngine()
 {
-	// wait for the device to finish all operations before destroying it
 	m_Init->vkDeviceWaitIdle(m_Init.device);
+	
+	delete pool;
+	pool = nullptr;
+	
+	ECS::Instance()->Destroy();
+		
+	// wait for the device to finish all operations before destroying it
 	ImGuiVulkan::DestroyImgui(m_Init, m_RenderData);
 	VulkanRenderer::CleanUp(m_Init, m_RenderData);
 }
@@ -31,6 +37,7 @@ void VulkanEngine::Initialize(const char* windowName, int width, int height)
 	VulkanRenderer::SetUpMeshDescriptorSets(m_Init, m_Mesh);
 	m_Mesh.UpdateModelMatrix(device, m_Mesh.modelMatrix);
 	ImGuiVulkan::SetUpImgui(m_Init, m_RenderData);
+	m_ImguiLayer.SetStyle();
 	VulkanRenderer::AddMesh(m_Mesh);
 	VulkanRenderer::AddImguiToRender(m_Init, m_RenderData);
 
@@ -39,6 +46,8 @@ void VulkanEngine::Initialize(const char* windowName, int width, int height)
 	std::cout << "Vertices: " << m_Mesh.vertices.size() << std::endl;
 	std::cout << "Indices: " << m_Mesh.indices.size() << std::endl;
 	std::cout << "Directory: " << m_Mesh.directory << std::endl;
+	
+	pool = new BS::thread_pool(4);
 }
 
 float VulkanEngine::Update()
@@ -52,18 +61,24 @@ float VulkanEngine::Update()
 
 	if (glfwGetKey(m_Init.window, GLFW_KEY_ESCAPE) == GLFW_PRESS) { glfwSetWindowShouldClose(m_Init.window, true); }
 
-	// Test if wants to close
-	if (glfwWindowShouldClose(m_Init.window)) { m_close = true; }
+	if (glfwWindowShouldClose(m_Init.window))
+	{
+		m_close = true;
+		// Return -Max float to exit the game loop
+		return -FLT_MAX;
+	}
 
-	ImGuiVulkan::UpdateImgui(m_Init, m_RenderData);
+	ECS::Instance()->Update(*pool);
+
+	ImGui_ImplVulkan_NewFrame();
+	m_ImguiLayer.NewFrame(*pool);
 
 	// Rotate the m_Mesh
 	vk::Device device  = m_Init.device.device;
 	m_Mesh.modelMatrix = glm::rotate(m_Mesh.modelMatrix, glm::radians(m_DT * 10.0f), glm::vec3(1.0f, 0.0f, 0.8f));
 	m_Mesh.UpdateModelMatrix(device, m_Mesh.modelMatrix);
 
-	ImGui::EndFrame();
-
+	pool->wait_for_tasks();
 	return 0.0f;
 }
 

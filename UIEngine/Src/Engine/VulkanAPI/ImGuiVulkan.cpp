@@ -58,48 +58,34 @@ int ImGuiVulkan::SetUpImgui(Init& init, RenderData& data)
 		initInfo.ImageCount                = init.swapchain.image_count;
 
 		// vk result check function
-		initInfo.CheckVkResultFn           = [](VkResult err) {
-			if (err != 0)
-			{
-				throw std::runtime_error("Vulkan error");
-			}
+		initInfo.CheckVkResultFn = [](VkResult err) {
+			if (err != 0) { throw std::runtime_error("Vulkan error"); }
 		};
 
 		// Install the create window handler
 
 		ImGui_ImplVulkan_Init(&initInfo, data.render_pass);
 
-		// Upload Fonts
+		io.Fonts->AddFontFromFileTTF("../Resources/Fonts/FiraCode-Regular.ttf", 16.0f);
+
+		// Upload custom font ../Resources/Fonts/FiraCode-Regular.ttf
 		{
+			// Use any command queue
 			vk::CommandBuffer commandBuffer = VulkanInit::BeginSingleTimeCommands(init, data);
 
 			ImGui_ImplVulkan_CreateFontsTexture(commandBuffer);
-
+			
 			VulkanInit::EndSingleTimeCommands(init, data, commandBuffer);
 
 			ImGui_ImplVulkan_DestroyFontUploadObjects();
-		}		
+		}
 
 		// Setup Dear ImGui docking
 		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+
+		// 
 	}
 
-	return 0;
-}
-
-int ImGuiVulkan::UpdateImgui(Init& init, RenderData& data)
-{
-	ImGui_ImplVulkan_NewFrame();
-	ImGui_ImplGlfw_NewFrame();
-	ImGui::NewFrame();
-	
-	// Make the entire window be a dockspace
-	ImGui::DockSpaceOverViewport(ImGui::GetMainViewport(), ImGuiDockNodeFlags_PassthruCentralNode);
-
-	ImGui::ShowDemoWindow();
-	ImGui::ShowAboutWindow();
-	ImGui::ShowDebugLogWindow();
-	
 	return 0;
 }
 

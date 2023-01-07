@@ -19,8 +19,11 @@ OpenGLEngine::~OpenGLEngine()
 	delete pool;
 	pool = nullptr;
 	ECS::Instance()->Destroy();
-
-
+	
+	ImGui_ImplOpenGL3_Shutdown();
+	ImGui_ImplGlfw_Shutdown();
+	ImGui::DestroyContext();
+	
 	// Delete FBO
 	glDeleteFramebuffers(1, &m_fbo);
 	glDeleteTextures(1, &m_Texture);
@@ -35,6 +38,8 @@ void OpenGLEngine::Initialize(const char* windowName, int width, int height)
 
 	// ImGui Setup
 	m_ImguiLayer.Init(m_Window.GetWindow());
+	ImGui_ImplOpenGL3_Init("#version 450");	
+
 
 	m_close = false;
 
@@ -69,6 +74,8 @@ float OpenGLEngine::Update(SceneStateMachine& stateMachine)
 	float dt = m_Window.GetDeltaTime();
 
 	ECS::Instance()->Update(*pool);
+
+	ImGui_ImplOpenGL3_NewFrame();
 	m_ImguiLayer.NewFrame(*pool);
 
 	auto StateMachineUpdateFn = [&]() { stateMachine.Update(dt); };
@@ -95,7 +102,18 @@ void OpenGLEngine::Render(SceneStateMachine& stateMachine)
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	// Render fbo to imgui
-	m_ImguiLayer.RenderFBO(m_Texture);
+	// Render the fbo to imgui
+	ImGui::Begin("Render Texture");
+	int tabWidth  = ImGui::GetContentRegionAvail().x;
+	int tabHeight = ImGui::GetContentRegionAvail().y;
+	ImGui::Image((void*)(intptr_t)m_fbo, ImVec2(tabWidth, tabHeight));
+	ImGui::End();
+
+	// Rendering
+	ImGui::Render();
+	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+	m_ImguiLayer.UpdateViewPorts();
 }
 
 void* OpenGLEngine::GetWindow()
