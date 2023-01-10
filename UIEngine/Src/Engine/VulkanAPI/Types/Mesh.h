@@ -1,20 +1,17 @@
 #pragma once
-
-#include "VkTypes.h"
+#include "common.h"
 #include <glm/glm.hpp>
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
-#include <string>
-#include <vector>
 
 namespace vulkan
 {
 struct Vertex
 {
-	glm::vec3 pos;
-	glm::vec3 normal;
-	glm::vec2 texCoord;
-	glm::vec3 color;
+    glm::vec3 pos;
+    glm::vec3 normal;
+    glm::vec2 texCoord;
+    glm::vec3 color;
 };
 
 struct Mesh
