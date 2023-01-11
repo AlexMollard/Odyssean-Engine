@@ -4,16 +4,6 @@ namespace vulkan
 
 DeviceQueue::DeviceQueue(vk::Device device)
 {
-	SetDevice(device);
-}
-
-vk::Device DeviceQueue::GetDevice() const
-{
-	return m_Device;
-}
-
-void DeviceQueue::SetDevice(vk::Device device)
-{
 	m_Device = device;
 }
 

@@ -5,6 +5,7 @@
 #include "GLFW/glfw3.h"
 #include "GLFW/glfw3native.h"
 #include <vector>
+#include "vulkan/vulkan.hpp"
 class Window
 {
 public:
@@ -26,6 +27,15 @@ public:
 
     // Gets the required extensions for glfw
     static std::vector<const char*> GetRequiredExtensions();
+
+	vk::SurfaceKHR                    m_Surface;
+	vk::SurfaceCapabilitiesKHR        m_SurfaceCapabilities;
+	vk::Extent2D                      m_SurfaceExtent;
+	vk::SurfaceFormatKHR              m_SurfaceFormat;
+	vk::PresentModeKHR                m_SurfacePresentMode;
+	size_t                            m_SurfaceImageCount;
+	std::vector<vk::SurfaceFormatKHR> m_SurfaceFormats;
+	std::vector<vk::PresentModeKHR>   m_SurfacePresentModes;
 
 private:
 	// Window

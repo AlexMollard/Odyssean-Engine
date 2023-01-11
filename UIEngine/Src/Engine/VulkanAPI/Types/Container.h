@@ -17,10 +17,6 @@ struct API
 	vk::InstanceCreateInfo instanceCreateInfo;
 	vk::Instance           instance;
 
-	vk::PhysicalDevice physicalDevice;
-	vk::Device         device;
-	std::vector<const char*> deviceExtensions;
-
 	// Extensions and Layers
 	std::vector<const char*> extensions;
 	std::vector<const char*> validationLayers;
@@ -28,55 +24,50 @@ struct API
 	// Debug Messenger
 	vk::DebugUtilsMessengerEXT debugMessenger;
 
-	// Surface
-	vk::SurfaceKHR                    surface;
-	vk::SurfaceCapabilitiesKHR        surfaceCapabilities;
-	vk::Extent2D                      surfaceExtent;
-	vk::SurfaceFormatKHR              surfaceFormat;
-	vk::PresentModeKHR                surfacePresentMode;
-	size_t                            surfaceImageCount;
-	std::vector<vk::SurfaceFormatKHR> surfaceFormats;
-	std::vector<vk::PresentModeKHR>   surfacePresentModes;
-
-	// Swapchain
-	vk::SwapchainKHR               swapchain;
-	vk::Format                     swapchainFormat;
-	vk::Extent2D                   swapchainExtent;
-	
-	vk::RenderPass                 renderPass;
-	vk::PipelineLayout             pipelineLayout;
-	vk::Pipeline                   graphicsPipeline;
-	vk::CommandPool                commandPool;
-	std::vector<vk::Image>         swapchainImages;
-	std::vector<vk::ImageView>     swapchainImageViews;
-	std::vector<vk::Framebuffer>   swapchainFramebuffers;
-	std::vector<vk::CommandBuffer> commandBuffers;
-	size_t                         currentFrame           = 0;
-	bool                           framebufferResized     = false;
-	bool                           enableValidationLayers = true;
+	vk::PipelineLayout pipelineLayout;
+	vk::Pipeline       graphicsPipeline;
+	vk::CommandPool    commandPool;
+	size_t             currentFrame           = 0;
+	bool               framebufferResized     = false;
+	bool               enableValidationLayers = true;
 
 	// UIEngine API
-	DeviceQueue           deviceQueue;
-	SwapchainInfo         swapchainInfo;
-	RenderPassFramebuffer renderPassFrameBuffer;
-	CommandBuffer         commandBuffer;
-	SemaphoreFence        semaphoreFence;
+	DeviceQueue                deviceQueue;
+	SwapchainInfo              swapchainInfo;
+	RenderPassFramebuffer      renderPassFrameBuffers;
+	std::vector<CommandBuffer> commandBuffers;
+	SemaphoreFence             semaphoreFence;
 
 	Window window;
 
 	~API()
 	{
-		device.waitIdle();
+		// Wait for everything to be free
+		deviceQueue.wait();
+
+		// Semaphores
+		deviceQueue.m_Device.destroy(semaphoreFence.m_ImageAvailable);
+		deviceQueue.m_Device.destroy(semaphoreFence.m_RenderFinished);
+
+		// Fence
+		deviceQueue.m_Device.destroy(semaphoreFence.m_InFlight);
+		for (auto fence : semaphoreFence.m_ImagesInFlight) { deviceQueue.m_Device.destroy(fence); }
+
+		// Command buffers
+		for (auto commandBuffer : commandBuffers) { deviceQueue.m_Device.freeCommandBuffers(commandPool, commandBuffer.get()); }
+		// Command pool
+		deviceQueue.m_Device.destroy(commandPool);
+		// renderPass
+		deviceQueue.m_Device.destroy(renderPassFrameBuffers.m_RenderPass);
+		// Framebuffers
+		for (auto framebuffer : renderPassFrameBuffers.m_Framebuffers) { deviceQueue.m_Device.destroy(framebuffer); }
 		// Image views
-		for (auto imageView : swapchainImageViews)
-		{
-			device.destroy(imageView);
-		}
+		for (auto imageView : swapchainInfo.m_ImageViews) { deviceQueue.m_Device.destroy(imageView); }
 		// Swapchain
-		device.destroy(swapchain);
+		deviceQueue.m_Device.destroy(swapchainInfo.m_Swapchain);
 		// Surface
-		instance.destroy(surface);
-		device.destroy();
+		instance.destroy(window.m_Surface);
+		deviceQueue.m_Device.destroy();
 		instance.destroy();
 		window.Destroy();
 	}

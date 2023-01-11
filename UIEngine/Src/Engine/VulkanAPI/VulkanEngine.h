@@ -22,6 +22,11 @@ public:
 		return m_close;
 	}
 
+	void* GetRenderer()
+	{
+		return nullptr;
+	}
+
 private:
 	VulkanInit m_Init;
 		

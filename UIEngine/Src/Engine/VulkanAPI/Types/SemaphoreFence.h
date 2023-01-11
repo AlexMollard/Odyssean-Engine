@@ -6,22 +6,11 @@ class SemaphoreFence
 {
 public:
 	SemaphoreFence() = default;
-	SemaphoreFence(vk::Semaphore semaphore, vk::Fence fence);
 
-	// Getters
-	vk::Semaphore getSemaphore() const;
-	vk::Fence     getFence() const;
+	vk::Fence m_InFlight;
+	std::vector<vk::Fence> m_ImagesInFlight;
 
-	// Setters
-	void setSemaphore(vk::Semaphore semaphore);
-	void setFence(vk::Fence fence);
-
-	// Helper functions
-	void wait(vk::Device device, uint64_t timeout = UINT64_MAX) const;
-	void reset(vk::Device device) const;
-
-private:
-	vk::Semaphore m_Semaphore;
-	vk::Fence     m_Fence;
+	vk::Semaphore m_ImageAvailable;
+	vk::Semaphore m_RenderFinished;
 };
 } // namespace vulkan

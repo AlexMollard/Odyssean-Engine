@@ -8,9 +8,10 @@ class CommandBuffer
 {
 public:
 	CommandBuffer()  = default;
+	CommandBuffer(const vk::Device& device, const vk::CommandPool& commandPool, vk::CommandBufferLevel level = vk::CommandBufferLevel::ePrimary);
 	~CommandBuffer() = default;
 
-	void Create(vk::Device device, vk::CommandPool commandPool, vk::CommandBufferLevel level = vk::CommandBufferLevel::ePrimary);
+	void Create(const vk::Device& device, const vk::CommandPool& commandPool, vk::CommandBufferLevel level = vk::CommandBufferLevel::ePrimary);
 	void Destroy();
 
 	// Helper functions
@@ -40,7 +41,10 @@ public:
 	void DrawIndexedIndirect(vk::Buffer buffer, vk::DeviceSize offset, uint32_t drawCount, uint32_t stride) const;
 
 	// Getters
-	vk::CommandBuffer getCommandBuffer() const;
+	vk::CommandBuffer get() const {return m_CommandBuffer; }
+
+	// Cast operator
+	operator vk::CommandBuffer() const { return m_CommandBuffer; }
 
 private:
     vk::CommandBuffer m_CommandBuffer;

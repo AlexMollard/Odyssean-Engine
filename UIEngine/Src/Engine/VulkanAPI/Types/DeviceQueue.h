@@ -17,11 +17,6 @@ public:
 	DeviceQueue() = default;
 	DeviceQueue(vk::Device device);
 
-	// == DEVICE == //
-	vk::Device GetDevice() const;
-
-	void SetDevice(vk::Device device);
-
 	// == QUEUE == //
 	vk::Queue GetQueue(QueueType queueType) const;
 	uint32_t  GetQueueIndex(QueueType queueType) const;
@@ -32,10 +27,17 @@ public:
 	void SetQueueFamilyIndex(QueueType queueType, uint32_t queueFamilyIndex);
 
 	bool IsQueueFamilyIndexSet(QueueType queueType) const;
+	
+	void wait()
+	{
+		m_Device.waitIdle();
+	}
+
+	vk::Device m_Device;
+	vk::PhysicalDevice       m_PhysicalDevice;
+	std::vector<const char*> m_DeviceExtensions;
 
 private:
-	vk::Device m_Device;
-
 	vk::Queue m_GraphicsQueue; // Used for pushing geometry to the GPU
 	vk::Queue m_PresentQueue;  // Used for presenting the rendered image to the screen
 	vk::Queue m_ComputeQueue;  // Used for compute shaders

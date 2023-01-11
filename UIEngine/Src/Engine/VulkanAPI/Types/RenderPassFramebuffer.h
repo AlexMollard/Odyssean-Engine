@@ -2,27 +2,16 @@
 #include "vulkan/vulkan.hpp"
 namespace vulkan
 {
-class RenderPassFramebuffer
+struct RenderPassFramebuffer
 {
-public:
 	RenderPassFramebuffer() = default;
-	RenderPassFramebuffer(vk::RenderPass renderPass, vk::Framebuffer framebuffer);
-
-	// Getters
-	vk::RenderPass  getRenderPass() const;
-	vk::Framebuffer getFramebuffer() const;
-
-	// Setters
-	void setRenderPass(vk::RenderPass renderPass);
-	void setFramebuffer(vk::Framebuffer framebuffer);
+	RenderPassFramebuffer(vk::RenderPass renderPass, std::vector<vk::Framebuffer> framebuffer);
 
 	// Helper functions
-	void beginRenderPass(vk::CommandBuffer commandBuffer, vk::Rect2D renderArea, vk::ArrayProxy<const vk::ClearValue> clearValues, vk::SubpassContents subpassContents = vk::SubpassContents::eInline) const;
-	void nextSubpass(vk::CommandBuffer commandBuffer, vk::SubpassContents subpassContents = vk::SubpassContents::eInline) const;
-	void endRenderPass(vk::CommandBuffer commandBuffer) const;
-
-private:
+	bool BeginRenderPass(vk::CommandBuffer commandBuffer, vk::SubpassContents subpassContents, uint32_t framebufferIndex, vk::Rect2D renderArea, std::vector<vk::ClearValue> clearValues);
+	bool EndRenderPass(vk::CommandBuffer commandBuffer);
+	
 	vk::RenderPass  m_RenderPass;
-	vk::Framebuffer m_Framebuffer;
+	std::vector<vk::Framebuffer> m_Framebuffers;
 };
 } // namespace vulkan

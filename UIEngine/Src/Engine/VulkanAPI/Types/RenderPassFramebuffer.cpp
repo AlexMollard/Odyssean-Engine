@@ -1,51 +1,31 @@
 #include "RenderPassFramebuffer.h"
 namespace vulkan
 {
-RenderPassFramebuffer::RenderPassFramebuffer(vk::RenderPass renderPass, vk::Framebuffer framebuffer)
+RenderPassFramebuffer::RenderPassFramebuffer(vk::RenderPass renderPass, std::vector<vk::Framebuffer> framebuffers)
 {
 	m_RenderPass  = renderPass;
-	m_Framebuffer = framebuffer;
+	m_Framebuffers = framebuffers;
 }
 
-vk::RenderPass RenderPassFramebuffer::getRenderPass() const
+bool RenderPassFramebuffer::BeginRenderPass(vk::CommandBuffer commandBuffer, vk::SubpassContents subpassContents, uint32_t framebufferIndex, vk::Rect2D renderArea, std::vector<vk::ClearValue> clearValues)
 {
-	return m_RenderPass;
+	vk::RenderPassBeginInfo renderPassBeginInfo;
+	renderPassBeginInfo.renderPass = m_RenderPass;
+	renderPassBeginInfo.framebuffer = m_Framebuffers[framebufferIndex];
+	renderPassBeginInfo.renderArea = renderArea;
+	renderPassBeginInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+	renderPassBeginInfo.pClearValues = clearValues.data();
+
+	commandBuffer.beginRenderPass(&renderPassBeginInfo, subpassContents);
+	
+	return true;
 }
 
-vk::Framebuffer RenderPassFramebuffer::getFramebuffer() const
-{
-	return m_Framebuffer;
-}
-
-void RenderPassFramebuffer::setRenderPass(vk::RenderPass renderPass)
-{
-	m_RenderPass = renderPass;
-}
-
-void RenderPassFramebuffer::setFramebuffer(vk::Framebuffer framebuffer)
-{
-	m_Framebuffer = framebuffer;
-}
-
-void RenderPassFramebuffer::beginRenderPass(vk::CommandBuffer commandBuffer, vk::Rect2D renderArea, vk::ArrayProxy<const vk::ClearValue> clearValues, vk::SubpassContents subpassContents /*= vk::SubpassContents::eInline*/) const
-{
-	vk::RenderPassBeginInfo renderPassInfo = {};
-	renderPassInfo.renderPass              = m_RenderPass;
-	renderPassInfo.framebuffer             = m_Framebuffer;
-	renderPassInfo.renderArea              = renderArea;
-	renderPassInfo.clearValueCount         = static_cast<uint32_t>(clearValues.size());
-	renderPassInfo.pClearValues            = clearValues.data();
-
-	commandBuffer.beginRenderPass(&renderPassInfo, subpassContents);
-}
-
-void RenderPassFramebuffer::nextSubpass(vk::CommandBuffer commandBuffer, vk::SubpassContents subpassContents /*= vk::SubpassContents::eInline*/) const
-{
-	commandBuffer.nextSubpass(subpassContents);
-}
-
-void RenderPassFramebuffer::endRenderPass(vk::CommandBuffer commandBuffer) const
+bool RenderPassFramebuffer::EndRenderPass(vk::CommandBuffer commandBuffer)
 {
 	commandBuffer.endRenderPass();
+
+	return true;
 }
+
 } // namespace vulkan
