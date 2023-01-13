@@ -13,6 +13,8 @@ namespace vulkan
 {
 struct API
 {
+	~API();
+
 	// Vulkan API
 	vk::InstanceCreateInfo instanceCreateInfo;
 	vk::Instance           instance;
@@ -40,36 +42,18 @@ struct API
 
 	Window window;
 
-	~API()
-	{
-		// Wait for everything to be free
-		deviceQueue.wait();
+	// Returns the swapchain
+	vk::SwapchainKHR& Swapchain();
 
-		// Semaphores
-		deviceQueue.m_Device.destroy(semaphoreFence.m_ImageAvailable);
-		deviceQueue.m_Device.destroy(semaphoreFence.m_RenderFinished);
+	// Returns the current command buffer
+	const vk::CommandBuffer& GetCurrentCommandBuffer();
 
-		// Fence
-		deviceQueue.m_Device.destroy(semaphoreFence.m_InFlight);
-		for (auto fence : semaphoreFence.m_ImagesInFlight) { deviceQueue.m_Device.destroy(fence); }
+	CommandBuffer& CreateCommandBuffer();
 
-		// Command buffers
-		for (auto commandBuffer : commandBuffers) { deviceQueue.m_Device.freeCommandBuffers(commandPool, commandBuffer.get()); }
-		// Command pool
-		deviceQueue.m_Device.destroy(commandPool);
-		// renderPass
-		deviceQueue.m_Device.destroy(renderPassFrameBuffers.m_RenderPass);
-		// Framebuffers
-		for (auto framebuffer : renderPassFrameBuffers.m_Framebuffers) { deviceQueue.m_Device.destroy(framebuffer); }
-		// Image views
-		for (auto imageView : swapchainInfo.m_ImageViews) { deviceQueue.m_Device.destroy(imageView); }
-		// Swapchain
-		deviceQueue.m_Device.destroy(swapchainInfo.m_Swapchain);
-		// Surface
-		instance.destroy(window.m_Surface);
-		deviceQueue.m_Device.destroy();
-		instance.destroy();
-		window.Destroy();
-	}
+	void CreateSwapChain();
+	void CreateRenderPass();
+	void CreateFrameBuffers();
+	void CreateCommandBuffers();
+	void CreateSyncObjects();
 };
 } // namespace vulkan

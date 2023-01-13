@@ -7,7 +7,7 @@ namespace vulkan
 class CommandBuffer
 {
 public:
-	CommandBuffer()  = default;
+	CommandBuffer() = default;
 	CommandBuffer(const vk::Device& device, const vk::CommandPool& commandPool, vk::CommandBufferLevel level = vk::CommandBufferLevel::ePrimary);
 	~CommandBuffer() = default;
 
@@ -20,7 +20,7 @@ public:
 	void Reset(vk::CommandBufferResetFlags flags = vk::CommandBufferResetFlagBits::eReleaseResources) const;
 
 	// Record functions
-	void BeginRenderPass(vk::RenderPass renderPass, vk::Framebuffer framebuffer, vk::Rect2D renderArea, vk::ArrayProxy<const vk::ClearValue> clearValues, vk::SubpassContents subpassContents = vk::SubpassContents::eInline) const;
+	void BeginRenderPass(vk::RenderPass& renderPass, vk::Extent2D renderArea, vk::Framebuffer& framebuffer, vk::SubpassContents subpassContents = vk::SubpassContents::eInline) const;
 	void NextSubpass(vk::SubpassContents subpassContents = vk::SubpassContents::eInline) const;
 	void EndRenderPass() const;
 
@@ -32,8 +32,8 @@ public:
 	void BindIndexBuffer(vk::Buffer buffer, vk::DeviceSize offset, vk::IndexType indexType) const;
 	void BindDescriptorSets(vk::PipelineBindPoint pipelineBindPoint, vk::PipelineLayout layout, uint32_t firstSet, vk::ArrayProxy<const vk::DescriptorSet> descriptorSets, vk::ArrayProxy<const uint32_t> dynamicOffsets) const;
 
-	void SetViewport(uint32_t firstViewport, vk::ArrayProxy<const vk::Viewport> viewports) const;
-	void SetScissor(uint32_t firstScissor, vk::ArrayProxy<const vk::Rect2D> scissors) const;
+	void SetViewport(const vk::Extent2D& viewport) const;
+	void SetScissor(const vk::Extent2D& scissor) const;
 
 	void Draw(uint32_t vertexCount, uint32_t instanceCount, uint32_t firstVertex, uint32_t firstInstance) const;
 	void DrawIndexed(uint32_t indexCount, uint32_t instanceCount, uint32_t firstIndex, int32_t vertexOffset, uint32_t firstInstance) const;
@@ -41,12 +41,20 @@ public:
 	void DrawIndexedIndirect(vk::Buffer buffer, vk::DeviceSize offset, uint32_t drawCount, uint32_t stride) const;
 
 	// Getters
-	vk::CommandBuffer get() const {return m_CommandBuffer; }
+	vk::CommandBuffer get() const
+	{
+		return m_CommandBuffer;
+	}
 
 	// Cast operator
-	operator vk::CommandBuffer() const { return m_CommandBuffer; }
+	operator vk::CommandBuffer() const
+	{
+		return m_CommandBuffer;
+	}
+
+void RecordDummyCommands();
 
 private:
-    vk::CommandBuffer m_CommandBuffer;
+	vk::CommandBuffer m_CommandBuffer;
 };
 } // namespace vulkan

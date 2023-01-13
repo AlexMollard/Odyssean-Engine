@@ -15,8 +15,14 @@ public:
 		return &m_API.window;
 	};
 
-private:
+	vk::Device& GetDevice()
+	{
+		return m_API.deviceQueue.m_Device;
+	}
+
 	vulkan::API m_API;
+
+private:
 
 	vk::DebugUtilsMessengerCreateInfoEXT m_DebugMessengerCreateInfo;
 
@@ -42,10 +48,4 @@ private:
 	void InitInstance();
 	void InitDevice();
 	void InitSurface();
-	void InitSwapchain();
-	void InitRenderPass();
-	void InitFramebuffers();
-	void InitCommandPool();
-	void InitCommandBuffers();
-	void InitSyncObjects();
 };

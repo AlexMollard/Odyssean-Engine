@@ -1,15 +1,17 @@
 #pragma once
+#include "../ImGuiLayer.h"
+#include "Types/Renderer.h"
 #include "VulkanInit.h"
 
 #include "Engine/BaseEngine.h"
-#include "../ImGuiLayer.h"
-#include "BS_thread_pool.hpp"
 
-class VulkanEngine : BaseEngine
+namespace vulkan
+{
+class Engine : BaseEngine
 {
 public:
-	VulkanEngine() = default;
-	~VulkanEngine();
+	Engine() = default;
+	~Engine();
 
 	void Initialize(const char* windowName, int width, int height) override;
 
@@ -17,24 +19,20 @@ public:
 	float Update() override;
 	void  Render() override;
 
-	bool GetClose() const override
-	{
-		return m_close;
-	}
+	bool GetClose() const override;
 
-	void* GetRenderer()
-	{
-		return nullptr;
-	}
+	void* GetRenderer();
 
 private:
-	VulkanInit m_Init;
-		
+	VulkanInit       m_Init;
+	vulkan::Renderer m_Renderer;
+
 	Window* m_Window;
-	bool        m_close      = false;
-	bool        m_firstFrame = true;
+	bool    m_close      = false;
+	bool    m_firstFrame = true;
 
 	// Delta Time
 	float m_DT        = 0.0f;
 	float m_LastFrame = 0.0f;
 };
+} // namespace vulkan

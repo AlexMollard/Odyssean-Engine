@@ -39,16 +39,22 @@ void CommandBuffer::Reset(vk::CommandBufferResetFlags flags /*= eReleaseResource
 	m_CommandBuffer.reset(flags);
 }
 
-void CommandBuffer::BeginRenderPass(vk::RenderPass renderPass, vk::Framebuffer framebuffer, vk::Rect2D renderArea, vk::ArrayProxy<const vk::ClearValue> clearValues, vk::SubpassContents subpassContents /*= eInline*/) const
+void CommandBuffer::BeginRenderPass(vk::RenderPass& renderPass, vk::Extent2D renderArea, vk::Framebuffer& framebuffer, vk::SubpassContents subpassContents /*= vk::SubpassContents::eInline*/) const
 {
 	vk::RenderPassBeginInfo renderPassInfo = {};
 	renderPassInfo.renderPass              = renderPass;
 	renderPassInfo.framebuffer             = framebuffer;
-	renderPassInfo.renderArea              = renderArea;
-	renderPassInfo.clearValueCount         = static_cast<uint32_t>(clearValues.size());
-	renderPassInfo.pClearValues            = clearValues.data();
-
-	m_CommandBuffer.beginRenderPass(&renderPassInfo, subpassContents);
+	renderPassInfo.renderArea.offset       = vk::Offset2D(0, 0);
+	renderPassInfo.renderArea.extent       = renderArea;
+	renderPassInfo.clearValueCount         = 1;
+	
+	// Maybe move this else where
+	static std::array<float, 4> clearColor = { 0.1f, 0.1f, 0.1f, 1.0f };
+	vk::ClearValue clearValue;
+	clearValue.color = vk::ClearColorValue(clearColor);
+	renderPassInfo.pClearValues = &clearValue;
+	
+	m_CommandBuffer.beginRenderPass(renderPassInfo, subpassContents);
 }
 
 void CommandBuffer::NextSubpass(vk::SubpassContents subpassContents /*= eInline*/) const
@@ -89,14 +95,24 @@ void CommandBuffer::BindDescriptorSets(vk::PipelineBindPoint pipelineBindPoint, 
 	m_CommandBuffer.bindDescriptorSets(pipelineBindPoint, layout, firstSet, descriptorSets, dynamicOffsets);
 }
 
-void CommandBuffer::SetViewport(uint32_t firstViewport, vk::ArrayProxy<const vk::Viewport> viewports) const
+void CommandBuffer::SetViewport(const vk::Extent2D& viewport) const
 {
-	m_CommandBuffer.setViewport(firstViewport, viewports);
+	vk::Viewport viewportInfo = {};
+	viewportInfo.x            = 0.0f;
+	viewportInfo.y            = 0.0f;
+	viewportInfo.width        = static_cast<float>(viewport.width);
+	viewportInfo.height       = static_cast<float>(viewport.height);
+	viewportInfo.minDepth     = 0.0f;
+	viewportInfo.maxDepth     = 1.0f;
+	m_CommandBuffer.setViewport(0, 1, &viewportInfo);
 }
 
-void CommandBuffer::SetScissor(uint32_t firstScissor, vk::ArrayProxy<const vk::Rect2D> scissors) const
+void CommandBuffer::SetScissor(const vk::Extent2D& scissor) const
 {
-	m_CommandBuffer.setScissor(firstScissor, scissors);
+	vk::Rect2D scissorInfo = {};
+	scissorInfo.offset     = vk::Offset2D(0, 0);
+	scissorInfo.extent     = scissor;
+	m_CommandBuffer.setScissor(0, 1, &scissorInfo);
 }
 
 void CommandBuffer::Draw(uint32_t vertexCount, uint32_t instanceCount, uint32_t firstVertex, uint32_t firstInstance) const
@@ -117,6 +133,12 @@ void CommandBuffer::DrawIndirect(vk::Buffer buffer, vk::DeviceSize offset, uint3
 void CommandBuffer::DrawIndexedIndirect(vk::Buffer buffer, vk::DeviceSize offset, uint32_t drawCount, uint32_t stride) const
 {
 	m_CommandBuffer.drawIndexedIndirect(buffer, offset, drawCount, stride);
+}
+
+void CommandBuffer::RecordDummyCommands()
+{
+	Begin(vk::CommandBufferUsageFlagBits::eOneTimeSubmit);
+	End();
 }
 
 } // namespace vulkan

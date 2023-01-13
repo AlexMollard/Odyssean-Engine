@@ -70,7 +70,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;_CRTDBG_MAP_ALLOC;STB_IMAGE_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;_CRTDBG_MAP_ALLOC;STB_IMAGE_STATIC;VK_LAYER_ENABLE_OBJECT_TRACKER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
@@ -132,6 +132,7 @@ xcopy /y "C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\co
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Src\Engine\VulkanAPI\Types\Renderer.h" />
     <ClInclude Include="Src\Engine\VulkanAPI\Types\Mesh.h" />
     <ClInclude Include="Src\Engine\VulkanAPI\Types\Container.h" />
     <ClInclude Include="Src\Engine\VulkanAPI\Types\SemaphoreFence.h" />
@@ -174,6 +175,8 @@ xcopy /y "C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\co
     <ClInclude Include="Src\Engine\VulkanAPI\Types\Window.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Src\Engine\VulkanAPI\Types\Container.cpp" />
+    <ClCompile Include="Src\Engine\VulkanAPI\Types\Renderer.cpp" />
     <ClCompile Include="Src\Engine\VulkanAPI\Types\Mesh.cpp" />
     <ClCompile Include="Src\Engine\VulkanAPI\Types\SemaphoreFence.cpp" />
     <ClCompile Include="Src\Engine\VulkanAPI\Types\CommandBuffer.cpp" />

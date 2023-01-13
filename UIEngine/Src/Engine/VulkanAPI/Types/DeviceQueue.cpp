@@ -138,4 +138,20 @@ bool DeviceQueue::IsQueueFamilyIndexSet(QueueType queueType) const
 	}
 }
 
+void DeviceQueue::Submit(vk::SubmitInfo submitInfo)
+{
+	m_GraphicsQueue.submit(submitInfo, nullptr);
+}
+
+vk::Result DeviceQueue::Present(vk::SwapchainKHR& m_Swapchain, uint32_t imageIndex, vk::Semaphore& semaphore)
+{
+	vk::PresentInfoKHR presentInfo;
+	presentInfo.setWaitSemaphoreCount(1);
+	presentInfo.setPWaitSemaphores(&semaphore);
+	presentInfo.setSwapchainCount(1);
+	presentInfo.setPSwapchains(&m_Swapchain);
+	presentInfo.setPImageIndices(&imageIndex);
+	return m_PresentQueue.presentKHR(presentInfo);
+}
+
 } // namespace vulkan

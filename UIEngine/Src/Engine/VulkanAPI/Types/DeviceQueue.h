@@ -52,5 +52,9 @@ private:
 	uint32_t m_PresentQueueFamilyIndex  = UINT32_MAX;
 	uint32_t m_ComputeQueueFamilyIndex  = UINT32_MAX;
 	uint32_t m_TransferQueueFamilyIndex = UINT32_MAX;
+
+public:
+	void Submit(vk::SubmitInfo submitInfo);
+	vk::Result Present(vk::SwapchainKHR& m_Swapchain, uint32_t imageIndex, vk::Semaphore& semaphore);
 };
 } // namespace vulkan

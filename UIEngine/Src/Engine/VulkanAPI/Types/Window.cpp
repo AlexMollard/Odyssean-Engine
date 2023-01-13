@@ -97,3 +97,13 @@ std::vector<const char*> Window::GetRequiredExtensions()
 
     return extensions;
 }
+
+bool Window::GetMinimized()
+{
+    bool m_Minimized = false;
+    if (m_Width == 0 || m_Height == 0)
+    {
+        m_Minimized = true;
+    }
+    return m_Minimized;
+}

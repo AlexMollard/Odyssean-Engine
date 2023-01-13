@@ -13,12 +13,6 @@ void VulkanInit::Initialize(std::string name, int width, int height)
 	// Init the API
 	InitInstance();
 	InitDevice();
-	InitSwapchain();
-	InitRenderPass();
-	InitFramebuffers();
-	InitCommandPool();
-	InitCommandBuffers();
-	InitSyncObjects();
 }
 
 void VulkanInit::CreateExtensions()
@@ -36,7 +30,6 @@ void VulkanInit::CreateExtensions()
 	PFN_vkDebugUtilsMessengerCallbackEXT callback = [](VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
 													   void* pUserData) -> VkBool32 {
 		std::cerr << "validation layer: " << pCallbackData->pMessage << std::endl;
-
 		return VK_FALSE;
 	};
 
@@ -265,8 +258,18 @@ void VulkanInit::InitDevice()
 	for (const auto& extension : m_API.deviceQueue.m_DeviceExtensions) { std::cout << "\t" << extension << std::endl; }
 	std::cout << std::endl;
 
+	vk::PhysicalDeviceProperties properties;
+	m_API.deviceQueue.m_PhysicalDevice.getProperties(&properties);
+
+	uint32_t version = properties.apiVersion;
+	uint32_t major   = VK_VERSION_MAJOR(version);
+	uint32_t minor   = VK_VERSION_MINOR(version);
+	uint32_t patch   = VK_VERSION_PATCH(version);
+
+
 	// output device info
 	std::cout << "Device Info:" << std::endl;
+	std::cout << "\tVulkan version: " << major << "." << minor << "." << patch << std::endl;
 	std::cout << "\tName: " << m_API.deviceQueue.m_PhysicalDevice.getProperties().deviceName << std::endl;
 	std::cout << "\tType: " << vk::to_string(m_API.deviceQueue.m_PhysicalDevice.getProperties().deviceType) << std::endl;
 	std::cout << "\tAPI Version: " << m_API.deviceQueue.m_PhysicalDevice.getProperties().apiVersion << std::endl;
@@ -319,210 +322,5 @@ void VulkanInit::InitSurface()
 	std::cout << "\tSurface Min Image Count: " << window.m_SurfaceCapabilities.minImageCount << std::endl;
 	std::cout << "\tSurface Max Image Count: " << window.m_SurfaceCapabilities.maxImageCount << std::endl;
 	std::cout << "\tSurface Current Extent: " << window.m_SurfaceCapabilities.currentExtent.width << "x" << window.m_SurfaceCapabilities.currentExtent.height << std::endl;
-	std::cout << std::endl;
-}
-
-void VulkanInit::InitSwapchain()
-{
-	Window& window = m_API.window;
-	
-	// Create the swapchain create info
-	vk::SwapchainCreateInfoKHR swapchainInfo;
-	swapchainInfo.setSurface(window.m_Surface);
-	swapchainInfo.setMinImageCount(window.m_SurfaceImageCount);
-	swapchainInfo.setImageFormat(window.m_SurfaceFormat.format);
-	swapchainInfo.setImageColorSpace(window.m_SurfaceFormat.colorSpace);
-	swapchainInfo.setImageExtent(window.m_SurfaceExtent);
-	swapchainInfo.setImageArrayLayers(1);
-	swapchainInfo.setImageUsage(vk::ImageUsageFlagBits::eColorAttachment);
-	swapchainInfo.setPreTransform(window.m_SurfaceCapabilities.currentTransform);
-	swapchainInfo.setCompositeAlpha(vk::CompositeAlphaFlagBitsKHR::eOpaque);
-	swapchainInfo.setPresentMode(window.m_SurfacePresentMode);
-	swapchainInfo.setClipped(VK_TRUE);
-	swapchainInfo.setOldSwapchain(nullptr);
-
-	// Get the queue family indices
-	std::vector<uint32_t> queueFamilyIndices = { m_API.deviceQueue.GetQueueFamilyIndex(vulkan::QueueType::GRAPHICS), m_API.deviceQueue.GetQueueFamilyIndex(vulkan::QueueType::PRESENT) };
-
-	// Check if the graphics and present queue family indices are the same
-	if (queueFamilyIndices[0] != queueFamilyIndices[1])
-	{
-		swapchainInfo.setImageSharingMode(vk::SharingMode::eConcurrent);
-		swapchainInfo.setQueueFamilyIndexCount(2);
-		swapchainInfo.setPQueueFamilyIndices(queueFamilyIndices.data());
-	}
-	else
-	{
-		swapchainInfo.setImageSharingMode(vk::SharingMode::eExclusive);
-		swapchainInfo.setQueueFamilyIndexCount(0);
-		swapchainInfo.setPQueueFamilyIndices(nullptr);
-	}
-
-	// Create the swapchain
-	m_API.swapchainInfo.m_Swapchain = m_API.deviceQueue.m_Device.createSwapchainKHR(swapchainInfo);
-
-	// Get the swapchain images
-	m_API.swapchainInfo.m_Images = m_API.deviceQueue.m_Device.getSwapchainImagesKHR(m_API.swapchainInfo.m_Swapchain);
-
-	// Create the swapchain image views
-	m_API.swapchainInfo.m_ImageViews.resize(m_API.swapchainInfo.m_Images.size());
-
-	for (size_t i = 0; i < m_API.swapchainInfo.m_Images.size(); i++)
-	{
-		vk::ImageViewCreateInfo imageViewInfo;
-		imageViewInfo.setImage(m_API.swapchainInfo.m_Images[i]);
-		imageViewInfo.setViewType(vk::ImageViewType::e2D);
-		imageViewInfo.setFormat(window.m_SurfaceFormat.format);
-		imageViewInfo.setComponents({ vk::ComponentSwizzle::eIdentity, vk::ComponentSwizzle::eIdentity, vk::ComponentSwizzle::eIdentity, vk::ComponentSwizzle::eIdentity });
-		imageViewInfo.setSubresourceRange({ vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1 });
-
-		m_API.swapchainInfo.m_ImageViews[i] = m_API.deviceQueue.m_Device.createImageView(imageViewInfo);
-	}
-
-	m_API.swapchainInfo.m_Extent       = window.m_SurfaceExtent;
-	m_API.swapchainInfo.m_Format       = window.m_SurfaceFormat.format;
-	m_API.swapchainInfo.m_PresentMode  = window.m_SurfacePresentMode;
-	m_API.swapchainInfo.m_ImageCount   = window.m_SurfaceImageCount;
-	m_API.swapchainInfo.m_PreTransform = window.m_SurfaceCapabilities.currentTransform;
-	m_API.swapchainInfo.m_ImageUsage   = vk::ImageUsageFlagBits::eColorAttachment;
-
-	// Output the swapchain info properties
-	std::cout << "Vulkan swapchain image properties:" << std::endl;
-	std::cout << "  Image count: " << m_API.swapchainInfo.m_ImageCount << std::endl;
-	std::cout << "  Image format: " << vk::to_string(m_API.swapchainInfo.m_Format) << std::endl;
-	std::cout << "  Image extent: " << m_API.swapchainInfo.m_Extent.width << "x" << m_API.swapchainInfo.m_Extent.height << std::endl;
-	std::cout << "  Image present mode: " << vk::to_string(m_API.swapchainInfo.m_PresentMode) << std::endl;
-	std::cout << "  Image usage: " << vk::to_string(m_API.swapchainInfo.m_ImageUsage) << std::endl;
-	std::cout << "  Image pre-transform: " << vk::to_string(m_API.swapchainInfo.m_PreTransform) << std::endl;
-	std::cout << std::endl;
-}
-
-// Finish this function
-void VulkanInit::InitRenderPass()
-{
-	// Contains:
-	//	vk::RenderPass  m_RenderPass;
-	//	vk::Framebuffer m_Framebuffer;
-
-	// Create the render pass
-	vk::AttachmentDescription colorAttachment;
-	colorAttachment.setFormat(m_API.swapchainInfo.m_Format);
-	colorAttachment.setSamples(vk::SampleCountFlagBits::e1);
-	colorAttachment.setLoadOp(vk::AttachmentLoadOp::eClear);
-	colorAttachment.setStoreOp(vk::AttachmentStoreOp::eStore);
-	colorAttachment.setStencilLoadOp(vk::AttachmentLoadOp::eDontCare);
-	colorAttachment.setStencilStoreOp(vk::AttachmentStoreOp::eDontCare);
-	colorAttachment.setInitialLayout(vk::ImageLayout::eUndefined);
-	colorAttachment.setFinalLayout(vk::ImageLayout::ePresentSrcKHR);
-
-	vk::AttachmentReference colorAttachmentRef;
-	colorAttachmentRef.setAttachment(0);
-	colorAttachmentRef.setLayout(vk::ImageLayout::eColorAttachmentOptimal);
-
-	vk::SubpassDescription subpass;
-	subpass.setPipelineBindPoint(vk::PipelineBindPoint::eGraphics);
-	subpass.setColorAttachmentCount(1);
-	subpass.setPColorAttachments(&colorAttachmentRef);
-
-	vk::SubpassDependency dependency;
-	dependency.setSrcSubpass(VK_SUBPASS_EXTERNAL);
-	dependency.setDstSubpass(0);
-	dependency.setSrcStageMask(vk::PipelineStageFlagBits::eColorAttachmentOutput);
-	dependency.setSrcAccessMask({});
-	dependency.setDstStageMask(vk::PipelineStageFlagBits::eColorAttachmentOutput);
-	dependency.setDstAccessMask(vk::AccessFlagBits::eColorAttachmentRead | vk::AccessFlagBits::eColorAttachmentWrite);
-
-	vk::RenderPassCreateInfo renderPassInfo;
-	renderPassInfo.setAttachmentCount(1);
-	renderPassInfo.setPAttachments(&colorAttachment);
-	renderPassInfo.setSubpassCount(1);
-	renderPassInfo.setPSubpasses(&subpass);
-	renderPassInfo.setDependencyCount(1);
-	renderPassInfo.setPDependencies(&dependency);
-
-	m_API.renderPassFrameBuffers.m_RenderPass = m_API.deviceQueue.m_Device.createRenderPass(renderPassInfo);
-
-	// Output the render pass info properties
-	std::cout << "Vulkan render pass properties:" << std::endl;
-	std::cout << "\tAttachment count: " << renderPassInfo.attachmentCount << std::endl;
-	std::cout << "\tSubpass count: " << renderPassInfo.subpassCount << std::endl;
-	std::cout << "\tDependency count: " << renderPassInfo.dependencyCount << std::endl;
-	std::cout << std::endl;
-}
-
-void VulkanInit::InitFramebuffers()
-{
-	// Create the framebuffers
-	m_API.renderPassFrameBuffers.m_Framebuffers.resize(m_API.swapchainInfo.m_ImageCount);
-
-	for (size_t i = 0; i < m_API.swapchainInfo.m_ImageCount; i++)
-	{
-		vk::ImageView attachments[] = { m_API.swapchainInfo.m_ImageViews[i] };
-
-		vk::FramebufferCreateInfo framebufferInfo;
-		framebufferInfo.setRenderPass(m_API.renderPassFrameBuffers.m_RenderPass);
-		framebufferInfo.setAttachmentCount(1);
-		framebufferInfo.setPAttachments(attachments);
-		framebufferInfo.setWidth(m_API.swapchainInfo.m_Extent.width);
-		framebufferInfo.setHeight(m_API.swapchainInfo.m_Extent.height);
-		framebufferInfo.setLayers(1);
-
-		m_API.renderPassFrameBuffers.m_Framebuffers[i] = m_API.deviceQueue.m_Device.createFramebuffer(framebufferInfo);
-	}
-
-	// Output the framebuffer info properties
-	std::cout << "Vulkan framebuffer properties:" << std::endl;
-	std::cout << "\tCount: " << m_API.renderPassFrameBuffers.m_Framebuffers.size() << std::endl;
-	std::cout << std::endl;
-}
-
-void VulkanInit::InitCommandPool()
-{
-	// Create the command pool
-	vk::CommandPoolCreateInfo poolInfo;
-	poolInfo.setQueueFamilyIndex(m_API.deviceQueue.GetQueueFamilyIndex(vulkan::QueueType::GRAPHICS));
-
-	m_API.commandPool = m_API.deviceQueue.m_Device.createCommandPool(poolInfo);
-
-	// Output the command pool info properties
-	std::cout << "Vulkan command pool properties:" << std::endl;
-	std::cout << "\tQueue family index: " << poolInfo.queueFamilyIndex << std::endl;
-	std::cout << std::endl;
-}
-
-void VulkanInit::InitCommandBuffers()
-{
-	// set m_api.mainCommandBuffer
-	m_API.commandBuffers.emplace_back(m_API.deviceQueue.m_Device, m_API.commandPool);
-}
-
-void VulkanInit::InitSyncObjects()
-{
-	vulkan::SemaphoreFence& semaphoreFence = m_API.semaphoreFence;
-	
-	// Create the semaphores
-	vk::SemaphoreCreateInfo semaphoreInfo;
-
-	semaphoreFence.m_ImageAvailable = m_API.deviceQueue.m_Device.createSemaphore(semaphoreInfo);
-	semaphoreFence.m_RenderFinished = m_API.deviceQueue.m_Device.createSemaphore(semaphoreInfo);
-
-
-	// Output the semaphore info properties
-	std::cout << "Vulkan semaphore properties:" << std::endl;
-	std::cout << "\tImage available: " << m_API.semaphoreFence.m_ImageAvailable << std::endl;
-	std::cout << "\tRender finished: " << m_API.semaphoreFence.m_RenderFinished << std::endl;
-	std::cout << std::endl;
-
-	// Create the fences
-	vk::FenceCreateInfo fenceInfo;
-	fenceInfo.setFlags(vk::FenceCreateFlagBits::eSignaled);
-
-	semaphoreFence.m_InFlight = m_API.deviceQueue.m_Device.createFence(fenceInfo);
-	semaphoreFence.m_ImagesInFlight.resize(m_API.swapchainInfo.m_ImageCount, vk::Fence());
-
-	// Output the fence info properties
-	std::cout << "Vulkan fence properties:" << std::endl;
-	std::cout << "\tIn flight: " << m_API.semaphoreFence.m_InFlight << std::endl;
-	std::cout << "\tImages in flight: " << m_API.semaphoreFence.m_ImagesInFlight.size() << std::endl;
 	std::cout << std::endl;
 }

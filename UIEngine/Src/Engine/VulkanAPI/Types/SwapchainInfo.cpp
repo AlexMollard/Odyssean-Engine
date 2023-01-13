@@ -13,4 +13,9 @@ SwapchainInfo::SwapchainInfo(vk::SwapchainKHR swapchain, vk::Extent2D extent, vk
 	m_Images       = images;
 }
 
+vk::Result SwapchainInfo::GetNextImage(vk::Device device, vk::Semaphore& m_ImageAvailable)
+{
+	return device.acquireNextImageKHR(m_Swapchain, UINT64_MAX, m_ImageAvailable, nullptr, &m_CurrentImage);
+}
+
 } // namespace vulkan

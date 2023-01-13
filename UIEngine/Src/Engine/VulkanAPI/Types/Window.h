@@ -61,4 +61,7 @@ private:
 
 	// Framebuffer Resize
 	bool m_FramebufferResized = false;
+
+public:
+	bool GetMinimized();
 };

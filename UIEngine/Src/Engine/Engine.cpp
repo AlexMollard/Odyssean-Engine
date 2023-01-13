@@ -20,7 +20,7 @@ void Engine::Init(const char* windowName, int width, int height, GraphicsAPI gra
 	}
 	else if (graphicsAPI == GraphicsAPI::Vulkan)
 	{
-		auto engine = _NEW VulkanEngine;
+		auto engine = _NEW vulkan::Engine;
 		engine->Initialize(windowName, width, height);
 		m_engine = engine;
 		m_close  = false;
@@ -36,7 +36,7 @@ Engine::~Engine()
 	}
 	else if (m_graphicsAPI == GraphicsAPI::Vulkan)
 	{
-		VulkanEngine* engine = static_cast<VulkanEngine*>(m_engine);
+		vulkan::Engine* engine = static_cast<vulkan::Engine*>(m_engine);
 		delete engine;
 	}
 }
@@ -55,7 +55,7 @@ float Engine::Update()
 	}
 	else if (m_graphicsAPI == GraphicsAPI::Vulkan)
 	{
-		VulkanEngine* engine = static_cast<VulkanEngine*>(m_engine);
+		vulkan::Engine* engine = static_cast<vulkan::Engine*>(m_engine);
 
 		m_close = engine->GetClose();
 
@@ -76,7 +76,7 @@ void Engine::Render()
 	}
 	else if (m_graphicsAPI == GraphicsAPI::Vulkan)
 	{
-		VulkanEngine* engine = static_cast<VulkanEngine*>(m_engine);
+		vulkan::Engine* engine = static_cast<vulkan::Engine*>(m_engine);
 		engine->Render();
 	}
 }
@@ -90,7 +90,7 @@ const void* Engine::GetRenderer()
 	}
 	else if (m_graphicsAPI == GraphicsAPI::Vulkan)
 	{
-		VulkanEngine* engine = static_cast<VulkanEngine*>(m_engine);
+		vulkan::Engine* engine = static_cast<vulkan::Engine*>(m_engine);
 		return engine->GetRenderer();
 	}
 
