@@ -10,6 +10,8 @@ struct SwapchainInfo
 
 	vk::Result GetNextImage(vk::Device device, vk::Semaphore& m_ImageAvailable);
 
+	uint32_t getCurrentFrameIndex();
+
 	vk::SwapchainKHR                m_Swapchain;
 	vk::Extent2D                    m_Extent;
 	vk::Format                      m_Format;

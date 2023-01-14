@@ -5,7 +5,7 @@
 #include "CommandBuffer.h"
 #include "DeviceQueue.h"
 #include "RenderPassFramebuffer.h"
-#include "SemaphoreFence.h"
+#include "SyncObjectContainer.h"
 #include "SwapchainInfo.h"
 #include "Window.h"
 
@@ -28,25 +28,22 @@ struct API
 
 	vk::PipelineLayout pipelineLayout;
 	vk::Pipeline       graphicsPipeline;
-	vk::CommandPool    commandPool;
-	size_t             currentFrame           = 0;
-	bool               framebufferResized     = false;
-	bool               enableValidationLayers = true;
+
+	bool enableValidationLayers = true;
 
 	// UIEngine API
-	DeviceQueue                deviceQueue;
-	SwapchainInfo              swapchainInfo;
-	RenderPassFramebuffer      renderPassFrameBuffers;
+	DeviceQueue           deviceQueue;
+	SwapchainInfo         swapchainInfo;
+	RenderPassFramebuffer renderPassFrameBuffers;
+	SyncObjectContainer   syncObjectContainer;
+
+	vk::CommandPool            commandPool;
 	std::vector<CommandBuffer> commandBuffers;
-	SemaphoreFence             semaphoreFence;
 
 	Window window;
 
 	// Returns the swapchain
 	vk::SwapchainKHR& Swapchain();
-
-	// Returns the current command buffer
-	const vk::CommandBuffer& GetCurrentCommandBuffer();
 
 	CommandBuffer& CreateCommandBuffer();
 
@@ -54,6 +51,5 @@ struct API
 	void CreateRenderPass();
 	void CreateFrameBuffers();
 	void CreateCommandBuffers();
-	void CreateSyncObjects();
 };
 } // namespace vulkan

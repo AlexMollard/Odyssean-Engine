@@ -135,7 +135,6 @@ xcopy /y "C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\co
     <ClInclude Include="Src\Engine\VulkanAPI\Types\Renderer.h" />
     <ClInclude Include="Src\Engine\VulkanAPI\Types\Mesh.h" />
     <ClInclude Include="Src\Engine\VulkanAPI\Types\Container.h" />
-    <ClInclude Include="Src\Engine\VulkanAPI\Types\SemaphoreFence.h" />
     <ClInclude Include="Src\Engine\VulkanAPI\Types\CommandBuffer.h" />
     <ClInclude Include="Src\Engine\VulkanAPI\Types\RenderPassFramebuffer.h" />
     <ClInclude Include="Src\Engine\VulkanAPI\Types\DeviceQueue.h" />
@@ -173,12 +172,12 @@ xcopy /y "C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\co
     <ClInclude Include="Src\Scenes\VulkanScene.h" />
     <ClInclude Include="Src\Engine\VulkanAPI\Types\SwapchainInfo.h" />
     <ClInclude Include="Src\Engine\VulkanAPI\Types\Window.h" />
+    <ClInclude Include="Src\Engine\VulkanAPI\Types\SyncObjectContainer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Src\Engine\VulkanAPI\Types\Container.cpp" />
     <ClCompile Include="Src\Engine\VulkanAPI\Types\Renderer.cpp" />
     <ClCompile Include="Src\Engine\VulkanAPI\Types\Mesh.cpp" />
-    <ClCompile Include="Src\Engine\VulkanAPI\Types\SemaphoreFence.cpp" />
     <ClCompile Include="Src\Engine\VulkanAPI\Types\CommandBuffer.cpp" />
     <ClCompile Include="Src\Engine\VulkanAPI\Types\RenderPassFramebuffer.cpp" />
     <ClCompile Include="Src\Engine\VulkanAPI\Types\DeviceQueue.cpp" />
@@ -206,6 +205,7 @@ xcopy /y "C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\co
     <ClCompile Include="Src\Scenes\VulkanScene.cpp" />
     <ClCompile Include="Src\Engine\VulkanAPI\Types\SwapchainInfo.cpp" />
     <ClCompile Include="Src\Engine\VulkanAPI\Types\Window.cpp" />
+    <ClCompile Include="Src\Engine\VulkanAPI\Types\SyncObjectContainer.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />

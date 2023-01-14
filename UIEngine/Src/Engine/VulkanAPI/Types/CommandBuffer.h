@@ -19,13 +19,7 @@ public:
 	void End() const;
 	void Reset(vk::CommandBufferResetFlags flags = vk::CommandBufferResetFlagBits::eReleaseResources) const;
 
-	// Record functions
-	void BeginRenderPass(vk::RenderPass& renderPass, vk::Extent2D renderArea, vk::Framebuffer& framebuffer, vk::SubpassContents subpassContents = vk::SubpassContents::eInline) const;
-	void NextSubpass(vk::SubpassContents subpassContents = vk::SubpassContents::eInline) const;
-	void EndRenderPass() const;
-
-	// Start recording then run lambda function then end recording
-	void Record(vk::CommandBufferUsageFlags flags, std::function<void()> lambda) const;
+	void DoRenderPass(vk::RenderPass renderPass, vk::Framebuffer framebuffer, vk::Extent2D renderArea, std::function<void()> lambdaFn) const;
 
 	void BindPipeline(vk::PipelineBindPoint pipelineBindPoint, vk::Pipeline pipeline) const;
 	void BindVertexBuffers(uint32_t firstBinding, vk::ArrayProxy<const vk::Buffer> buffers, vk::ArrayProxy<const vk::DeviceSize> offsets) const;
@@ -52,9 +46,10 @@ public:
 		return m_CommandBuffer;
 	}
 
-void RecordDummyCommands();
+	void RecordDummyCommands();
 
 private:
 	vk::CommandBuffer m_CommandBuffer;
 };
+
 } // namespace vulkan

@@ -29,7 +29,37 @@ void VulkanInit::CreateExtensions()
 	// Set the callback function
 	PFN_vkDebugUtilsMessengerCallbackEXT callback = [](VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
 													   void* pUserData) -> VkBool32 {
-		std::cerr << "validation layer: " << pCallbackData->pMessage << std::endl;
+		// Print message name
+		std::cout << "Validation layer: " << pCallbackData->pMessageIdName << std::endl;
+
+		// Print message object type
+		std::cout << "Object type: \033[4;37m" << vk::to_string(static_cast<vk::ObjectType>(pCallbackData->pObjects->objectType)) << "\033[0m" << std::endl;
+
+		// Print message
+		std::cout << "Message: " << pCallbackData->pMessage << std::endl;
+
+		// Print message description
+		if (pCallbackData->cmdBufLabelCount > 0) { std::cout << "Description: " << pCallbackData->pCmdBufLabels->pLabelName << std::endl; }
+
+		// Print message severity with color
+		std::cout << "Severity: ";
+		switch (messageSeverity)
+		{
+		case VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT: std::cout << "\033[1;34m" << vk::to_string(static_cast<vk::DebugUtilsMessageSeverityFlagBitsEXT>(messageSeverity)) << "\033[0m "; break;
+		case VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT: std::cout << "\033[1;33m" << vk::to_string(static_cast<vk::DebugUtilsMessageSeverityFlagBitsEXT>(messageSeverity)) << "\033[0m "; break;
+		case VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT: std::cout << "\033[1;31m" << vk::to_string(static_cast<vk::DebugUtilsMessageSeverityFlagBitsEXT>(messageSeverity)) << "\033[0m "; break;
+		}
+
+		// Print message type with color
+		std::cout << "| Type: ";
+		switch (messageType)
+		{
+		case VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT: std::cout << "\033[1;32m" << vk::to_string(static_cast<vk::DebugUtilsMessageTypeFlagBitsEXT>(messageType)) << "\033[0m" << std::endl; break;
+		case VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT: std::cout << "\033[1;33m" << vk::to_string(static_cast<vk::DebugUtilsMessageTypeFlagBitsEXT>(messageType)) << "\033[0m" << std::endl; break;
+		case VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT: std::cout << "\033[1;31m" << vk::to_string(static_cast<vk::DebugUtilsMessageTypeFlagBitsEXT>(messageType)) << "\033[0m" << std::endl; break;
+		}
+
+		std::cout << std::endl;
 		return VK_FALSE;
 	};
 
@@ -118,8 +148,11 @@ void VulkanInit::InitInstance()
 	appInfo.setPEngineName("UIEngine");
 	appInfo.setEngineVersion(VK_MAKE_VERSION(1, 0, 0));
 	appInfo.setApiVersion(VK_API_VERSION_1_0);
-
 	m_API.instanceCreateInfo.setPApplicationInfo(&appInfo);
+
+	// We add the following line to all the create info structs that we pass to Vulkan
+	// So that we can debug our application
+	m_API.instanceCreateInfo.setPNext(&m_DebugMessengerCreateInfo);
 
 	// Create the Vulkan instance
 	m_API.instance = vk::createInstance(m_API.instanceCreateInfo);
@@ -266,7 +299,6 @@ void VulkanInit::InitDevice()
 	uint32_t minor   = VK_VERSION_MINOR(version);
 	uint32_t patch   = VK_VERSION_PATCH(version);
 
-
 	// output device info
 	std::cout << "Device Info:" << std::endl;
 	std::cout << "\tVulkan version: " << major << "." << minor << "." << patch << std::endl;
@@ -287,7 +319,7 @@ void VulkanInit::InitSurface()
 	if (glfwCreateWindowSurface(m_API.instance, m_API.window.GetWindow(), nullptr, &tmpSurface) != VK_SUCCESS) { std::runtime_error("failed ot create window surface!"); }
 
 	Window& window = m_API.window;
-	
+
 	window.m_Surface = tmpSurface;
 
 	// Get the surface capabilities

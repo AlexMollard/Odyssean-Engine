@@ -7,11 +7,6 @@ vk::SwapchainKHR& vulkan::API::Swapchain()
 	return swapchainInfo.m_Swapchain;
 }
 
-const vk::CommandBuffer& vulkan::API::GetCurrentCommandBuffer()
-{
-	return commandBuffers[currentFrame].get();
-}
-
 vulkan::CommandBuffer& vulkan::API::CreateCommandBuffer()
 {
 	return commandBuffers.emplace_back(deviceQueue.m_Device, commandPool);
@@ -184,34 +179,12 @@ void vulkan::API::CreateCommandBuffers()
 	commandBuffers.emplace_back(deviceQueue.m_Device, commandPool);
 }
 
-void vulkan::API::CreateSyncObjects()
-{
-	std::vector<vk::Semaphore> semaphores;
-	std::vector<vk::Fence>     fences;
-
-	// Create the semaphores
-	vk::SemaphoreCreateInfo semaphoreInfo;
-	semaphores.push_back(deviceQueue.m_Device.createSemaphore(semaphoreInfo));
-	semaphores.push_back(deviceQueue.m_Device.createSemaphore(semaphoreInfo));
-	semaphoreFence.m_ImageAvailable = semaphores[0];
-	semaphoreFence.m_RenderFinished = semaphores[1];
-
-	// Create the fences
-	vk::FenceCreateInfo fenceInfo;
-	fenceInfo.setFlags(vk::FenceCreateFlagBits::eSignaled);
-
-	for (int i = 0; i < swapchainInfo.m_ImageCount; i++) { fences.push_back(deviceQueue.m_Device.createFence(fenceInfo)); }
-	
-	semaphoreFence.m_InFlight       = fences[0];
-	semaphoreFence.m_ImagesInFlight = fences;
-}
-
 vulkan::API::~API()
 {
 	// Wait for everything to be free
 	deviceQueue.wait();
 
-	semaphoreFence.destroy(deviceQueue.m_Device);
+	syncObjectContainer.cleanup();
 
 	// Command buffers
 	for (auto commandBuffer : commandBuffers) { deviceQueue.m_Device.freeCommandBuffers(commandPool, commandBuffer.get()); }

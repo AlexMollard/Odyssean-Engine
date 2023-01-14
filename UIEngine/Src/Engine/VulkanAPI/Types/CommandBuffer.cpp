@@ -13,6 +13,7 @@ void CommandBuffer::Create(const vk::Device& device, const vk::CommandPool& comm
 	allocInfo.commandPool                   = commandPool;
 	allocInfo.level                         = level;
 	allocInfo.commandBufferCount            = 1;
+	allocInfo.pNext                         = nullptr;
 
 	m_CommandBuffer = device.allocateCommandBuffers(allocInfo)[0];
 }
@@ -39,39 +40,25 @@ void CommandBuffer::Reset(vk::CommandBufferResetFlags flags /*= eReleaseResource
 	m_CommandBuffer.reset(flags);
 }
 
-void CommandBuffer::BeginRenderPass(vk::RenderPass& renderPass, vk::Extent2D renderArea, vk::Framebuffer& framebuffer, vk::SubpassContents subpassContents /*= vk::SubpassContents::eInline*/) const
+void CommandBuffer::DoRenderPass(vk::RenderPass renderPass, vk::Framebuffer framebuffer, vk::Extent2D renderArea, std::function<void()> lambdaFn) const
 {
 	vk::RenderPassBeginInfo renderPassInfo = {};
 	renderPassInfo.renderPass              = renderPass;
 	renderPassInfo.framebuffer             = framebuffer;
-	renderPassInfo.renderArea.offset       = vk::Offset2D(0, 0);
 	renderPassInfo.renderArea.extent       = renderArea;
-	renderPassInfo.clearValueCount         = 1;
-	
+
 	// Maybe move this else where
 	static std::array<float, 4> clearColor = { 0.1f, 0.1f, 0.1f, 1.0f };
-	vk::ClearValue clearValue;
-	clearValue.color = vk::ClearColorValue(clearColor);
-	renderPassInfo.pClearValues = &clearValue;
-	
-	m_CommandBuffer.beginRenderPass(renderPassInfo, subpassContents);
-}
+	vk::ClearValue              clearValue;
+	clearValue.color               = vk::ClearColorValue(clearColor);
+	renderPassInfo.pClearValues    = &clearValue;
+	renderPassInfo.clearValueCount = 1;
 
-void CommandBuffer::NextSubpass(vk::SubpassContents subpassContents /*= eInline*/) const
-{
-	m_CommandBuffer.nextSubpass(subpassContents);
-}
+	m_CommandBuffer.beginRenderPass(renderPassInfo, vk::SubpassContents::eInline);
 
-void CommandBuffer::EndRenderPass() const
-{
+	lambdaFn();
+
 	m_CommandBuffer.endRenderPass();
-}
-
-void CommandBuffer::Record(vk::CommandBufferUsageFlags flags, std::function<void()> lambda) const
-{
-	Begin(flags);
-	lambda();
-	End();
 }
 
 void CommandBuffer::BindPipeline(vk::PipelineBindPoint pipelineBindPoint, vk::Pipeline pipeline) const

@@ -18,4 +18,9 @@ vk::Result SwapchainInfo::GetNextImage(vk::Device device, vk::Semaphore& m_Image
 	return device.acquireNextImageKHR(m_Swapchain, UINT64_MAX, m_ImageAvailable, nullptr, &m_CurrentImage);
 }
 
+uint32_t SwapchainInfo::getCurrentFrameIndex()
+{
+	return m_CurrentImage;
+}
+
 } // namespace vulkan
