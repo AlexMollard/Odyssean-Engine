@@ -26,7 +26,7 @@ struct API
 	// Debug Messenger
 	vk::DebugUtilsMessengerEXT debugMessenger;
 
-	vk::PipelineLayout pipelineLayout;
+	vk::PipelineLayout graphicsPipelineLayout;
 	vk::Pipeline       graphicsPipeline;
 
 	bool enableValidationLayers = true;
@@ -51,5 +51,7 @@ struct API
 	void CreateRenderPass();
 	void CreateFrameBuffers();
 	void CreateCommandBuffers();
+	void CreateGraphicsPipeline(const char* vertShader, const char* fragShader, vk::DescriptorSetLayout& descriptorSetLayout);
+	std::vector<char> ReadFile(const char* fileDir);
 };
 } // namespace vulkan

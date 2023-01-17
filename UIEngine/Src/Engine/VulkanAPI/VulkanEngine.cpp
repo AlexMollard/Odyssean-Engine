@@ -9,7 +9,9 @@ namespace vulkan
 {
 
 Engine::~Engine()
-{}
+{
+	m_Renderer.Destroy();
+}
 
 void Engine::Initialize(const char* windowName, int width, int height)
 {

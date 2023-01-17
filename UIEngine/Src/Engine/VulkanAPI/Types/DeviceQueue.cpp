@@ -1,4 +1,5 @@
 #include "DeviceQueue.h"
+#include "common.h"
 namespace vulkan
 {
 
@@ -138,6 +139,37 @@ bool DeviceQueue::IsQueueFamilyIndexSet(QueueType queueType) const
 	}
 }
 
+vk::CommandBuffer DeviceQueue::BeginSingleTimeCommands(vk::CommandPool& commandPool)
+{
+	vk::CommandBufferAllocateInfo allocInfo;
+	allocInfo.setCommandPool(commandPool);
+	allocInfo.setLevel(vk::CommandBufferLevel::ePrimary);
+	allocInfo.setCommandBufferCount(1);
+
+	vk::CommandBuffer commandBuffer = m_Device.allocateCommandBuffers(allocInfo)[0];
+
+	vk::CommandBufferBeginInfo beginInfo;
+	beginInfo.setFlags(vk::CommandBufferUsageFlagBits::eOneTimeSubmit);
+
+	commandBuffer.begin(beginInfo);
+
+	return commandBuffer;
+}
+
+void DeviceQueue::EndSingleTimeCommands(vk::CommandPool& commandPool, vk::Queue param2, vk::CommandBuffer commandBuffer)
+{
+	commandBuffer.end();
+
+	vk::SubmitInfo submitInfo;
+	submitInfo.setCommandBufferCount(1);
+	submitInfo.setPCommandBuffers(&commandBuffer);
+
+	param2.submit(submitInfo, nullptr);
+	param2.waitIdle();
+
+	m_Device.freeCommandBuffers(commandPool, commandBuffer);
+}
+
 void DeviceQueue::Submit(vk::SubmitInfo submitInfo)
 {
 	m_GraphicsQueue.submit(submitInfo, nullptr);
@@ -152,6 +184,90 @@ vk::Result DeviceQueue::Present(vk::SwapchainKHR& m_Swapchain, uint32_t imageInd
 	presentInfo.setPSwapchains(&m_Swapchain);
 	presentInfo.setPImageIndices(&imageIndex);
 	return m_PresentQueue.presentKHR(presentInfo);
+}
+
+vk::Result DeviceQueue::CreateBuffer(vk::BufferUsageFlags usage, vk::MemoryPropertyFlags properties, AllocatedBuffer& buffer, const void* data, vk::DeviceSize size)
+{
+	// Create the buffer
+	vk::BufferCreateInfo bufferInfo = {};
+	bufferInfo.size                 = size;
+	bufferInfo.usage                = usage;
+	buffer.buffer                   = m_Device.createBuffer(bufferInfo);
+
+	// Allocate memory for the buffer
+	vk::MemoryRequirements memRequirements = m_Device.getBufferMemoryRequirements(buffer.buffer);
+	uint32_t               memoryTypeIndex = 0;
+	vk::Result             res             = FindMemoryType(memRequirements.memoryTypeBits, properties, memoryTypeIndex);
+	if (res != vk::Result::eSuccess) { return res; }
+	vk::MemoryAllocateInfo allocInfo = {};
+	allocInfo.allocationSize         = memRequirements.size;
+	allocInfo.memoryTypeIndex        = memoryTypeIndex;
+	buffer.memory                    = m_Device.allocateMemory(allocInfo);
+
+	// Bind the buffer memory
+	m_Device.bindBufferMemory(buffer.buffer, buffer.memory, 0);
+
+	// Copy data to the buffer
+	if (data != nullptr)
+	{
+		void* mapped = m_Device.mapMemory(buffer.memory, 0, size, {});
+		memcpy(mapped, data, size);
+		m_Device.unmapMemory(buffer.memory);
+	}
+
+	return vk::Result::eSuccess;
+}
+
+vk::Result DeviceQueue::CopyBuffer(vk::CommandPool& commandPool, vk::Queue queue, vk::Buffer srcBuffer, vk::Buffer dstBuffer, vk::DeviceSize size)
+{
+	// Allocate a command buffer
+	vk::CommandBufferAllocateInfo allocInfo = {};
+	allocInfo.commandPool                   = commandPool;
+	allocInfo.level                         = vk::CommandBufferLevel::ePrimary;
+	allocInfo.commandBufferCount            = 1;
+	vk::CommandBuffer commandBuffer         = m_Device.allocateCommandBuffers(allocInfo)[0];
+
+	// Record copy command
+	vk::CommandBufferBeginInfo beginInfo = {};
+	beginInfo.flags                      = vk::CommandBufferUsageFlagBits::eOneTimeSubmit;
+	commandBuffer.begin(beginInfo);
+	if (!commandBuffer) { return vk::Result::eErrorInitializationFailed; }
+	vk::BufferCopy copyRegion = {};
+	copyRegion.size           = size;
+	commandBuffer.copyBuffer(srcBuffer, dstBuffer, 1, &copyRegion);
+	commandBuffer.end();
+
+	// Submit and wait for the copy to complete
+	vk::SubmitInfo submitInfo     = {};
+	submitInfo.commandBufferCount = 1;
+	submitInfo.pCommandBuffers    = &commandBuffer;
+	vk::Result result             = queue.submit(1, &submitInfo, nullptr);
+	if (result != vk::Result::eSuccess) { return result; }
+	queue.waitIdle();
+
+	// Free the command buffer
+	m_Device.freeCommandBuffers(commandPool, 1, &commandBuffer);
+
+	return vk::Result::eSuccess;
+}
+
+vk::Result DeviceQueue::FindMemoryType(uint32_t typeFilter, vk::MemoryPropertyFlags properties, uint32_t& memoryTypeIndex)
+{
+	// Get the memory properties of the physical device
+	vk::PhysicalDeviceMemoryProperties memProperties = m_PhysicalDevice.getMemoryProperties();
+
+	// Iterate over the memory types and find one that matches the type filter and properties
+	for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++)
+	{
+		if ((typeFilter & (1 << i)) && (memProperties.memoryTypes[i].propertyFlags & properties) == properties)
+		{
+			memoryTypeIndex = i;
+			return vk::Result::eSuccess;
+		}
+	}
+
+	// If no memory type was found, return an error
+	return vk::Result::eErrorMemoryMapFailed;
 }
 
 } // namespace vulkan

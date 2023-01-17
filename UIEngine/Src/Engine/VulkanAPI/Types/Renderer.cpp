@@ -1,10 +1,12 @@
 #include "Renderer.h"
 
+#include "Mesh.h"
+#include "glm/gtc/matrix_transform.hpp"
 #include <iostream>
 
 vulkan::Renderer::~Renderer()
 {
-	Destroy();
+	//Destroy();
 }
 
 void vulkan::Renderer::Init(vulkan::API* api)
@@ -25,10 +27,19 @@ void vulkan::Renderer::Init(vulkan::API* api)
 
 	// Create the command buffers
 	m_API->CreateCommandBuffers();
+
+	m_Mesh = new vulkan::Mesh();
+	m_Mesh->LoadModel("../Resources/Meshes/cube.obj");
+	m_Mesh->Create(*api);
+
+	// Create the graphics pipeline
+	m_API->CreateGraphicsPipeline("../Resources/Shaders/compiled/vulkan_vert.spv", "../Resources/Shaders/compiled/vulkan_frag.spv", m_Mesh->descriptorSetLayout);
 }
 
 void vulkan::Renderer::Destroy()
-{}
+{
+	m_Mesh->Destroy(m_API->deviceQueue.m_Device);
+}
 
 void vulkan::Renderer::recreateSwapChain()
 {
@@ -67,14 +78,36 @@ void vulkan::Renderer::BeginFrame()
 	// We begin the command buffer
 	m_API->commandBuffers[m_API->swapchainInfo.getCurrentFrameIndex()].Begin();
 
-	m_API->commandBuffers[m_API->swapchainInfo.getCurrentFrameIndex()].DoRenderPass(m_API->renderPassFrameBuffers.m_RenderPass, m_API->renderPassFrameBuffers.m_Framebuffers[m_API->swapchainInfo.getCurrentFrameIndex()],
-																					m_API->swapchainInfo.m_Extent, []() {
-		// Perform some render pass operations here, such as binding pipeline, binding vertex buffers etc.
-	});
+	m_API->commandBuffers[m_API->swapchainInfo.getCurrentFrameIndex()].DoRenderPass(
+		m_API->renderPassFrameBuffers.m_RenderPass, m_API->renderPassFrameBuffers.m_Framebuffers[m_API->swapchainInfo.getCurrentFrameIndex()], m_API->swapchainInfo.m_Extent, [&]() {
+			glm::mat4 model(1.0f);
+			model = glm::scale(model, glm::vec3(0.5f));
+
+			float time = glfwGetTime();
+			model      = glm::rotate(model, glm::radians(time * 10), glm::vec3(1.0f, 1.0f, 0.0f));
+
+			glm::mat4 view(1.0f);
+			view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+
+			glm::mat4 proj(1.0f);
+			proj = glm::perspective(glm::radians(45.0f), m_API->swapchainInfo.m_Extent.width / (float)m_API->swapchainInfo.m_Extent.height, 0.1f, 10.0f);
+
+			glm::mat4 ubo = proj * view * model;
+
+			LightProperties light;
+			light.lightPos       = glm::vec3(0.0f, 1.0f, 0.0f);
+			light.lightColor = glm::vec4(1,1,0,1);
+			light.lightIntensity = 1.0f;
+
+			m_Mesh->UpdateLightProperties(m_API->deviceQueue.m_Device, m_API->graphicsPipelineLayout, light);
+
+			m_Mesh->UpdateUBOMatrix(m_API->deviceQueue.m_Device, m_API->graphicsPipelineLayout, ubo);
+			// Update the uniform buffer
+			m_Mesh->AddToCommandBuffer(m_API->deviceQueue.m_Device, m_API->commandBuffers[m_API->swapchainInfo.getCurrentFrameIndex()], m_API->graphicsPipeline, m_API->graphicsPipelineLayout);
+		});
 
 	// We end the command buffer
 	m_API->commandBuffers[m_API->swapchainInfo.getCurrentFrameIndex()].End();
-
 }
 
 void vulkan::Renderer::EndFrame()

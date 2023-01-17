@@ -2,7 +2,7 @@
 #include "vulkan/vulkan.hpp"
 namespace vulkan
 {
-
+class AllocatedBuffer;
 enum class QueueType
 {
 	GRAPHICS,
@@ -14,6 +14,10 @@ enum class QueueType
 class DeviceQueue
 {
 public:
+	vk::Result CreateBuffer(vk::BufferUsageFlags usage, vk::MemoryPropertyFlags properties, AllocatedBuffer& buffer, const void* data, vk::DeviceSize size);
+	vk::Result CopyBuffer(vk::CommandPool& commandPool, vk::Queue queue, vk::Buffer srcBuffer, vk::Buffer dstBuffer, vk::DeviceSize size);
+	vk::Result FindMemoryType(uint32_t typeFilter, vk::MemoryPropertyFlags properties, uint32_t& memoryTypeIndex);
+
 	DeviceQueue() = default;
 	DeviceQueue(vk::Device device);
 
@@ -36,6 +40,10 @@ public:
 	vk::Device m_Device;
 	vk::PhysicalDevice       m_PhysicalDevice;
 	std::vector<const char*> m_DeviceExtensions;
+
+vk::CommandBuffer BeginSingleTimeCommands(vk::CommandPool& commandPool);
+
+void EndSingleTimeCommands(vk::CommandPool& commandPool, vk::Queue param2, vk::CommandBuffer commandBuffer);
 
 private:
 	vk::Queue m_GraphicsQueue; // Used for pushing geometry to the GPU

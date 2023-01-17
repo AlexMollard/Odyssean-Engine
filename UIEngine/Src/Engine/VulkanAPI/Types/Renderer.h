@@ -3,6 +3,7 @@
 
 namespace vulkan
 {
+class Mesh;
 class Renderer
 {
 public:
@@ -23,5 +24,7 @@ public:
 
 private:
 	vulkan::API* m_API = nullptr;
+	vulkan::Mesh* m_Mesh  = nullptr;
+
 };
 } // namespace vulkan
