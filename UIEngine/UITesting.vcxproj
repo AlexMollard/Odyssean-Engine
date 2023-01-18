@@ -68,7 +68,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>Level1</WarningLevel>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;_CRTDBG_MAP_ALLOC;STB_IMAGE_STATIC;VK_LAYER_ENABLE_OBJECT_TRACKER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
@@ -104,7 +104,7 @@ xcopy /y "C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\co
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>Level1</WarningLevel>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
@@ -175,6 +175,7 @@ xcopy /y "C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\co
     <ClInclude Include="Src\Engine\VulkanAPI\Types\SyncObjectContainer.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Src\Engine\VulkanAPI\Types\common.cpp" />
     <ClCompile Include="Src\Engine\VulkanAPI\Types\Container.cpp" />
     <ClCompile Include="Src\Engine\VulkanAPI\Types\Renderer.cpp" />
     <ClCompile Include="Src\Engine\VulkanAPI\Types\Mesh.cpp" />

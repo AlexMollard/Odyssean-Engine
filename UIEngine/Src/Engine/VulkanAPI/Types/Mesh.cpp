@@ -3,6 +3,7 @@
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
+#include <iostream>
 
 namespace vulkan
 {
@@ -142,11 +143,40 @@ void Mesh::CreateUBOMatrixBuffer(DeviceQueue& devices, vk::CommandPool& commandP
 
 void Mesh::CreateLightPropertiesBuffer(DeviceQueue& devices, vk::CommandPool& commandPool, const LightProperties& lightProperties)
 {
-	vk::Result res =
-		devices.CreateBuffer(vk::BufferUsageFlagBits::eUniformBuffer, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent, lightPropertiesBuffer, &lightProperties, sizeof(lightProperties));
-	if (res != vk::Result::eSuccess) { throw std::runtime_error("failed to create light properties buffer!"); }
+	// Create buffer
+	vk::BufferCreateInfo bufferCreateInfo;
+	bufferCreateInfo.size        = sizeof(lightProperties);
+	bufferCreateInfo.usage       = vk::BufferUsageFlagBits::eUniformBuffer;
+	lightPropertiesBuffer.buffer = devices.m_Device.createBuffer(bufferCreateInfo);
 
-	this->lightProperties = lightProperties;
+	// Allocate memory for buffer
+	vk::MemoryRequirements memoryRequirements = devices.m_Device.getBufferMemoryRequirements(lightPropertiesBuffer.buffer);
+	vk::MemoryAllocateInfo memoryAllocateInfo;
+	memoryAllocateInfo.allocationSize = memoryRequirements.size;
+
+	uint32_t                memoryTypeBits = memoryRequirements.memoryTypeBits;
+	vk::MemoryPropertyFlags properties     = vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent;
+	devices.FindMemoryType(memoryTypeBits, properties, memoryAllocateInfo.memoryTypeIndex);
+	lightPropertiesBuffer.memory = devices.m_Device.allocateMemory(memoryAllocateInfo);
+
+	// Bind buffer to allocated memory
+	devices.m_Device.bindBufferMemory(lightPropertiesBuffer.buffer, lightPropertiesBuffer.memory, 0);
+
+	// Copy light properties data to buffer
+	void* data;
+	devices.m_Device.mapMemory(lightPropertiesBuffer.memory, 0, sizeof(lightProperties), {}, &data);
+	memcpy(data, &lightProperties, sizeof(lightProperties));
+	devices.m_Device.unmapMemory(lightPropertiesBuffer.memory);
+
+	// Get the minimum uniform buffer offset alignment value
+	vk::PhysicalDeviceProperties physicalDeviceProperties        = devices.m_PhysicalDevice.getProperties();
+	uint32_t                     minUniformBufferOffsetAlignment = physicalDeviceProperties.limits.minUniformBufferOffsetAlignment;
+
+	// Align the offset value to a multiple of the minimum uniform buffer offset alignment
+	lightPropertiesBufferInfo.offset = 0;
+	lightPropertiesBufferInfo.offset = (lightPropertiesBufferInfo.offset + minUniformBufferOffsetAlignment - 1) & ~(minUniformBufferOffsetAlignment - 1);
+	lightPropertiesBufferInfo.buffer = lightPropertiesBuffer.buffer;
+	lightPropertiesBufferInfo.range  = sizeof(lightProperties);
 }
 
 void Mesh::CreateDescriptorSetLayout(vk::Device& device)
@@ -202,7 +232,7 @@ void Mesh::CreateDescriptorPool(vk::Device& device)
 	vk::DescriptorPoolCreateInfo          poolInfo  = {};
 	poolInfo.poolSizeCount                          = static_cast<uint32_t>(poolSizes.size());
 	poolInfo.pPoolSizes                             = poolSizes.data();
-	poolInfo.maxSets                                = 2;
+	poolInfo.maxSets                                = 3;
 
 	descriptorPool = device.createDescriptorPool(poolInfo);
 }
@@ -230,25 +260,43 @@ void Mesh::CreateDescriptorSet(DeviceQueue& devices, vulkan::API& api, vk::Pipel
 	descriptorWrites[0].descriptorCount = 1;
 	descriptorWrites[0].pBufferInfo     = &bufferInfo;
 
+	// Light properties
+	vk::PhysicalDeviceProperties physicalDeviceProperties        = devices.m_PhysicalDevice.getProperties();
+	uint32_t                     minUniformBufferOffsetAlignment = physicalDeviceProperties.limits.minUniformBufferOffsetAlignment;
+
+	vk::DescriptorBufferInfo lightPropertiesBufferInfo = {};
+	lightPropertiesBufferInfo.buffer                   = lightPropertiesBuffer.buffer;
+	lightPropertiesBufferInfo.offset                   = (lightPropertiesBufferInfo.offset + minUniformBufferOffsetAlignment - 1) & ~(minUniformBufferOffsetAlignment - 1);
+	lightPropertiesBufferInfo.range                    = sizeof(LightProperties);
+
+	descriptorWrites[1].dstSet          = descriptorSet;
+	descriptorWrites[1].dstBinding      = 2;
+	descriptorWrites[1].dstArrayElement = 0;
+	descriptorWrites[1].descriptorType  = vk::DescriptorType::eUniformBuffer;
+	descriptorWrites[1].descriptorCount = 1;
+	descriptorWrites[1].pBufferInfo     = &lightPropertiesBufferInfo;
+
 	if (!texturePath.empty())
 	{
+		texture.Load(devices, api.commandPool, api.deviceQueue.GetQueue(QueueType::GRAPHICS), texturePath.c_str());
+
 		vk::DescriptorImageInfo imageInfo = {};
 		imageInfo.imageLayout             = vk::ImageLayout::eShaderReadOnlyOptimal;
 		imageInfo.imageView               = texture.imageView;
 		imageInfo.sampler                 = texture.sampler;
 
-		descriptorWrites[1].dstSet          = descriptorSet;
-		descriptorWrites[1].dstBinding      = 1;
-		descriptorWrites[1].dstArrayElement = 0;
-		descriptorWrites[1].descriptorType  = vk::DescriptorType::eCombinedImageSampler;
-		descriptorWrites[1].descriptorCount = 1;
-		descriptorWrites[1].pImageInfo      = &imageInfo;
+		descriptorWrites[2].dstSet          = descriptorSet;
+		descriptorWrites[2].dstBinding      = 1;
+		descriptorWrites[2].dstArrayElement = 0;
+		descriptorWrites[2].descriptorType  = vk::DescriptorType::eCombinedImageSampler;
+		descriptorWrites[2].descriptorCount = 1;
+		descriptorWrites[2].pImageInfo      = &imageInfo;
 	}
 	else
 	{
 		// Create a 1x1 white texture
 		std::vector<unsigned char> whitePixel = { 255, 255, 255, 255 };
-		Texture whiteTex;
+		Texture                    whiteTex;
 
 		// Finally create the texture
 		whiteTex.Create(devices, api.commandPool, api.deviceQueue.GetQueue(QueueType::GRAPHICS), whitePixel.data(), 1, 1);
@@ -259,31 +307,18 @@ void Mesh::CreateDescriptorSet(DeviceQueue& devices, vulkan::API& api, vk::Pipel
 		imageInfo.imageView               = whiteTex.imageView;
 		imageInfo.sampler                 = whiteTex.sampler;
 
-		descriptorWrites[1].dstSet          = descriptorSet;
-		descriptorWrites[1].dstBinding      = 1;
-		descriptorWrites[1].dstArrayElement = 0;
-		descriptorWrites[1].descriptorType  = vk::DescriptorType::eCombinedImageSampler;
-		descriptorWrites[1].descriptorCount = 1;
-		descriptorWrites[1].pImageInfo      = &imageInfo;
+		descriptorWrites[2].dstSet          = descriptorSet;
+		descriptorWrites[2].dstBinding      = 1;
+		descriptorWrites[2].dstArrayElement = 0;
+		descriptorWrites[2].descriptorType  = vk::DescriptorType::eCombinedImageSampler;
+		descriptorWrites[2].descriptorCount = 1;
+		descriptorWrites[2].pImageInfo      = &imageInfo;
 	}
-
-	// Light properties
-	vk::DescriptorBufferInfo lightPropertiesBufferInfo = {};
-	lightPropertiesBufferInfo.buffer                   = lightPropertiesBuffer.buffer;
-	lightPropertiesBufferInfo.offset                   = 0;
-	lightPropertiesBufferInfo.range                    = sizeof(LightProperties);
-
-	descriptorWrites[2].dstSet          = descriptorSet;
-	descriptorWrites[2].dstBinding      = 2;
-	descriptorWrites[2].dstArrayElement = 0;
-	descriptorWrites[2].descriptorType  = vk::DescriptorType::eUniformBuffer;
-	descriptorWrites[2].descriptorCount = 1;
-	descriptorWrites[2].pBufferInfo     = &lightPropertiesBufferInfo;
 
 	devices.m_Device.updateDescriptorSets(descriptorWrites.size(), descriptorWrites.data(), 0, nullptr);
 }
 
-void Mesh::UpdateUBODescriptorSet(vk::Device& device, vk::PipelineLayout& graphicsPipelineLayout)
+void Mesh::UpdateUBODescriptorSet(vk::Device& device)
 {
 	vk::DescriptorBufferInfo bufferInfo = {};
 	bufferInfo.buffer                   = uboMatrixBuffer.buffer;
@@ -300,49 +335,48 @@ void Mesh::UpdateUBODescriptorSet(vk::Device& device, vk::PipelineLayout& graphi
 	descriptorWrites[0].pBufferInfo     = &bufferInfo;
 
 	device.updateDescriptorSets(descriptorWrites.size(), descriptorWrites.data(), 0, nullptr);
-
-	// Update model matrix buffer
-	void* data;
-	device.mapMemory(uboMatrixBuffer.memory, 0, sizeof(glm::mat4), {}, &data);
-	memcpy(data, &uboMatrix, sizeof(glm::mat4));
-	device.unmapMemory(uboMatrixBuffer.memory);
 }
 
-void Mesh::UpdateLightPropertiesDescriptorSet(vk::Device& device, vk::PipelineLayout& graphicsPipelineLayout)
+void Mesh::UpdateLightPropertiesDescriptorSet(vk::Device& device)
 {
-	vk::DescriptorBufferInfo bufferInfo = {};
-	bufferInfo.buffer                   = lightPropertiesBuffer.buffer;
-	bufferInfo.offset                   = 0;
-	bufferInfo.range                    = sizeof(LightProperties);
+	lightPropertiesBufferInfo.buffer = lightPropertiesBuffer.buffer;
+	lightPropertiesBufferInfo.offset = lightPropertiesBufferInfo.offset;
+	lightPropertiesBufferInfo.range  = sizeof(LightProperties);
 
 	std::array<vk::WriteDescriptorSet, 1> descriptorWrites = {};
 
 	descriptorWrites[0].dstSet          = descriptorSet;
-	descriptorWrites[0].dstBinding      = 2;
+	descriptorWrites[0].dstBinding      = 2; // assuming this is the correct binding for the light properties buffer
 	descriptorWrites[0].dstArrayElement = 0;
 	descriptorWrites[0].descriptorType  = vk::DescriptorType::eUniformBuffer;
 	descriptorWrites[0].descriptorCount = 1;
-	descriptorWrites[0].pBufferInfo     = &bufferInfo;
+	descriptorWrites[0].pBufferInfo     = &lightPropertiesBufferInfo;
 
 	device.updateDescriptorSets(descriptorWrites.size(), descriptorWrites.data(), 0, nullptr);
-
-	// Update light properties buffer
-	void* data;
-	device.mapMemory(lightPropertiesBuffer.memory, 0, sizeof(LightProperties), {}, &data);
-	memcpy(data, &lightProperties, sizeof(LightProperties));
-	device.unmapMemory(lightPropertiesBuffer.memory);
 }
 
-void Mesh::UpdateUBOMatrix(vk::Device& device, vk::PipelineLayout& graphicsPipelineLayout, glm::mat4 uboMatrix)
+void Mesh::UpdateUBOMatrix(vk::Device& device, glm::mat4 uboMatrix)
 {
 	this->uboMatrix = uboMatrix;
-	UpdateUBODescriptorSet(device, graphicsPipelineLayout);
+
+	void* data;
+	device.mapMemory(uboMatrixBuffer.memory, 0, sizeof(glm::mat4), {}, &data);
+	memcpy(data, &uboMatrix, sizeof(glm::mat4));
+	device.unmapMemory(uboMatrixBuffer.memory);
+
+	UpdateUBODescriptorSet(device);
 }
 
-void Mesh::UpdateLightProperties(vk::Device& device, vk::PipelineLayout& graphicsPipelineLayout, const LightProperties& lightProperties)
+void Mesh::UpdateLightProperties(vk::Device& device, LightProperties lightProperties)
 {
 	this->lightProperties = lightProperties;
-	UpdateLightPropertiesDescriptorSet(device, graphicsPipelineLayout);
+
+	void* data;
+	device.mapMemory(lightPropertiesBuffer.memory, 0, sizeof(lightProperties), {}, &data);
+	memcpy(data, &lightProperties, sizeof(lightProperties));
+	device.unmapMemory(lightPropertiesBuffer.memory);
+
+	UpdateLightPropertiesDescriptorSet(device);
 }
 
 } // namespace vulkan

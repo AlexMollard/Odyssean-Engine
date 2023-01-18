@@ -108,6 +108,9 @@
     <ClCompile Include="Src\Engine\VulkanAPI\Types\SyncObjectContainer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Src\Engine\VulkanAPI\Types\common.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Src\Engine\Engine.h">

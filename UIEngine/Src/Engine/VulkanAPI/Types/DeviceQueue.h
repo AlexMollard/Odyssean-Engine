@@ -2,7 +2,7 @@
 #include "vulkan/vulkan.hpp"
 namespace vulkan
 {
-class AllocatedBuffer;
+struct AllocatedBuffer;
 enum class QueueType
 {
 	GRAPHICS,

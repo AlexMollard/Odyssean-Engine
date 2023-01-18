@@ -59,6 +59,7 @@ void CommandBuffer::DoRenderPass(vk::RenderPass renderPass, vk::Framebuffer fram
 	lambdaFn();
 
 	m_CommandBuffer.endRenderPass();
+	End();
 }
 
 void CommandBuffer::BindPipeline(vk::PipelineBindPoint pipelineBindPoint, vk::Pipeline pipeline) const

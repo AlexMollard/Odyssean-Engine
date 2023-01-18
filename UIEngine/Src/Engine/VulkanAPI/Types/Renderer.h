@@ -23,8 +23,8 @@ public:
 	void RenderUI();
 
 private:
-	vulkan::API* m_API = nullptr;
-	vulkan::Mesh* m_Mesh  = nullptr;
-
+	vulkan::API*  m_API       = nullptr;
+	vulkan::Mesh* m_Mesh      = nullptr;
+	vulkan::Mesh* m_LightMesh = nullptr;
 };
 } // namespace vulkan

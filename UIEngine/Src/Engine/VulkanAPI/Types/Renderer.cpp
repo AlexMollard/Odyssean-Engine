@@ -28,9 +28,14 @@ void vulkan::Renderer::Init(vulkan::API* api)
 	// Create the command buffers
 	m_API->CreateCommandBuffers();
 
-	m_Mesh = new vulkan::Mesh();
+	m_Mesh              = new vulkan::Mesh();
+	m_Mesh->texturePath = "../Resources/Images/debug.png";
 	m_Mesh->LoadModel("../Resources/Meshes/cube.obj");
 	m_Mesh->Create(*api);
+
+	m_LightMesh              = new vulkan::Mesh();
+	m_LightMesh->LoadModel("../Resources/Meshes/cube.obj");
+	m_LightMesh->Create(*api);
 
 	// Create the graphics pipeline
 	m_API->CreateGraphicsPipeline("../Resources/Shaders/compiled/vulkan_vert.spv", "../Resources/Shaders/compiled/vulkan_frag.spv", m_Mesh->descriptorSetLayout);
@@ -39,6 +44,10 @@ void vulkan::Renderer::Init(vulkan::API* api)
 void vulkan::Renderer::Destroy()
 {
 	m_Mesh->Destroy(m_API->deviceQueue.m_Device);
+	delete m_Mesh;
+
+	m_LightMesh->Destroy(m_API->deviceQueue.m_Device);
+	delete m_LightMesh;
 }
 
 void vulkan::Renderer::recreateSwapChain()
@@ -78,36 +87,51 @@ void vulkan::Renderer::BeginFrame()
 	// We begin the command buffer
 	m_API->commandBuffers[m_API->swapchainInfo.getCurrentFrameIndex()].Begin();
 
+	// create view and projection matrices once
+	static glm::mat4 view(1.0f);
+	view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -3.0f));
+	static glm::mat4 proj(1.0f);
+	proj = glm::perspective(glm::radians(90.0f), m_API->swapchainInfo.m_Extent.width / (float)m_API->swapchainInfo.m_Extent.height, 0.1f, 100.0f);
+
+	// create time variable once
+	static auto startTime   = std::chrono::high_resolution_clock::now();
+	const auto  currentTime = std::chrono::high_resolution_clock::now();
+	const float time        = std::chrono::duration<float>(currentTime - startTime).count();
+
+	LightProperties light;
+	light.lightPos   = glm::vec3(glm::sin(time) * 2.0f, 0.0f, glm::cos(time) * 2.0f);
+	float r          = glm::sin(time * 2.0f) * 0.5f + 0.5f;
+	float g          = glm::sin(time * 0.7f) * 0.5f + 0.5f;
+	float b          = glm::sin(time * 1.3f) * 0.5f + 0.5f;
+	light.lightColor = glm::vec4(r, g, b, 0.75f);
+
+	glm::mat4 model(1.0f);
+	model = glm::translate(model, glm::vec3(0.0f, 0.0f, 1.0f));
+	model = glm::scale(model, glm::vec3(0.5f));
+	model = glm::rotate(model, glm::radians(time * 10), glm::vec3(1.0f, 1.0f, 0.0f));
+
+	glm::mat4 lightModel(1.0f);
+	lightModel = glm::translate(lightModel, light.lightPos);
+	lightModel = glm::scale(lightModel, glm::vec3(0.1f));
+
+	glm::mat4 ubo      = proj * view * model;
+	glm::mat4 uboLight = proj * view * lightModel;
+
+	m_Mesh->UpdateLightProperties(m_API->deviceQueue.m_Device, light);
+	m_Mesh->UpdateUBOMatrix(m_API->deviceQueue.m_Device, ubo);
+
+	// Place light right above lightmodel
+	light.lightPos = glm::vec3(lightModel[3][0], lightModel[3][1], lightModel[3][2]);
+
+	m_LightMesh->UpdateLightProperties(m_API->deviceQueue.m_Device, light);
+	m_LightMesh->UpdateUBOMatrix(m_API->deviceQueue.m_Device, uboLight);
+
 	m_API->commandBuffers[m_API->swapchainInfo.getCurrentFrameIndex()].DoRenderPass(
 		m_API->renderPassFrameBuffers.m_RenderPass, m_API->renderPassFrameBuffers.m_Framebuffers[m_API->swapchainInfo.getCurrentFrameIndex()], m_API->swapchainInfo.m_Extent, [&]() {
-			glm::mat4 model(1.0f);
-			model = glm::scale(model, glm::vec3(0.5f));
+			m_LightMesh->AddToCommandBuffer(m_API->deviceQueue.m_Device, m_API->commandBuffers[m_API->swapchainInfo.getCurrentFrameIndex()], m_API->graphicsPipeline, m_API->graphicsPipelineLayout);
 
-			float time = glfwGetTime();
-			model      = glm::rotate(model, glm::radians(time * 10), glm::vec3(1.0f, 1.0f, 0.0f));
-
-			glm::mat4 view(1.0f);
-			view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
-
-			glm::mat4 proj(1.0f);
-			proj = glm::perspective(glm::radians(45.0f), m_API->swapchainInfo.m_Extent.width / (float)m_API->swapchainInfo.m_Extent.height, 0.1f, 10.0f);
-
-			glm::mat4 ubo = proj * view * model;
-
-			LightProperties light;
-			light.lightPos       = glm::vec3(0.0f, 1.0f, 0.0f);
-			light.lightColor = glm::vec4(1,1,0,1);
-			light.lightIntensity = 1.0f;
-
-			m_Mesh->UpdateLightProperties(m_API->deviceQueue.m_Device, m_API->graphicsPipelineLayout, light);
-
-			m_Mesh->UpdateUBOMatrix(m_API->deviceQueue.m_Device, m_API->graphicsPipelineLayout, ubo);
-			// Update the uniform buffer
 			m_Mesh->AddToCommandBuffer(m_API->deviceQueue.m_Device, m_API->commandBuffers[m_API->swapchainInfo.getCurrentFrameIndex()], m_API->graphicsPipeline, m_API->graphicsPipelineLayout);
 		});
-
-	// We end the command buffer
-	m_API->commandBuffers[m_API->swapchainInfo.getCurrentFrameIndex()].End();
 }
 
 void vulkan::Renderer::EndFrame()

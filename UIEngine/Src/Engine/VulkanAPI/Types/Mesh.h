@@ -31,8 +31,8 @@ struct Vertex
 struct LightProperties
 {
 	glm::vec3 lightPos;
-	glm::vec4 lightColor = glm::vec4(1,1,1,1);
-	float     lightIntensity = 1.0f;
+	float spacer;
+	glm::vec4 lightColor;
 };
 
 struct Mesh
@@ -63,19 +63,21 @@ struct Mesh
 	void CreateDescriptorSet(DeviceQueue& devices, vulkan::API& api, vk::PipelineLayout& graphicsPipelineLayout);
 
 	// Update Descriptor Functions
-	void UpdateUBODescriptorSet(vk::Device& device, vk::PipelineLayout& graphicsPipelineLayout);
-	void UpdateLightPropertiesDescriptorSet(vk::Device& device, vk::PipelineLayout& graphicsPipelineLayout);
+	void UpdateUBODescriptorSet(vk::Device& device);
+	void UpdateLightPropertiesDescriptorSet(vk::Device& device);
 
 	// Update model stuff
-	void UpdateUBOMatrix(vk::Device& device, vk::PipelineLayout& graphicsPipelineLayout, glm::mat4 uboMatrix);
-	void UpdateLightProperties(vk::Device& device, vk::PipelineLayout& graphicsPipelineLayout, const LightProperties& lightProperties);
+	void UpdateUBOMatrix(vk::Device& device, glm::mat4 uboMatrix);
+	void UpdateLightProperties(vk::Device& device, LightProperties lightProperties);
 
 	std::vector<Vertex>     vertices;
 	std::vector<uint32_t>   indices;
 	AllocatedBuffer         vertexBuffer;
 	AllocatedBuffer         indexBuffer;
+	
 	std::string             directory;
 	std::string             texturePath;
+	
 	vk::DescriptorSetLayout descriptorSetLayout;
 	vk::DescriptorSet       descriptorSet;
 	vk::DescriptorPool      descriptorPool;
