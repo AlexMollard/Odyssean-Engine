@@ -28,11 +28,17 @@ struct Vertex
 	static vk::VertexInputBindingDescription                GetBindingDescription();
 };
 
+struct ModelViewProjection
+{
+	glm::mat4 model;
+	glm::mat4 view;
+	glm::mat4 projection;
+};
+
 struct LightProperties
 {
-	glm::vec3 lightPos;
-	float spacer;
 	glm::vec4 lightColor;
+	glm::vec3 lightPos;
 };
 
 struct Mesh
@@ -54,7 +60,7 @@ struct Mesh
 	void CreateIndexBuffer(DeviceQueue& devices, vk::CommandPool& commandPool);
 
 	// Uniform buffers
-	void CreateUBOMatrixBuffer(DeviceQueue& devices, vk::CommandPool& commandPool, glm::mat4 uboMatrix);
+	void CreateMVPMatrixBuffer(DeviceQueue& devices, vk::CommandPool& commandPool);
 	void CreateLightPropertiesBuffer(DeviceQueue& devices, vk::CommandPool& commandPool, const LightProperties& lightProperties);
 
 	// Create Descriptor Functions
@@ -63,28 +69,28 @@ struct Mesh
 	void CreateDescriptorSet(DeviceQueue& devices, vulkan::API& api, vk::PipelineLayout& graphicsPipelineLayout);
 
 	// Update Descriptor Functions
-	void UpdateUBODescriptorSet(vk::Device& device);
+	void UpdateMVPDescriptorSet(vk::Device& device);
 	void UpdateLightPropertiesDescriptorSet(vk::Device& device);
 
 	// Update model stuff
-	void UpdateUBOMatrix(vk::Device& device, glm::mat4 uboMatrix);
+	void UpdateMVPMatrix(vk::Device& device, ModelViewProjection mvp);
 	void UpdateLightProperties(vk::Device& device, LightProperties lightProperties);
 
-	std::vector<Vertex>     vertices;
-	std::vector<uint32_t>   indices;
-	AllocatedBuffer         vertexBuffer;
-	AllocatedBuffer         indexBuffer;
-	
-	std::string             directory;
-	std::string             texturePath;
-	
+	std::vector<Vertex>   vertices;
+	std::vector<uint32_t> indices;
+	AllocatedBuffer       vertexBuffer;
+	AllocatedBuffer       indexBuffer;
+
+	std::string directory;
+	std::string texturePath;
+
 	vk::DescriptorSetLayout descriptorSetLayout;
 	vk::DescriptorSet       descriptorSet;
 	vk::DescriptorPool      descriptorPool;
 
-	vk::DescriptorBufferInfo uboMatrixDescriptorInfo;
-	AllocatedBuffer          uboMatrixBuffer;
-	glm::mat4                uboMatrix;
+	vk::DescriptorBufferInfo mvpMatrixDescriptorInfo;
+	AllocatedBuffer          mvpMatrixBuffer;
+	ModelViewProjection      mvpMatrix;
 
 	vk::DescriptorImageInfo textureDescriptorInfo;
 	Texture                 texture;

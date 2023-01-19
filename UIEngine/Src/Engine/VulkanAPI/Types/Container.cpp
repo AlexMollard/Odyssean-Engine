@@ -1,8 +1,8 @@
 #include "Container.h"
 
 #include "Mesh.h"
-#include <iostream>
 #include <fstream>
+#include <iostream>
 
 vk::SwapchainKHR& vulkan::API::Swapchain()
 {
@@ -186,19 +186,32 @@ void vulkan::API::CreateGraphicsPipeline(const char* vertShader, const char* fra
 	// Shader stages
 	std::vector<vk::PipelineShaderStageCreateInfo> shaderStages;
 
-	// Vertex shader
-	auto             vertShaderCode   = ReadFile(vertShader);
-	vk::ShaderModule vertShaderModule = deviceQueue.m_Device.createShaderModule({ {}, vertShaderCode.size(), reinterpret_cast<const uint32_t*>(vertShaderCode.data()) });
+	vk::ShaderModule vertShaderModule;
+	vk::ShaderModule fragShaderModule;
+
+	if (shaderModules.find(vertShader) != shaderModules.end()) { vertShaderModule = shaderModules[vertShader]; }
+	else
+	{
+		// Vertex shader
+		auto vertShaderCode = ReadFile(vertShader);
+		vertShaderModule    = deviceQueue.m_Device.createShaderModule({ {}, vertShaderCode.size(), reinterpret_cast<const uint32_t*>(vertShaderCode.data()) });
+		shaderModules.emplace(vertShader, vertShaderModule);
+	}
+
+	if (shaderModules.find(fragShader) != shaderModules.end()) { fragShaderModule = shaderModules[fragShader]; }
+	else
+	{
+		// Fragment shader
+		auto fragShaderCode = ReadFile(fragShader);
+		fragShaderModule    = deviceQueue.m_Device.createShaderModule({ {}, fragShaderCode.size(), reinterpret_cast<const uint32_t*>(fragShaderCode.data()) });
+		shaderModules.emplace(fragShader, fragShaderModule);
+	}
 
 	vk::PipelineShaderStageCreateInfo vertShaderStageInfo = {};
 	vertShaderStageInfo.stage                             = vk::ShaderStageFlagBits::eVertex;
 	vertShaderStageInfo.module                            = vertShaderModule;
 	vertShaderStageInfo.pName                             = "main";
 	shaderStages.push_back(vertShaderStageInfo);
-
-	// Fragment shader
-	auto             fragShaderCode   = ReadFile(fragShader);
-	vk::ShaderModule fragShaderModule = deviceQueue.m_Device.createShaderModule({ {}, fragShaderCode.size(), reinterpret_cast<const uint32_t*>(fragShaderCode.data()) });
 
 	vk::PipelineShaderStageCreateInfo fragShaderStageInfo = {};
 	fragShaderStageInfo.stage                             = vk::ShaderStageFlagBits::eFragment;
@@ -267,10 +280,10 @@ void vulkan::API::CreateGraphicsPipeline(const char* vertShader, const char* fra
 	depthStencil.depthTestEnable                         = VK_TRUE;
 	depthStencil.depthWriteEnable                        = VK_TRUE;
 	depthStencil.depthCompareOp                          = vk::CompareOp::eLess;
-	depthStencil.depthBoundsTestEnable                   = VK_FALSE;
+	depthStencil.depthBoundsTestEnable                   = VK_TRUE;
 	depthStencil.minDepthBounds                          = 0.0f; // Optional
 	depthStencil.maxDepthBounds                          = 1.0f; // Optional
-	depthStencil.stencilTestEnable                       = VK_FALSE;
+	depthStencil.stencilTestEnable                       = VK_TRUE;
 
 	// Color blending
 	vk::PipelineColorBlendAttachmentState colorBlendAttachment = {};
@@ -326,9 +339,9 @@ void vulkan::API::CreateGraphicsPipeline(const char* vertShader, const char* fra
 	pipelineInfo.basePipelineIndex              = -1;      // Optional
 
 	vk::ResultValue resValue = deviceQueue.m_Device.createGraphicsPipeline(nullptr, pipelineInfo);
-	
+
 	if (resValue.result != vk::Result::eSuccess) { throw std::runtime_error("Failed to create graphics pipeline!"); }
-	
+
 	graphicsPipeline = resValue.value;
 }
 
@@ -338,7 +351,7 @@ std::vector<char> vulkan::API::ReadFile(const char* fileDir)
 
 	if (!file.is_open()) { throw std::runtime_error("Failed to open file!"); }
 
-	size_t fileSize = (size_t)file.tellg();
+	size_t            fileSize = (size_t)file.tellg();
 	std::vector<char> buffer(fileSize);
 
 	file.seekg(0);
@@ -355,6 +368,13 @@ vulkan::API::~API()
 	deviceQueue.wait();
 
 	syncObjectContainer.cleanup();
+
+	// Destroy pipeline
+	deviceQueue.m_Device.destroy(graphicsPipeline);
+	deviceQueue.m_Device.destroy(graphicsPipelineLayout);
+
+	// Shader modules
+	for (auto shaderModule : shaderModules) { deviceQueue.m_Device.destroyShaderModule(shaderModule.second); }
 
 	// Command buffers
 	for (auto commandBuffer : commandBuffers) { deviceQueue.m_Device.freeCommandBuffers(commandPool, commandBuffer.get()); }

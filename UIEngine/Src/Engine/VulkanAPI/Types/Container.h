@@ -8,6 +8,7 @@
 #include "SyncObjectContainer.h"
 #include "SwapchainInfo.h"
 #include "Window.h"
+#include <map>
 
 namespace vulkan
 {
@@ -28,6 +29,7 @@ struct API
 
 	vk::PipelineLayout graphicsPipelineLayout;
 	vk::Pipeline       graphicsPipeline;
+	std::map<std::string, vk::ShaderModule> shaderModules;
 
 	bool enableValidationLayers = true;
 

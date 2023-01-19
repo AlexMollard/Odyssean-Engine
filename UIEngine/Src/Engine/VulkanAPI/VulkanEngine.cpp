@@ -17,7 +17,7 @@ void Engine::Initialize(const char* windowName, int width, int height)
 {
 	try
 	{
-		m_Init.Initialize("UIEngine", 1920, 1080);
+		m_Init.Initialize("UIEngine", width, height);
 		m_Renderer.Init(&m_Init.m_API);
 	}
 	catch (std::system_error e)

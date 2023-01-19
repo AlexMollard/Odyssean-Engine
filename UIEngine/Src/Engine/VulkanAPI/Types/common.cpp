@@ -130,4 +130,13 @@ vk::Result vulkan::Texture::Load(vulkan::DeviceQueue& devices, vk::CommandPool& 
 	stbi_image_free(pixels);
 	return result;
 }
+
+vk::Result Texture::destroy(vk::Device& device)
+{
+	vkDestroySampler(device, sampler, nullptr);
+	vkDestroyImageView(device, imageView, nullptr);
+	vkDestroyImage(device, image, nullptr);
+	vkFreeMemory(device, memory, nullptr);
+	return vk::Result::eSuccess;
+}
 } // namespace vulkan

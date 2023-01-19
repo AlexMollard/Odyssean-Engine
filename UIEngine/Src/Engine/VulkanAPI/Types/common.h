@@ -28,5 +28,7 @@ struct Texture
 	vk::Result Create(vulkan::DeviceQueue& devices, vk::CommandPool& commandPool, vk::Queue queue, const void* data, uint32_t width, uint32_t height);
 
 	vk::Result Load(vulkan::DeviceQueue& devices, vk::CommandPool& commandPool, vk::Queue queue, const char* dir);
+
+	vk::Result destroy(vk::Device& device);
 };
 } // namespace vulkan

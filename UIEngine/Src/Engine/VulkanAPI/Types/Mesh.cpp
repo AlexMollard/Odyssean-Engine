@@ -44,15 +44,30 @@ vk::VertexInputBindingDescription Vertex::GetBindingDescription()
 
 void Mesh::Destroy(vk::Device& device)
 {
+	// Vertex buffer
 	device.freeMemory(vertexBuffer.memory);
 	device.destroyBuffer(vertexBuffer.buffer);
+
+	// Index buffer
 	device.freeMemory(indexBuffer.memory);
 	device.destroyBuffer(indexBuffer.buffer);
-	device.freeMemory(uboMatrixBuffer.memory);
-	device.destroyBuffer(uboMatrixBuffer.buffer);
+
+	// mvp matrix buffer
+	device.freeMemory(mvpMatrixBuffer.memory);
+	device.destroyBuffer(mvpMatrixBuffer.buffer);
+
+	// light properties buffer
+	device.freeMemory(lightPropertiesBuffer.memory);
+	device.destroyBuffer(lightPropertiesBuffer.buffer);
+
+	// descriptor pool
 	device.destroyDescriptorPool(descriptorPool);
+
+	// descriptor set layout
 	device.destroyDescriptorSetLayout(descriptorSetLayout);
-	// texture.Destroy(device);
+
+	// Texture
+	texture.destroy(device);
 }
 
 vk::Result Mesh::LoadModel(const std::string& path)
@@ -102,7 +117,7 @@ void Mesh::Create(API& api)
 {
 	CreateVertexBuffer(api.deviceQueue, api.commandPool);
 	CreateIndexBuffer(api.deviceQueue, api.commandPool);
-	CreateUBOMatrixBuffer(api.deviceQueue, api.commandPool, glm::mat4(1.0f));
+	CreateMVPMatrixBuffer(api.deviceQueue, api.commandPool);
 	CreateLightPropertiesBuffer(api.deviceQueue, api.commandPool, lightProperties);
 	CreateDescriptorSetLayout(api.deviceQueue.m_Device);
 	CreateDescriptorPool(api.deviceQueue.m_Device);
@@ -133,12 +148,10 @@ void Mesh::CreateIndexBuffer(DeviceQueue& devices, vk::CommandPool& commandPool)
 	if (res != vk::Result::eSuccess) { throw std::runtime_error("failed to create index buffer!"); }
 }
 
-void Mesh::CreateUBOMatrixBuffer(DeviceQueue& devices, vk::CommandPool& commandPool, glm::mat4 uboMatrix)
+void Mesh::CreateMVPMatrixBuffer(DeviceQueue& devices, vk::CommandPool& commandPool)
 {
-	vk::Result res = devices.CreateBuffer(vk::BufferUsageFlagBits::eUniformBuffer, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent, uboMatrixBuffer, &uboMatrix, sizeof(uboMatrix));
+	vk::Result res = devices.CreateBuffer(vk::BufferUsageFlagBits::eUniformBuffer, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent, mvpMatrixBuffer, &mvpMatrix, sizeof(mvpMatrix));
 	if (res != vk::Result::eSuccess) { throw std::runtime_error("failed to create model matrix buffer!"); }
-
-	this->uboMatrix = uboMatrix;
 }
 
 void Mesh::CreateLightPropertiesBuffer(DeviceQueue& devices, vk::CommandPool& commandPool, const LightProperties& lightProperties)
@@ -247,9 +260,9 @@ void Mesh::CreateDescriptorSet(DeviceQueue& devices, vulkan::API& api, vk::Pipel
 	descriptorSet = devices.m_Device.allocateDescriptorSets(allocInfo)[0];
 
 	vk::DescriptorBufferInfo bufferInfo = {};
-	bufferInfo.buffer                   = uboMatrixBuffer.buffer;
+	bufferInfo.buffer                   = mvpMatrixBuffer.buffer;
 	bufferInfo.offset                   = 0;
-	bufferInfo.range                    = sizeof(glm::mat4);
+	bufferInfo.range                    = sizeof(ModelViewProjection);
 
 	std::array<vk::WriteDescriptorSet, 3> descriptorWrites = {};
 
@@ -318,12 +331,12 @@ void Mesh::CreateDescriptorSet(DeviceQueue& devices, vulkan::API& api, vk::Pipel
 	devices.m_Device.updateDescriptorSets(descriptorWrites.size(), descriptorWrites.data(), 0, nullptr);
 }
 
-void Mesh::UpdateUBODescriptorSet(vk::Device& device)
+void Mesh::UpdateMVPDescriptorSet(vk::Device& device)
 {
 	vk::DescriptorBufferInfo bufferInfo = {};
-	bufferInfo.buffer                   = uboMatrixBuffer.buffer;
+	bufferInfo.buffer                   = mvpMatrixBuffer.buffer;
 	bufferInfo.offset                   = 0;
-	bufferInfo.range                    = sizeof(glm::mat4);
+	bufferInfo.range                    = sizeof(ModelViewProjection);
 
 	std::array<vk::WriteDescriptorSet, 1> descriptorWrites = {};
 
@@ -355,16 +368,16 @@ void Mesh::UpdateLightPropertiesDescriptorSet(vk::Device& device)
 	device.updateDescriptorSets(descriptorWrites.size(), descriptorWrites.data(), 0, nullptr);
 }
 
-void Mesh::UpdateUBOMatrix(vk::Device& device, glm::mat4 uboMatrix)
+void Mesh::UpdateMVPMatrix(vk::Device& device, ModelViewProjection mvp)
 {
-	this->uboMatrix = uboMatrix;
+	this->mvpMatrix = mvp;
 
 	void* data;
-	device.mapMemory(uboMatrixBuffer.memory, 0, sizeof(glm::mat4), {}, &data);
-	memcpy(data, &uboMatrix, sizeof(glm::mat4));
-	device.unmapMemory(uboMatrixBuffer.memory);
+	device.mapMemory(mvpMatrixBuffer.memory, 0, sizeof(ModelViewProjection), {}, &data);
+	memcpy(data, &mvp, sizeof(ModelViewProjection));
+	device.unmapMemory(mvpMatrixBuffer.memory);
 
-	UpdateUBODescriptorSet(device);
+	UpdateMVPDescriptorSet(device);
 }
 
 void Mesh::UpdateLightProperties(vk::Device& device, LightProperties lightProperties)

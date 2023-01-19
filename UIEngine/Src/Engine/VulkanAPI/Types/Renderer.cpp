@@ -1,7 +1,6 @@
 #include "Renderer.h"
 
 #include "Mesh.h"
-#include "glm/gtc/matrix_transform.hpp"
 #include <iostream>
 
 vulkan::Renderer::~Renderer()
@@ -33,12 +32,24 @@ void vulkan::Renderer::Init(vulkan::API* api)
 	m_Mesh->LoadModel("../Resources/Meshes/cube.obj");
 	m_Mesh->Create(*api);
 
-	m_LightMesh              = new vulkan::Mesh();
-	m_LightMesh->LoadModel("../Resources/Meshes/cube.obj");
-	m_LightMesh->Create(*api);
+	//m_LightMesh = new vulkan::Mesh();
+	//m_LightMesh->LoadModel("../Resources/Meshes/cube.obj");
+	//m_LightMesh->Create(*api);
 
 	// Create the graphics pipeline
 	m_API->CreateGraphicsPipeline("../Resources/Shaders/compiled/vulkan_vert.spv", "../Resources/Shaders/compiled/vulkan_frag.spv", m_Mesh->descriptorSetLayout);
+
+	view          = glm::mat4(1.0f);
+	m_CameraPos   = glm::vec3(0.0f, 0.0f, 3.0f);
+	m_CameraSpeed = 0.5f;
+	m_CameraUp    = glm::vec3(0.0f, 1.0f, 0.0f);
+	m_CameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
+	m_FirstMouse  = true;
+	m_LastX       = 400;
+	m_LastY       = 300;
+	m_Yaw         = -90.0f;
+	m_Pitch       = 0.0f;
+	m_Window      = m_API->window.GetWindow();
 }
 
 void vulkan::Renderer::Destroy()
@@ -46,8 +57,8 @@ void vulkan::Renderer::Destroy()
 	m_Mesh->Destroy(m_API->deviceQueue.m_Device);
 	delete m_Mesh;
 
-	m_LightMesh->Destroy(m_API->deviceQueue.m_Device);
-	delete m_LightMesh;
+	//m_LightMesh->Destroy(m_API->deviceQueue.m_Device);
+	//delete m_LightMesh;
 }
 
 void vulkan::Renderer::recreateSwapChain()
@@ -88,10 +99,8 @@ void vulkan::Renderer::BeginFrame()
 	m_API->commandBuffers[m_API->swapchainInfo.getCurrentFrameIndex()].Begin();
 
 	// create view and projection matrices once
-	static glm::mat4 view(1.0f);
-	view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -3.0f));
 	static glm::mat4 proj(1.0f);
-	proj = glm::perspective(glm::radians(90.0f), m_API->swapchainInfo.m_Extent.width / (float)m_API->swapchainInfo.m_Extent.height, 0.1f, 100.0f);
+	proj = glm::perspective(glm::radians(60.0f), m_API->swapchainInfo.m_Extent.width / (float)m_API->swapchainInfo.m_Extent.height, 0.1f, 100.0f);
 
 	// create time variable once
 	static auto startTime   = std::chrono::high_resolution_clock::now();
@@ -114,21 +123,24 @@ void vulkan::Renderer::BeginFrame()
 	lightModel = glm::translate(lightModel, light.lightPos);
 	lightModel = glm::scale(lightModel, glm::vec3(0.1f));
 
-	glm::mat4 ubo      = proj * view * model;
-	glm::mat4 uboLight = proj * view * lightModel;
+	// Temp Camera controls (WASD + Mouse)
+	UpdateCamera();
+
+	ModelViewProjection ubo(model, view, proj);
+	ModelViewProjection uboLight(lightModel, view, proj);
 
 	m_Mesh->UpdateLightProperties(m_API->deviceQueue.m_Device, light);
-	m_Mesh->UpdateUBOMatrix(m_API->deviceQueue.m_Device, ubo);
+	m_Mesh->UpdateMVPMatrix(m_API->deviceQueue.m_Device, ubo);
 
 	// Place light right above lightmodel
 	light.lightPos = glm::vec3(lightModel[3][0], lightModel[3][1], lightModel[3][2]);
 
-	m_LightMesh->UpdateLightProperties(m_API->deviceQueue.m_Device, light);
-	m_LightMesh->UpdateUBOMatrix(m_API->deviceQueue.m_Device, uboLight);
+	//m_LightMesh->UpdateLightProperties(m_API->deviceQueue.m_Device, light);
+	//m_LightMesh->UpdateMVPMatrix(m_API->deviceQueue.m_Device, uboLight);
 
 	m_API->commandBuffers[m_API->swapchainInfo.getCurrentFrameIndex()].DoRenderPass(
 		m_API->renderPassFrameBuffers.m_RenderPass, m_API->renderPassFrameBuffers.m_Framebuffers[m_API->swapchainInfo.getCurrentFrameIndex()], m_API->swapchainInfo.m_Extent, [&]() {
-			m_LightMesh->AddToCommandBuffer(m_API->deviceQueue.m_Device, m_API->commandBuffers[m_API->swapchainInfo.getCurrentFrameIndex()], m_API->graphicsPipeline, m_API->graphicsPipelineLayout);
+			//m_LightMesh->AddToCommandBuffer(m_API->deviceQueue.m_Device, m_API->commandBuffers[m_API->swapchainInfo.getCurrentFrameIndex()], m_API->graphicsPipeline, m_API->graphicsPipelineLayout);
 
 			m_Mesh->AddToCommandBuffer(m_API->deviceQueue.m_Device, m_API->commandBuffers[m_API->swapchainInfo.getCurrentFrameIndex()], m_API->graphicsPipeline, m_API->graphicsPipelineLayout);
 		});
@@ -170,3 +182,64 @@ void vulkan::Renderer::EndFrame()
 
 void vulkan::Renderer::RenderUI()
 {}
+
+void vulkan::Renderer::UpdateCamera()
+{
+	// Get the delta time from the last frame
+	float time      = glfwGetTime();
+	float deltaTime = time - m_LastFrame;
+	m_LastFrame     = time;
+
+	float cameraSpeed = m_CameraSpeed * deltaTime;
+
+	// Temp Camera controls (WASD + Mouse)
+	if (glfwGetKey(m_Window, GLFW_KEY_W) == GLFW_PRESS) { m_CameraPos += m_CameraFront * cameraSpeed; }
+	if (glfwGetKey(m_Window, GLFW_KEY_S) == GLFW_PRESS) { m_CameraPos -= m_CameraFront * cameraSpeed; }
+	if (glfwGetKey(m_Window, GLFW_KEY_A) == GLFW_PRESS) { m_CameraPos -= glm::normalize(glm::cross(m_CameraFront, m_CameraUp)) * cameraSpeed; }
+	if (glfwGetKey(m_Window, GLFW_KEY_D) == GLFW_PRESS) { m_CameraPos += glm::normalize(glm::cross(m_CameraFront, m_CameraUp)) * cameraSpeed; }
+
+	// Mouse only update if the right mouse button is pressed
+	if (glfwGetMouseButton(m_Window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
+	{
+		// Get the mouse position
+		double xpos, ypos;
+		glfwGetCursorPos(m_Window, &xpos, &ypos);
+
+		if (m_FirstMouse)
+		{
+			m_LastX      = xpos;
+			m_LastY      = ypos;
+			m_FirstMouse = false;
+		}
+
+		float xoffset = xpos - m_LastX;
+		float yoffset = ypos - m_LastY; // reversed since y-coordinates go from bottom to top
+
+		m_LastX = xpos;
+		m_LastY = ypos;
+
+		float sensitivity = 0.05f;
+		xoffset *= sensitivity;
+		yoffset *= sensitivity;
+
+		m_Yaw += xoffset;
+		m_Pitch += yoffset;
+	}
+	else
+	{
+		m_FirstMouse = true;
+	}
+
+	// make sure that when pitch is out of bounds, screen doesn't get flipped
+	if (m_Pitch > 89.0f) m_Pitch = 89.0f;
+	if (m_Pitch < -89.0f) m_Pitch = -89.0f;
+
+	// Update the camera vectors
+	glm::vec3 front;
+	front.x       = cos(glm::radians(m_Yaw)) * cos(glm::radians(m_Pitch));
+	front.y       = sin(glm::radians(m_Pitch));
+	front.z       = sin(glm::radians(m_Yaw)) * cos(glm::radians(m_Pitch));
+	m_CameraFront = glm::normalize(front);
+
+	view = glm::lookAt(m_CameraPos, m_CameraPos + m_CameraFront, m_CameraUp);
+}

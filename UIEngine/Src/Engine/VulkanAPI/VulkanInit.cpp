@@ -309,6 +309,7 @@ void VulkanInit::InitDevice()
 	std::cout << "\tVendor ID: " << m_API.deviceQueue.m_PhysicalDevice.getProperties().vendorID << std::endl;
 	std::cout << "\tDevice ID: " << m_API.deviceQueue.m_PhysicalDevice.getProperties().deviceID << std::endl;
 	std::cout << "\tQueue Family Count: " << m_API.deviceQueue.m_PhysicalDevice.getQueueFamilyProperties().size() << std::endl;
+	std::cout << "\tMinimum alignment for uniform buffers: " << deviceQueue.m_PhysicalDevice.getProperties().limits.minUniformBufferOffsetAlignment << std::endl;
 	std::cout << std::endl;
 }
 
