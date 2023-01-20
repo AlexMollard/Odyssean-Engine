@@ -47,12 +47,13 @@ void CommandBuffer::DoRenderPass(vk::RenderPass renderPass, vk::Framebuffer fram
 	renderPassInfo.framebuffer             = framebuffer;
 	renderPassInfo.renderArea.extent       = renderArea;
 
-	// Maybe move this else where
-	static std::array<float, 4> clearColor = { 0.1f, 0.1f, 0.1f, 1.0f };
-	vk::ClearValue              clearValue;
-	clearValue.color               = vk::ClearColorValue(clearColor);
-	renderPassInfo.pClearValues    = &clearValue;
-	renderPassInfo.clearValueCount = 1;
+	static std::array<float, 4>   clearColor = { 0.1f, 0.1f, 0.25f, 1.0f };
+	std::array<vk::ClearValue, 2> clearValues{};
+	clearValues[0].setColor(vk::ClearColorValue(clearColor));
+	clearValues[1].setDepthStencil({ 1.0f, 0 });
+
+	renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+	renderPassInfo.pClearValues    = clearValues.data();
 
 	m_CommandBuffer.beginRenderPass(renderPassInfo, vk::SubpassContents::eInline);
 

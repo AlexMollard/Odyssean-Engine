@@ -73,7 +73,9 @@ void Mesh::Destroy(vk::Device& device)
 vk::Result Mesh::LoadModel(const std::string& path)
 {
 	Assimp::Importer importer;
-	const aiScene*   scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);
+	// aiProcess flags
+	int flags = aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace | aiProcess_GenNormals | aiProcess_JoinIdenticalVertices | aiProcess_ImproveCacheLocality | aiProcess_RemoveRedundantMaterials | aiProcess_OptimizeMeshes | aiProcess_OptimizeGraph;
+	const aiScene* scene = importer.ReadFile(path, flags);
 	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) { return vk::Result::eErrorInitializationFailed; }
 	directory = path.substr(0, path.find_last_of('/'));
 	ProcessNode(scene->mRootNode, scene);
@@ -95,9 +97,20 @@ void Mesh::ProcessMesh(aiMesh* mesh, const aiScene* scene)
 	for (unsigned int i = 0; i < mesh->mNumVertices; i++)
 	{
 		Vertex vertex;
-		vertex.pos      = { mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z };
-		vertex.normal   = { mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z };
-		vertex.texCoord = { mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y };
+		vertex.pos = { mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z };
+
+		// Check if the mesh contains normals
+		if (mesh->HasNormals()) { vertex.normal = { mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z }; }
+		else { vertex.normal = { 0.0f, 0.0f, 0.0f }; }
+
+		// Check if the mesh contains texture coordinates
+		if (mesh->HasTextureCoords(0)) { vertex.texCoord = { mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y }; }
+		else { vertex.texCoord = { 0.0f, 0.0f }; }
+
+		// Check if the mesh contains vertex colors
+		if (mesh->HasVertexColors(0)) { vertex.color = { mesh->mColors[0][i].r, mesh->mColors[0][i].g, mesh->mColors[0][i].b }; }
+		else { vertex.color = { 1.0f, 1.0f, 1.0f }; }
+
 		vertices.push_back(vertex);
 	}
 	for (unsigned int i = 0; i < mesh->mNumFaces; i++)

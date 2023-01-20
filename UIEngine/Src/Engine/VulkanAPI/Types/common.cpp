@@ -1,4 +1,5 @@
 #include "common.h"
+
 #include "DeviceQueue.h"
 
 #define STB_IMAGE_IMPLEMENTATION
@@ -133,7 +134,8 @@ vk::Result vulkan::Texture::Load(vulkan::DeviceQueue& devices, vk::CommandPool& 
 
 vk::Result Texture::destroy(vk::Device& device)
 {
-	vkDestroySampler(device, sampler, nullptr);
+	if (sampler) { vkDestroySampler(device, sampler, nullptr); }
+
 	vkDestroyImageView(device, imageView, nullptr);
 	vkDestroyImage(device, image, nullptr);
 	vkFreeMemory(device, memory, nullptr);

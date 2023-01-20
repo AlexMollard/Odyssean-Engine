@@ -14,6 +14,54 @@ vulkan::CommandBuffer& vulkan::API::CreateCommandBuffer()
 	return commandBuffers.emplace_back(deviceQueue.m_Device, commandPool);
 }
 
+vk::ShaderModule vulkan::API::CreateShaderModule(const char* shaderFile)
+{
+	if (shaderModules.find(shaderFile) != shaderModules.end()) return shaderModules[shaderFile];
+
+	// Read shader code from file
+	auto shaderCode = ReadFile(shaderFile);
+
+	// Create shader module
+	vk::ShaderModule shaderModule = deviceQueue.m_Device.createShaderModule({ {}, shaderCode.size(), reinterpret_cast<const uint32_t*>(shaderCode.data()) });
+
+	// Store in map
+	shaderModules.emplace(shaderFile, shaderModule);
+
+	return shaderModule;
+}
+
+void vulkan::API::SetupViewportAndScissor(vk::Viewport& viewport, vk::Rect2D& scissor)
+{
+	viewport.x        = 0.0f;
+	viewport.y        = 0.0f;
+	viewport.width    = (float)swapchainInfo.m_Extent.width;
+	viewport.height   = (float)swapchainInfo.m_Extent.height;
+	viewport.minDepth = 0.0f;
+	viewport.maxDepth = 1.0f;
+
+	scissor.offset = vk::Offset2D(0, 0);
+	scissor.extent = swapchainInfo.m_Extent;
+}
+
+void vulkan::API::SetupPipelineLayout(vk::PipelineLayout& pipelineLayout, vk::DescriptorSetLayout& descriptorSetLayout)
+{
+	vk::PipelineLayoutCreateInfo pipelineLayoutInfo = {};
+	pipelineLayoutInfo.setLayoutCount               = 1;
+	pipelineLayoutInfo.pSetLayouts                  = &descriptorSetLayout;
+	pipelineLayout                                  = deviceQueue.m_Device.createPipelineLayout(pipelineLayoutInfo);
+}
+
+vk::PipelineDepthStencilStateCreateInfo vulkan::API::SetupDepthAndStencilState()
+{
+	vk::PipelineDepthStencilStateCreateInfo depthStencil = {};
+	depthStencil.depthTestEnable                         = VK_TRUE;
+	depthStencil.depthWriteEnable                        = VK_TRUE;
+	depthStencil.depthCompareOp                          = vk::CompareOp::eLess;
+	depthStencil.depthBoundsTestEnable                   = VK_FALSE;
+	depthStencil.stencilTestEnable                       = VK_FALSE;
+	return depthStencil;
+}
+
 void vulkan::API::CreateSwapChain()
 {
 	// Create the swapchain create info
@@ -75,90 +123,70 @@ void vulkan::API::CreateSwapChain()
 	swapchainInfo.m_ImageCount   = window.m_SurfaceImageCount;
 	swapchainInfo.m_PreTransform = window.m_SurfaceCapabilities.currentTransform;
 	swapchainInfo.m_ImageUsage   = vk::ImageUsageFlagBits::eColorAttachment;
-
-	// Output the swapchain info properties
-	std::cout << "Vulkan swapchain image properties:" << std::endl;
-	std::cout << "  Image count: " << swapchainInfo.m_ImageCount << std::endl;
-	std::cout << "  Image format: " << vk::to_string(swapchainInfo.m_Format) << std::endl;
-	std::cout << "  Image extent: " << swapchainInfo.m_Extent.width << "x" << swapchainInfo.m_Extent.height << std::endl;
-	std::cout << "  Image present mode: " << vk::to_string(swapchainInfo.m_PresentMode) << std::endl;
-	std::cout << "  Image usage: " << vk::to_string(swapchainInfo.m_ImageUsage) << std::endl;
-	std::cout << "  Image pre-transform: " << vk::to_string(swapchainInfo.m_PreTransform) << std::endl;
-	std::cout << std::endl;
 }
 
 void vulkan::API::CreateRenderPass()
 {
+	std::array<vk::AttachmentDescription, 2> attachmentDescriptions;
+	
+	// Color attachment
+	attachmentDescriptions[0] = vk::AttachmentDescription(vk::AttachmentDescriptionFlags(),
+														  swapchainInfo.m_Format,
+														  vk::SampleCountFlagBits::e1,
+														  vk::AttachmentLoadOp::eClear,
+														  vk::AttachmentStoreOp::eStore,
+														  vk::AttachmentLoadOp::eDontCare,
+														  vk::AttachmentStoreOp::eDontCare,
+														  vk::ImageLayout::eUndefined,
+														  vk::ImageLayout::ePresentSrcKHR);
+	
+	// Depth attachment
+	attachmentDescriptions[1] = vk::AttachmentDescription(vk::AttachmentDescriptionFlags(),
+														  vk::Format::eD16Unorm,
+														  vk::SampleCountFlagBits::e1,
+														  vk::AttachmentLoadOp::eClear,
+														  vk::AttachmentStoreOp::eDontCare,
+														  vk::AttachmentLoadOp::eDontCare,
+														  vk::AttachmentStoreOp::eDontCare,
+														  vk::ImageLayout::eUndefined,
+														  vk::ImageLayout::eDepthStencilAttachmentOptimal);
+
+	// Attachment references
+	vk::AttachmentReference colorReference(0, vk::ImageLayout::eColorAttachmentOptimal);
+	vk::AttachmentReference depthReference(1, vk::ImageLayout::eDepthStencilAttachmentOptimal);
+
+	// Subpass
+	vk::SubpassDescription subpass(vk::SubpassDescriptionFlags(), vk::PipelineBindPoint::eGraphics, 0, nullptr, 1, &colorReference, nullptr, &depthReference);
+
+    vk::RenderPass renderPass = deviceQueue.m_Device.createRenderPass(vk::RenderPassCreateInfo(vk::RenderPassCreateFlags(), attachmentDescriptions, subpass));
+
 	// Create the render pass
-	vk::AttachmentDescription colorAttachment;
-	colorAttachment.setFormat(swapchainInfo.m_Format);
-	colorAttachment.setSamples(vk::SampleCountFlagBits::e1);
-	colorAttachment.setLoadOp(vk::AttachmentLoadOp::eClear);
-	colorAttachment.setStoreOp(vk::AttachmentStoreOp::eStore);
-	colorAttachment.setStencilLoadOp(vk::AttachmentLoadOp::eDontCare);
-	colorAttachment.setStencilStoreOp(vk::AttachmentStoreOp::eDontCare);
-	colorAttachment.setInitialLayout(vk::ImageLayout::eUndefined);
-	colorAttachment.setFinalLayout(vk::ImageLayout::ePresentSrcKHR);
-
-	vk::AttachmentReference colorAttachmentRef;
-	colorAttachmentRef.setAttachment(0);
-	colorAttachmentRef.setLayout(vk::ImageLayout::eColorAttachmentOptimal);
-
-	vk::SubpassDescription subpass;
-	subpass.setPipelineBindPoint(vk::PipelineBindPoint::eGraphics);
-	subpass.setColorAttachmentCount(1);
-	subpass.setPColorAttachments(&colorAttachmentRef);
-
-	vk::SubpassDependency dependency;
-	dependency.setSrcSubpass(VK_SUBPASS_EXTERNAL);
-	dependency.setDstSubpass(0);
-	dependency.setSrcStageMask(vk::PipelineStageFlagBits::eColorAttachmentOutput);
-	dependency.setSrcAccessMask({});
-	dependency.setDstStageMask(vk::PipelineStageFlagBits::eColorAttachmentOutput);
-	dependency.setDstAccessMask(vk::AccessFlagBits::eColorAttachmentRead | vk::AccessFlagBits::eColorAttachmentWrite);
-
-	vk::RenderPassCreateInfo renderPassInfo;
-	renderPassInfo.setAttachmentCount(1);
-	renderPassInfo.setPAttachments(&colorAttachment);
-	renderPassInfo.setSubpassCount(1);
-	renderPassInfo.setPSubpasses(&subpass);
-	renderPassInfo.setDependencyCount(1);
-	renderPassInfo.setPDependencies(&dependency);
-
-	renderPassFrameBuffers.m_RenderPass = deviceQueue.m_Device.createRenderPass(renderPassInfo);
-
-	// Output the render pass info properties
-	std::cout << "Vulkan render pass properties:" << std::endl;
-	std::cout << "\tAttachment count: " << renderPassInfo.attachmentCount << std::endl;
-	std::cout << "\tSubpass count: " << renderPassInfo.subpassCount << std::endl;
-	std::cout << "\tDependency count: " << renderPassInfo.dependencyCount << std::endl;
-	std::cout << std::endl;
+	renderPassFrameBuffers.m_RenderPass = renderPass;
 }
 
 void vulkan::API::CreateFrameBuffers()
 {
+	CreateDepthResources();
+	
 	// Create the framebuffers
 	renderPassFrameBuffers.m_Framebuffers.resize(swapchainInfo.m_ImageCount);
 
 	for (size_t i = 0; i < swapchainInfo.m_ImageCount; i++)
 	{
-		vk::ImageView attachments[] = { swapchainInfo.m_ImageViews[i] };
+		vk::ImageView attachments[] = { swapchainInfo.m_ImageViews[i], depthTexture.imageView };
 
 		vk::FramebufferCreateInfo framebufferInfo;
+		framebufferInfo.sType = vk::StructureType::eFramebufferCreateInfo;
 		framebufferInfo.setRenderPass(renderPassFrameBuffers.m_RenderPass);
-		framebufferInfo.setAttachmentCount(1);
+		framebufferInfo.setAttachmentCount(2);
 		framebufferInfo.setPAttachments(attachments);
 		framebufferInfo.setWidth(swapchainInfo.m_Extent.width);
 		framebufferInfo.setHeight(swapchainInfo.m_Extent.height);
 		framebufferInfo.setLayers(1);
 
+		// Create the framebuffer
 		renderPassFrameBuffers.m_Framebuffers[i] = deviceQueue.m_Device.createFramebuffer(framebufferInfo);
 	}
-
-	// Output the framebuffer info properties
-	std::cout << "Vulkan framebuffer properties:" << std::endl;
-	std::cout << "\tCount: " << renderPassFrameBuffers.m_Framebuffers.size() << std::endl;
-	std::cout << std::endl;
 }
 
 void vulkan::API::CreateCommandBuffers()
@@ -169,11 +197,6 @@ void vulkan::API::CreateCommandBuffers()
 	poolInfo.setQueueFamilyIndex(deviceQueue.GetQueueFamilyIndex(vulkan::QueueType::GRAPHICS));
 
 	commandPool = deviceQueue.m_Device.createCommandPool(poolInfo);
-
-	// Output the command pool info properties
-	std::cout << "Vulkan command pool properties:" << std::endl;
-	std::cout << "\tQueue family index: " << poolInfo.queueFamilyIndex << std::endl;
-	std::cout << std::endl;
 
 	// This command buffer will be used in the draw frame function
 	commandBuffers.emplace_back(deviceQueue.m_Device, commandPool);
@@ -186,26 +209,8 @@ void vulkan::API::CreateGraphicsPipeline(const char* vertShader, const char* fra
 	// Shader stages
 	std::vector<vk::PipelineShaderStageCreateInfo> shaderStages;
 
-	vk::ShaderModule vertShaderModule;
-	vk::ShaderModule fragShaderModule;
-
-	if (shaderModules.find(vertShader) != shaderModules.end()) { vertShaderModule = shaderModules[vertShader]; }
-	else
-	{
-		// Vertex shader
-		auto vertShaderCode = ReadFile(vertShader);
-		vertShaderModule    = deviceQueue.m_Device.createShaderModule({ {}, vertShaderCode.size(), reinterpret_cast<const uint32_t*>(vertShaderCode.data()) });
-		shaderModules.emplace(vertShader, vertShaderModule);
-	}
-
-	if (shaderModules.find(fragShader) != shaderModules.end()) { fragShaderModule = shaderModules[fragShader]; }
-	else
-	{
-		// Fragment shader
-		auto fragShaderCode = ReadFile(fragShader);
-		fragShaderModule    = deviceQueue.m_Device.createShaderModule({ {}, fragShaderCode.size(), reinterpret_cast<const uint32_t*>(fragShaderCode.data()) });
-		shaderModules.emplace(fragShader, fragShaderModule);
-	}
+	vk::ShaderModule vertShaderModule = CreateShaderModule(vertShader);
+	vk::ShaderModule fragShaderModule = CreateShaderModule(fragShader);
 
 	vk::PipelineShaderStageCreateInfo vertShaderStageInfo = {};
 	vertShaderStageInfo.stage                             = vk::ShaderStageFlagBits::eVertex;
@@ -235,17 +240,9 @@ void vulkan::API::CreateGraphicsPipeline(const char* vertShader, const char* fra
 	inputAssembly.primitiveRestartEnable                   = VK_FALSE;
 
 	// Viewport and Scissor
-	vk::Viewport viewport = {};
-	viewport.x            = 0.0f;
-	viewport.y            = 0.0f;
-	viewport.width        = (float)swapchainInfo.m_Extent.width;
-	viewport.height       = (float)swapchainInfo.m_Extent.height;
-	viewport.minDepth     = 0.0f;
-	viewport.maxDepth     = 1.0f;
-
-	vk::Rect2D scissor = {};
-	scissor.offset     = vk::Offset2D(0, 0);
-	scissor.extent     = swapchainInfo.m_Extent;
+	vk::Viewport viewport;
+	vk::Rect2D   scissor;
+	SetupViewportAndScissor(viewport, scissor);
 
 	vk::PipelineViewportStateCreateInfo viewportState = {};
 	viewportState.viewportCount                       = 1;
@@ -276,14 +273,7 @@ void vulkan::API::CreateGraphicsPipeline(const char* vertShader, const char* fra
 	multisampling.alphaToOneEnable                       = VK_FALSE; // Optional
 
 	// Depth and stencil testing
-	vk::PipelineDepthStencilStateCreateInfo depthStencil = {};
-	depthStencil.depthTestEnable                         = VK_TRUE;
-	depthStencil.depthWriteEnable                        = VK_TRUE;
-	depthStencil.depthCompareOp                          = vk::CompareOp::eLess;
-	depthStencil.depthBoundsTestEnable                   = VK_TRUE;
-	depthStencil.minDepthBounds                          = 0.0f; // Optional
-	depthStencil.maxDepthBounds                          = 1.0f; // Optional
-	depthStencil.stencilTestEnable                       = VK_TRUE;
+	vk::PipelineDepthStencilStateCreateInfo depthStencil = SetupDepthAndStencilState();
 
 	// Color blending
 	vk::PipelineColorBlendAttachmentState colorBlendAttachment = {};
@@ -311,14 +301,8 @@ void vulkan::API::CreateGraphicsPipeline(const char* vertShader, const char* fra
 	dynamicState.dynamicStateCount                   = static_cast<uint32_t>(dynamicStates.size());
 	dynamicState.pDynamicStates                      = dynamicStates.data();
 
-	// Pipeline layout
-	vk::PipelineLayoutCreateInfo pipelineLayoutInfo = {};
-	pipelineLayoutInfo.setLayoutCount               = 1;
-	pipelineLayoutInfo.pSetLayouts                  = &descriptorSetLayout;
-	pipelineLayoutInfo.pushConstantRangeCount       = 0;       // Optional
-	pipelineLayoutInfo.pPushConstantRanges          = nullptr; // Optional
-
-	graphicsPipelineLayout = deviceQueue.m_Device.createPipelineLayout(pipelineLayoutInfo);
+	// PipelineLayout
+	SetupPipelineLayout(graphicsPipelineLayout, descriptorSetLayout); // THIS MIGHT BE BROKY
 
 	// Create graphics pipeline
 	vk::GraphicsPipelineCreateInfo pipelineInfo = {};
@@ -362,6 +346,53 @@ std::vector<char> vulkan::API::ReadFile(const char* fileDir)
 	return buffer;
 }
 
+void vulkan::API::CreateDepthResources()
+{
+	// Create the depth image
+	vk::ImageCreateInfo imageInfo = {};
+	imageInfo.imageType           = vk::ImageType::e2D;
+	imageInfo.extent.width        = swapchainInfo.m_Extent.width;
+	imageInfo.extent.height       = swapchainInfo.m_Extent.height;
+	imageInfo.extent.depth        = 1;
+	imageInfo.mipLevels           = 1;
+	imageInfo.arrayLayers         = 1;
+	imageInfo.format              = vk::Format::eD16Unorm;
+	imageInfo.tiling              = vk::ImageTiling::eOptimal;
+	imageInfo.initialLayout       = vk::ImageLayout::eUndefined;
+	imageInfo.usage               = vk::ImageUsageFlagBits::eDepthStencilAttachment;
+	imageInfo.samples             = vk::SampleCountFlagBits::e1;
+
+	depthTexture.image = deviceQueue.m_Device.createImage(imageInfo);
+
+	// Allocate memory for the depth image
+	vk::MemoryRequirements memRequirements = deviceQueue.m_Device.getImageMemoryRequirements(depthTexture.image);
+
+	uint32_t memoryTypeIndex;
+	deviceQueue.FindMemoryType(memRequirements.memoryTypeBits, vk::MemoryPropertyFlagBits::eDeviceLocal, memoryTypeIndex);
+
+	vk::MemoryAllocateInfo allocInfo = {};
+	allocInfo.allocationSize         = memRequirements.size;
+	allocInfo.memoryTypeIndex        = memoryTypeIndex;
+
+	depthTexture.memory = deviceQueue.m_Device.allocateMemory(allocInfo);
+
+	// Bind the memory to the depth image
+	deviceQueue.m_Device.bindImageMemory(depthTexture.image, depthTexture.memory, 0);
+
+	// Create the depth image view
+	vk::ImageViewCreateInfo viewInfo         = {};
+	viewInfo.image                           = depthTexture.image;
+	viewInfo.viewType                        = vk::ImageViewType::e2D;
+	viewInfo.format                          = vk::Format::eD16Unorm;
+	viewInfo.subresourceRange.aspectMask     = vk::ImageAspectFlagBits::eDepth;
+	viewInfo.subresourceRange.baseMipLevel   = 0;
+	viewInfo.subresourceRange.levelCount     = 1;
+	viewInfo.subresourceRange.baseArrayLayer = 0;
+	viewInfo.subresourceRange.layerCount     = 1;
+
+	depthTexture.imageView = deviceQueue.m_Device.createImageView(viewInfo);
+}
+
 vulkan::API::~API()
 {
 	// Wait for everything to be free
@@ -384,6 +415,9 @@ vulkan::API::~API()
 	deviceQueue.m_Device.destroy(renderPassFrameBuffers.m_RenderPass);
 	// Framebuffers
 	for (auto framebuffer : renderPassFrameBuffers.m_Framebuffers) { deviceQueue.m_Device.destroy(framebuffer); }
+	// Depth image
+	depthTexture.destroy(deviceQueue.m_Device);
+
 	// Image views
 	for (auto imageView : swapchainInfo.m_ImageViews) { deviceQueue.m_Device.destroy(imageView); }
 	// Swapchain

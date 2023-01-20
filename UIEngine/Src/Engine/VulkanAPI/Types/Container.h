@@ -5,10 +5,11 @@
 #include "CommandBuffer.h"
 #include "DeviceQueue.h"
 #include "RenderPassFramebuffer.h"
-#include "SyncObjectContainer.h"
 #include "SwapchainInfo.h"
+#include "SyncObjectContainer.h"
 #include "Window.h"
 #include <map>
+#include "common.h"
 
 namespace vulkan
 {
@@ -27,9 +28,13 @@ struct API
 	// Debug Messenger
 	vk::DebugUtilsMessengerEXT debugMessenger;
 
-	vk::PipelineLayout graphicsPipelineLayout;
-	vk::Pipeline       graphicsPipeline;
+	// Pipeline
+	vk::PipelineLayout                      graphicsPipelineLayout;
+	vk::Pipeline                            graphicsPipeline;
 	std::map<std::string, vk::ShaderModule> shaderModules;
+
+	// Depth Buffer
+	Texture depthTexture;
 
 	bool enableValidationLayers = true;
 
@@ -49,11 +54,19 @@ struct API
 
 	CommandBuffer& CreateCommandBuffer();
 
+	vk::ShaderModule CreateShaderModule(const char* shaderFile);
+
+	void SetupViewportAndScissor(vk::Viewport& viewport, vk::Rect2D& scissor);
+	void SetupPipelineLayout(vk::PipelineLayout& pipelineLayout, vk::DescriptorSetLayout& descriptorSetLayout);
+	vk::PipelineDepthStencilStateCreateInfo SetupDepthAndStencilState();
+	
 	void CreateSwapChain();
 	void CreateRenderPass();
+	void CreateDepthResources();
 	void CreateFrameBuffers();
 	void CreateCommandBuffers();
 	void CreateGraphicsPipeline(const char* vertShader, const char* fragShader, vk::DescriptorSetLayout& descriptorSetLayout);
+
 	std::vector<char> ReadFile(const char* fileDir);
 };
 } // namespace vulkan

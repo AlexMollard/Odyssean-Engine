@@ -29,7 +29,7 @@ void vulkan::Renderer::Init(vulkan::API* api)
 
 	m_Mesh              = new vulkan::Mesh();
 	m_Mesh->texturePath = "../Resources/Images/debug.png";
-	m_Mesh->LoadModel("../Resources/Meshes/cube.obj");
+	m_Mesh->LoadModel("../Resources/Meshes/knot.obj");
 	m_Mesh->Create(*api);
 
 	//m_LightMesh = new vulkan::Mesh();
@@ -116,8 +116,8 @@ void vulkan::Renderer::BeginFrame()
 
 	glm::mat4 model(1.0f);
 	model = glm::translate(model, glm::vec3(0.0f, 0.0f, 1.0f));
-	model = glm::scale(model, glm::vec3(0.5f));
-	model = glm::rotate(model, glm::radians(time * 10), glm::vec3(1.0f, 1.0f, 0.0f));
+	model = glm::scale(model, glm::vec3(0.005f));
+	model = glm::rotate(model, glm::radians(time * 10), glm::vec3(0.0f, 1.0f, 0.0f));
 
 	glm::mat4 lightModel(1.0f);
 	lightModel = glm::translate(lightModel, light.lightPos);
@@ -191,6 +191,9 @@ void vulkan::Renderer::UpdateCamera()
 	m_LastFrame     = time;
 
 	float cameraSpeed = m_CameraSpeed * deltaTime;
+
+	// If shift is pressed, increase the camera speed
+	if (glfwGetKey(m_Window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) { cameraSpeed *= 5.0f; }
 
 	// Temp Camera controls (WASD + Mouse)
 	if (glfwGetKey(m_Window, GLFW_KEY_W) == GLFW_PRESS) { m_CameraPos += m_CameraFront * cameraSpeed; }
