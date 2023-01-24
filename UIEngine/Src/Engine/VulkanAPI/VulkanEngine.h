@@ -5,7 +5,7 @@
 
 #include "Engine/BaseEngine.h"
 
-namespace vulkan
+namespace VulkanWrapper
 {
 class Engine : BaseEngine
 {
@@ -24,8 +24,8 @@ public:
 	void* GetRenderer();
 
 private:
-	VulkanInit       m_Init;
-	vulkan::Renderer m_Renderer;
+	VulkanInit              m_Init;
+	VulkanWrapper::Renderer m_Renderer;
 
 	Window* m_Window;
 	bool    m_close      = false;
@@ -35,4 +35,4 @@ private:
 	float m_DT        = 0.0f;
 	float m_LastFrame = 0.0f;
 };
-} // namespace vulkan
+} // namespace VulkanWrapper

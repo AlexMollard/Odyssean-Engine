@@ -1,8 +1,8 @@
 #pragma once
-#include "vulkan/vulkan.hpp"
+#include <vulkan/vulkan.hpp>
 #include <functional>
 
-namespace vulkan
+namespace VulkanWrapper
 {
 class CommandBuffer
 {
@@ -35,7 +35,7 @@ public:
 	void DrawIndexedIndirect(vk::Buffer buffer, vk::DeviceSize offset, uint32_t drawCount, uint32_t stride) const;
 
 	// Getters
-	vk::CommandBuffer get() const
+	vk::CommandBuffer& get()
 	{
 		return m_CommandBuffer;
 	}
@@ -51,5 +51,4 @@ public:
 private:
 	vk::CommandBuffer m_CommandBuffer;
 };
-
-} // namespace vulkan
+} // namespace VulkanWrapper

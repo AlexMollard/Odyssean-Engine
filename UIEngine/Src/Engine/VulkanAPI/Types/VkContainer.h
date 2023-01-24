@@ -2,20 +2,26 @@
 
 // This file contains all structs and classes that are used to store data in the VulkanAPI.
 
+#include "../DescriptorManager.h"
 #include "CommandBuffer.h"
 #include "DeviceQueue.h"
 #include "RenderPassFramebuffer.h"
 #include "SwapchainInfo.h"
 #include "SyncObjectContainer.h"
 #include "Window.h"
-#include <map>
 #include "common.h"
+#include <map>
 
-namespace vulkan
+namespace VulkanWrapper
 {
-struct API
+struct Mesh;
+}
+
+namespace VulkanWrapper
 {
-	~API();
+struct VkContainer
+{
+	~VkContainer();
 
 	// Vulkan API
 	vk::InstanceCreateInfo instanceCreateInfo;
@@ -29,9 +35,11 @@ struct API
 	vk::DebugUtilsMessengerEXT debugMessenger;
 
 	// Pipeline
-	vk::PipelineLayout                      graphicsPipelineLayout;
+	vk::PipelineLayout                      pipelineLayout;
 	vk::Pipeline                            graphicsPipeline;
 	std::map<std::string, vk::ShaderModule> shaderModules;
+
+	std::map<std::string, VulkanWrapper::Texture*> textureCache;
 
 	// Depth Buffer
 	Texture depthTexture;
@@ -44,8 +52,13 @@ struct API
 	RenderPassFramebuffer renderPassFrameBuffers;
 	SyncObjectContainer   syncObjectContainer;
 
+	vk::Device& device = deviceQueue.m_Device;
+
 	vk::CommandPool            commandPool;
 	std::vector<CommandBuffer> commandBuffers;
+
+	// Descriptor set stuff
+	VulkanWrapper::DescriptorManager* descriptorManager = nullptr;
 
 	Window window;
 
@@ -57,16 +70,16 @@ struct API
 	vk::ShaderModule CreateShaderModule(const char* shaderFile);
 
 	void SetupViewportAndScissor(vk::Viewport& viewport, vk::Rect2D& scissor);
-	void SetupPipelineLayout(vk::PipelineLayout& pipelineLayout, vk::DescriptorSetLayout& descriptorSetLayout);
+
 	vk::PipelineDepthStencilStateCreateInfo SetupDepthAndStencilState();
-	
+
 	void CreateSwapChain();
 	void CreateRenderPass();
 	void CreateDepthResources();
 	void CreateFrameBuffers();
 	void CreateCommandBuffers();
-	void CreateGraphicsPipeline(const char* vertShader, const char* fragShader, vk::DescriptorSetLayout& descriptorSetLayout);
+	void CreateGraphicsPipeline(const char* vertShader, const char* fragShader, Mesh& mesh);
 
 	std::vector<char> ReadFile(const char* fileDir);
 };
-} // namespace vulkan
+} // namespace VulkanWrapper

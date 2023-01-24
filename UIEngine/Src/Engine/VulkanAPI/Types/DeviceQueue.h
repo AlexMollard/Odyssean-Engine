@@ -1,6 +1,7 @@
 #pragma once
-#include "vulkan/vulkan.hpp"
-namespace vulkan
+#include "common.h"
+#include <vulkan/vulkan.hpp>
+namespace VulkanWrapper
 {
 struct AllocatedBuffer;
 enum class QueueType
@@ -14,7 +15,9 @@ enum class QueueType
 class DeviceQueue
 {
 public:
-	vk::Result CreateBuffer(vk::BufferUsageFlags usage, vk::MemoryPropertyFlags properties, AllocatedBuffer& buffer, const void* data, vk::DeviceSize size);
+	VulkanWrapper::Buffer CreateBuffer(vk::BufferUsageFlags usage, vk::MemoryPropertyFlags properties, const void* data, vk::DeviceSize size);
+	VulkanWrapper::Buffer CreateBuffer(vk::DeviceSize size, vk::BufferUsageFlags usage);
+
 	vk::Result CopyBuffer(vk::CommandPool& commandPool, vk::Queue queue, vk::Buffer srcBuffer, vk::Buffer dstBuffer, vk::DeviceSize size);
 	vk::Result FindMemoryType(uint32_t typeFilter, vk::MemoryPropertyFlags properties, uint32_t& memoryTypeIndex);
 
@@ -31,19 +34,19 @@ public:
 	void SetQueueFamilyIndex(QueueType queueType, uint32_t queueFamilyIndex);
 
 	bool IsQueueFamilyIndexSet(QueueType queueType) const;
-	
+
 	void wait()
 	{
 		m_Device.waitIdle();
 	}
 
-	vk::Device m_Device;
+	vk::Device               m_Device;
 	vk::PhysicalDevice       m_PhysicalDevice;
 	std::vector<const char*> m_DeviceExtensions;
 
-vk::CommandBuffer BeginSingleTimeCommands(vk::CommandPool& commandPool);
+	vk::CommandBuffer BeginSingleTimeCommands(vk::CommandPool& commandPool);
 
-void EndSingleTimeCommands(vk::CommandPool& commandPool, vk::Queue param2, vk::CommandBuffer commandBuffer);
+	void EndSingleTimeCommands(vk::CommandPool& commandPool, vk::Queue param2, vk::CommandBuffer commandBuffer);
 
 private:
 	vk::Queue m_GraphicsQueue; // Used for pushing geometry to the GPU
@@ -62,7 +65,7 @@ private:
 	uint32_t m_TransferQueueFamilyIndex = UINT32_MAX;
 
 public:
-	void Submit(vk::SubmitInfo submitInfo);
+	void       Submit(vk::SubmitInfo submitInfo);
 	vk::Result Present(vk::SwapchainKHR& m_Swapchain, uint32_t imageIndex, vk::Semaphore& semaphore);
 };
-} // namespace vulkan
+} // namespace VulkanWrapper

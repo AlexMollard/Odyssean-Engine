@@ -1,7 +1,6 @@
 #include "CommandBuffer.h"
-namespace vulkan
+namespace VulkanWrapper
 {
-
 CommandBuffer::CommandBuffer(const vk::Device& device, const vk::CommandPool& commandPool, vk::CommandBufferLevel level /*= ePrimary*/)
 {
 	Create(device, commandPool, level);
@@ -55,6 +54,9 @@ void CommandBuffer::DoRenderPass(vk::RenderPass renderPass, vk::Framebuffer fram
 	renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
 	renderPassInfo.pClearValues    = clearValues.data();
 
+	SetScissor(renderArea);
+	SetViewport(renderArea);
+
 	m_CommandBuffer.beginRenderPass(renderPassInfo, vk::SubpassContents::eInline);
 
 	lambdaFn();
@@ -78,8 +80,7 @@ void CommandBuffer::BindIndexBuffer(vk::Buffer buffer, vk::DeviceSize offset, vk
 	m_CommandBuffer.bindIndexBuffer(buffer, offset, indexType);
 }
 
-void CommandBuffer::BindDescriptorSets(vk::PipelineBindPoint pipelineBindPoint, vk::PipelineLayout layout, uint32_t firstSet, vk::ArrayProxy<const vk::DescriptorSet> descriptorSets,
-									   vk::ArrayProxy<const uint32_t> dynamicOffsets) const
+void CommandBuffer::BindDescriptorSets(vk::PipelineBindPoint pipelineBindPoint, vk::PipelineLayout layout, uint32_t firstSet, vk::ArrayProxy<const vk::DescriptorSet> descriptorSets, vk::ArrayProxy<const uint32_t> dynamicOffsets) const
 {
 	m_CommandBuffer.bindDescriptorSets(pipelineBindPoint, layout, firstSet, descriptorSets, dynamicOffsets);
 }
@@ -129,5 +130,4 @@ void CommandBuffer::RecordDummyCommands()
 	Begin(vk::CommandBufferUsageFlagBits::eOneTimeSubmit);
 	End();
 }
-
-} // namespace vulkan
+} // namespace VulkanWrapper

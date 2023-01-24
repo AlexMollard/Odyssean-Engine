@@ -1,104 +1,62 @@
 #pragma once
-#include "Container.h"
-#include "common.h"
-#include <glm/glm.hpp>
-#include <glm/vec2.hpp>
-#include <glm/vec3.hpp>
-#include <vector>
+#include "../DescriptorManager.h"
+#include "SubMesh.h"
 
 struct aiScene;
 struct aiNode;
 struct aiMesh;
-namespace vulkan
-{
-struct API;
-}
 
-namespace vulkan
+namespace VulkanWrapper
 {
-struct Vertex
-{
-	glm::vec3 pos;
-	glm::vec3 normal;
-	glm::vec2 texCoord;
-	glm::vec3 color;
+struct VkContainer;
 
-	// Helper functions to get vertex attributes and binding descriptions
-	static std::vector<vk::VertexInputAttributeDescription> GetVertexAttributes();
-	static vk::VertexInputBindingDescription                GetBindingDescription();
-};
-
-struct ModelViewProjection
-{
-	glm::mat4 model;
-	glm::mat4 view;
-	glm::mat4 projection;
-};
-
-struct LightProperties
-{
-	glm::vec4 lightColor;
-	glm::vec3 lightPos;
-};
-
+// Define struct for mesh
 struct Mesh
 {
-	// Destructor
-	Mesh() = default;
-	void Create(API& api);
-	void Destroy(vk::Device& device);
+	Mesh(vk::Device& device, DescriptorManager* descriptorManager) : m_device(device), m_descriptorManager(descriptorManager)
+	{}
+	~Mesh() = default;
 
-	vk::Result LoadModel(const std::string& path);
-	void       ProcessNode(aiNode* node, const aiScene* scene);
-	void       ProcessMesh(aiMesh* mesh, const aiScene* scene);
+	// Functions to create and destroy the mesh
+	void Create(VkContainer& api, DescriptorManager& descriptorManager);
+	void Destroy();
 
-	// Function to add the mesh to a command buffer
-	void AddToCommandBuffer(vk::Device& device, vk::CommandBuffer commandBuffer, vk::Pipeline pipeline, vk::PipelineLayout pipelineLayout);
+	// Function to load a model
+	vk::Result LoadModel(VulkanWrapper::VkContainer& api, const std::string& path);
 
-	// Buffer Functions
-	void CreateVertexBuffer(DeviceQueue& devices, vk::CommandPool& commandPool);
-	void CreateIndexBuffer(DeviceQueue& devices, vk::CommandPool& commandPool);
+	// Helper function to initialize and set up member variables
+	void Initialize(VkContainer& api);
 
-	// Uniform buffers
-	void CreateMVPMatrixBuffer(DeviceQueue& devices, vk::CommandPool& commandPool);
-	void CreateLightPropertiesBuffer(DeviceQueue& devices, vk::CommandPool& commandPool, const LightProperties& lightProperties);
+	// Helper functions to handle resource allocation and deallocation
+	void AllocateBuffers(DeviceQueue& devices);
+	void FreeBuffers();
+	void AllocateDescriptors(VulkanWrapper::VkContainer& api);
 
-	// Create Descriptor Functions
-	void CreateDescriptorSetLayout(vk::Device& device);
-	void CreateDescriptorPool(vk::Device& device);
-	void CreateDescriptorSet(DeviceQueue& devices, vulkan::API& api, vk::PipelineLayout& graphicsPipelineLayout);
+	// Helper function to bind buffers and descriptor sets for
+	std::vector<std::shared_ptr<VulkanWrapper::DescriptorSetLayout>> GetAllDescriptorSetLayouts();
 
-	// Update Descriptor Functions
-	void UpdateMVPDescriptorSet(vk::Device& device);
-	void UpdateLightPropertiesDescriptorSet(vk::Device& device);
+	void UpdateBuffers(const ModelViewProjection& mvp, const LightProperties& properties);
+	void BindForDrawing(VulkanWrapper::VkContainer& api, vk::CommandBuffer& commandBuffer, vk::PipelineLayout& pipelineLayout);
+	void SetSubMeshes(const std::vector<VulkanWrapper::SubMesh>& subMeshes);
 
-	// Update model stuff
-	void UpdateMVPMatrix(vk::Device& device, ModelViewProjection mvp);
-	void UpdateLightProperties(vk::Device& device, LightProperties lightProperties);
+	std::string m_directory;
 
-	std::vector<Vertex>   vertices;
-	std::vector<uint32_t> indices;
-	AllocatedBuffer       vertexBuffer;
-	AllocatedBuffer       indexBuffer;
+private:
+	vk::Device m_device;
 
-	std::string directory;
-	std::string texturePath;
+	std::vector<SubMesh> m_subMeshes;
 
-	vk::DescriptorSetLayout descriptorSetLayout;
-	vk::DescriptorSet       descriptorSet;
-	vk::DescriptorPool      descriptorPool;
+	// MVP and light properties buffer and descriptor set
+	VulkanWrapper::Buffer m_mvpBuffer;
+	VulkanWrapper::Buffer m_lightPropertiesBuffer;
 
-	vk::DescriptorBufferInfo mvpMatrixDescriptorInfo;
-	AllocatedBuffer          mvpMatrixBuffer;
-	ModelViewProjection      mvpMatrix;
+	DescriptorManager* m_descriptorManager;
 
-	vk::DescriptorImageInfo textureDescriptorInfo;
-	Texture                 texture;
+	vk::DescriptorSet m_mvpDescriptorSet;
+	vk::DescriptorSet m_lightPropertiesDescriptorSet;
 
-	vk::DescriptorBufferInfo lightPropertiesBufferInfo;
-	AllocatedBuffer          lightPropertiesBuffer;
-	LightProperties          lightProperties;
-
-	vk::CommandBuffer commandBuffer;
+	// Buffer creation
+	VulkanWrapper::Buffer CreateMVPBuffer(VulkanWrapper::DeviceQueue& devices);
+	VulkanWrapper::Buffer CreateLightPropertiesBuffer(VulkanWrapper::DeviceQueue& devices);
 };
-} // namespace vulkan
+} // namespace VulkanWrapper

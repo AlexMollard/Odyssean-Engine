@@ -3,11 +3,12 @@
 #include "DeviceQueue.h"
 
 #define STB_IMAGE_IMPLEMENTATION
+#include "VkContainer.h"
 #include "stb_image.h"
 
-namespace vulkan
+namespace VulkanWrapper
 {
-vk::Result vulkan::Texture::Create(vulkan::DeviceQueue& devices, vk::CommandPool& commandPool, vk::Queue queue, const void* data, uint32_t width, uint32_t height)
+void VulkanWrapper::Texture::Create(VulkanWrapper::VkContainer& api, vk::Queue queue, const void* data, uint32_t width, uint32_t height)
 {
 	// Create image
 	vk::ImageCreateInfo imageInfo = {};
@@ -21,22 +22,23 @@ vk::Result vulkan::Texture::Create(vulkan::DeviceQueue& devices, vk::CommandPool
 	imageInfo.samples             = vk::SampleCountFlagBits::e1;
 	imageInfo.tiling              = vk::ImageTiling::eOptimal;
 	imageInfo.usage               = vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eTransferDst;
-	image                         = devices.m_Device.createImage(imageInfo);
-	if (image == vk::Image()) { return vk::Result::eErrorInitializationFailed; }
+	image                         = api.deviceQueue.m_Device.createImage(imageInfo);
+
+	if (image == vk::Image()) VK_CHECK_RESULT(vk::Result::eErrorInitializationFailed);
 
 	// Allocate memory for the image
-	vk::MemoryRequirements memRequirements = devices.m_Device.getImageMemoryRequirements(image);
+	vk::MemoryRequirements memRequirements = api.deviceQueue.m_Device.getImageMemoryRequirements(image);
 	uint32_t               memoryTypeIndex;
-	vk::Result             result = devices.FindMemoryType(memRequirements.memoryTypeBits, vk::MemoryPropertyFlagBits::eDeviceLocal, memoryTypeIndex);
-	if (result != vk::Result::eSuccess) { return result; }
+	vk::Result             result = api.deviceQueue.FindMemoryType(memRequirements.memoryTypeBits, vk::MemoryPropertyFlagBits::eDeviceLocal, memoryTypeIndex);
+	VK_CHECK_RESULT(result);
 
 	vk::MemoryAllocateInfo allocInfo = {};
 	allocInfo.allocationSize         = memRequirements.size;
 	allocInfo.memoryTypeIndex        = memoryTypeIndex;
-	memory                           = devices.m_Device.allocateMemory(allocInfo);
-	if (memory == vk::DeviceMemory()) { return vk::Result::eErrorInitializationFailed; }
+	memory                           = api.deviceQueue.m_Device.allocateMemory(allocInfo);
+	if (memory == vk::DeviceMemory()) VK_CHECK_RESULT(vk::Result::eErrorInitializationFailed);
 
-	devices.m_Device.bindImageMemory(image, memory, 0);
+	api.deviceQueue.m_Device.bindImageMemory(image, memory, 0);
 
 	// Create image view
 	vk::ImageViewCreateInfo viewInfo         = {};
@@ -48,8 +50,8 @@ vk::Result vulkan::Texture::Create(vulkan::DeviceQueue& devices, vk::CommandPool
 	viewInfo.subresourceRange.levelCount     = 1;
 	viewInfo.subresourceRange.baseArrayLayer = 0;
 	viewInfo.subresourceRange.layerCount     = 1;
-	imageView                                = devices.m_Device.createImageView(viewInfo);
-	if (imageView == vk::ImageView()) { return vk::Result::eErrorInitializationFailed; }
+	imageView                                = api.deviceQueue.m_Device.createImageView(viewInfo);
+	if (imageView == vk::ImageView()) VK_CHECK_RESULT(vk::Result::eErrorInitializationFailed);
 
 	// Create sampler
 	vk::SamplerCreateInfo samplerInfo   = {};
@@ -65,16 +67,14 @@ vk::Result vulkan::Texture::Create(vulkan::DeviceQueue& devices, vk::CommandPool
 	samplerInfo.compareOp               = vk::CompareOp::eAlways;
 	samplerInfo.mipmapMode              = vk::SamplerMipmapMode::eLinear;
 
-	sampler = devices.m_Device.createSampler(samplerInfo);
-	if (sampler == vk::Sampler()) { return vk::Result::eErrorInitializationFailed; }
+	sampler = api.deviceQueue.m_Device.createSampler(samplerInfo);
+	if (sampler == vk::Sampler()) VK_CHECK_RESULT(vk::Result::eErrorInitializationFailed);
 
 	// Create staging buffer
-	AllocatedBuffer stagingBuffer;
-	result = devices.CreateBuffer(vk::BufferUsageFlagBits::eTransferSrc, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent, stagingBuffer, data, width * height * 4);
-	if (result != vk::Result::eSuccess) { return result; }
+	VulkanWrapper::Buffer stagingBuffer = api.deviceQueue.CreateBuffer(vk::BufferUsageFlagBits::eTransferSrc, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent, data, width * height * 4);
 
 	// Copy staging buffer to image
-	vk::CommandBuffer         commandBuffer    = devices.BeginSingleTimeCommands(commandPool);
+	vk::CommandBuffer         commandBuffer    = api.deviceQueue.BeginSingleTimeCommands(api.commandPool);
 	vk::ImageSubresourceRange subresourceRange = {};
 	subresourceRange.aspectMask                = vk::ImageAspectFlagBits::eColor;
 	subresourceRange.baseMipLevel              = 0;
@@ -114,22 +114,34 @@ vk::Result vulkan::Texture::Create(vulkan::DeviceQueue& devices, vk::CommandPool
 
 	commandBuffer.pipelineBarrier(vk::PipelineStageFlagBits::eTransfer, vk::PipelineStageFlagBits::eFragmentShader, vk::DependencyFlags(), 0, nullptr, 0, nullptr, 1, &barrier);
 
-	devices.EndSingleTimeCommands(commandPool, devices.GetQueue(QueueType::GRAPHICS), commandBuffer); // Should probs change queue type to be compute idk
+	api.deviceQueue.EndSingleTimeCommands(api.commandPool, api.deviceQueue.GetQueue(QueueType::GRAPHICS), commandBuffer); // Should probs change queue type to be compute idk
 
 	// Clean up staging resources
-	vkDestroyBuffer(devices.m_Device, stagingBuffer.buffer, nullptr);
-	vkFreeMemory(devices.m_Device, stagingBuffer.memory, nullptr);
+	vkDestroyBuffer(api.deviceQueue.m_Device, stagingBuffer.buffer, nullptr);
+	vkFreeMemory(api.deviceQueue.m_Device, stagingBuffer.memory, nullptr);
 
-	return vk::Result::eSuccess;
+	descriptorImageInfo.imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
+	descriptorImageInfo.imageView   = imageView;
+	descriptorImageInfo.sampler     = sampler;
 }
 
-vk::Result vulkan::Texture::Load(vulkan::DeviceQueue& devices, vk::CommandPool& commandPool, vk::Queue queue, const char* dir)
+VulkanWrapper::Texture* VulkanWrapper::Texture::Load(VulkanWrapper::VkContainer& api, vk::Queue queue, const char* dir)
 {
-	int        width, height, channels;
-	stbi_uc*   pixels = stbi_load(dir, &width, &height, &channels, STBI_rgb_alpha);
-	vk::Result result = Create(devices, commandPool, queue, pixels, width, height);
+	// Check if the std::map texture cache on api already contains this texture
+	if (api.textureCache.find(dir) != api.textureCache.end()) { return api.textureCache[dir]; }
+
+	int width, height, channels;
+
+	stbi_uc* pixels = stbi_load(dir, &width, &height, &channels, STBI_rgb_alpha);
+
+	auto texture = new Texture();
+	texture->Create(api, queue, pixels, width, height);
+
 	stbi_image_free(pixels);
-	return result;
+
+	api.textureCache[dir] = texture;
+
+	return texture;
 }
 
 vk::Result Texture::destroy(vk::Device& device)
@@ -141,4 +153,23 @@ vk::Result Texture::destroy(vk::Device& device)
 	vkFreeMemory(device, memory, nullptr);
 	return vk::Result::eSuccess;
 }
-} // namespace vulkan
+
+const vk::DescriptorImageInfo& Texture::GetDescriptorImageInfo() const
+{
+	return descriptorImageInfo;
+}
+
+vk::MappedMemoryRange Buffer::Update(vk::Device& device, const void* data, size_t size)
+{
+	void* mapped;
+	vkMapMemory(device, memory, 0, size, 0, &mapped);
+	memcpy(mapped, data, size);
+	vkUnmapMemory(device, memory);
+
+	vk::MappedMemoryRange range = {};
+	range.memory                = memory;
+	range.size                  = VK_WHOLE_SIZE; // Change here
+
+	return range;
+}
+} // namespace VulkanWrapper

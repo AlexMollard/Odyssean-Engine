@@ -1,16 +1,19 @@
+// FRAGMENT SHADER
 #version 450
 
-layout(set = 0, binding = 1) uniform sampler2D texSampler;
-layout(set = 0, binding = 2) uniform LightProperties {
+layout(set = 1, binding = 0) uniform LightProperties {
     vec4 lightColor;
     vec3 lightPos;
 } light;
+
+//layout(set = 0, binding = 2) uniform sampler2D texSampler;
 
 layout(location = 0) in vec3 fragPos;
 layout(location = 1) in vec3 fragNormal;
 layout(location = 2) in vec2 fragTexCoord;
 layout(location = 3) in vec3 fragColor;
-layout(location = 4) in float roughness;
+layout(location = 4) in vec3 fragTangent;
+layout(location = 5) in vec3 fragBitangent;
 
 layout(location = 0) out vec4 outColor;
 
@@ -53,6 +56,8 @@ float FresnelTerm(vec3 viewDirection, vec3 surfaceNormal, float roughness) {
 }
 
 void main() {
+    float roughness = 0.5;
+    
     // Normalize inputs
     vec3 norm = normalize(fragNormal);
     vec3 lightDir = normalize(light.lightPos - fragPos);
@@ -71,7 +76,7 @@ void main() {
     float fresnel = FresnelTerm(viewDirection, norm, roughness);
 
     // Calculate diffuse color
-    vec4 diffuseColor = texture(texSampler, fragTexCoord);
+    vec4 diffuseColor = vec4(1.0,1.0,1.0, 1.0);
 
     // Calculate final color
     vec3 finalColor = light.lightColor.rgb * (diffuse * diffuseColor.rgb + specular * fresnel * geometric);

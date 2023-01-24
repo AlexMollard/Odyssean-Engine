@@ -102,13 +102,34 @@
     <ClCompile Include="Src\Engine\VulkanAPI\Types\Renderer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Src\Engine\VulkanAPI\Types\Container.cpp">
+    <ClCompile Include="Src\Engine\VulkanAPI\Types\VkContainer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Src\Engine\VulkanAPI\Types\SyncObjectContainer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Src\Engine\VulkanAPI\Types\common.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Engine\VulkanAPI\Types\SubMesh.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Engine\VulkanAPI\Types\Material.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Engine\VulkanAPI\Helpers\MeshHelper.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Engine\VulkanAPI\DescriptorManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Engine\VulkanAPI\Types\BindingData.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Engine\VulkanAPI\Types\DescriptorLayoutCache.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Engine\VulkanAPI\Types\DescriptorSetLayout.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -221,7 +242,7 @@
     <ClInclude Include="Src\Engine\VulkanAPI\Types\CommandBuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Src\Engine\VulkanAPI\Types\Container.h">
+    <ClInclude Include="Src\Engine\VulkanAPI\Types\VkContainer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Src\Engine\VulkanAPI\Types\Mesh.h">
@@ -236,5 +257,29 @@
     <ClInclude Include="Src\Engine\VulkanAPI\Types\SyncObjectContainer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Src\Engine\VulkanAPI\Types\Material.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Engine\VulkanAPI\Helpers\DescriptorHelper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Engine\VulkanAPI\Helpers\MeshHelper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Engine\VulkanAPI\DescriptorManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Engine\VulkanAPI\Types\BindingData.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Engine\VulkanAPI\Types\DescriptorLayoutCache.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Engine\VulkanAPI\Types\DescriptorSetLayout.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Src\Engine\VulkanAPI\Types\SubMesh.h" />
   </ItemGroup>
 </Project>

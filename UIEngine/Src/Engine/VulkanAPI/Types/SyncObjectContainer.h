@@ -1,7 +1,7 @@
 #pragma once
 #include <vulkan/vulkan.hpp>
 
-namespace vulkan
+namespace VulkanWrapper
 {
 class SyncObjectContainer
 {
@@ -38,11 +38,16 @@ public:
 	vk::SubmitInfo getSubmitInfo(const vk::CommandBuffer& commandBuffer);
 
 	// Gets the current frame
-	uint32_t getCurrentFrame() const { return m_CurrentFrame; }
+	uint32_t getCurrentFrame() const
+	{
+		return m_CurrentFrame;
+	}
 
 	// Sets the current frame
-	void setCurrentFrame(uint32_t val) { m_CurrentFrame = val; }
-	
+	void setCurrentFrame(uint32_t val)
+	{
+		m_CurrentFrame = val;
+	}
 
 private:
 	vk::Device*            m_Device = nullptr;
@@ -53,4 +58,4 @@ private:
 	std::vector<vk::Fence> m_InFlightFences;
 	std::vector<vk::Fence> m_ImagesInFlight;
 };
-} // namespace vulkan
+} // namespace VulkanWrapper

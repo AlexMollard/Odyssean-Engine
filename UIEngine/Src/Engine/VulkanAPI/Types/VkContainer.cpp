@@ -1,20 +1,20 @@
-#include "Container.h"
+#include "VkContainer.h"
 
 #include "Mesh.h"
 #include <fstream>
 #include <iostream>
 
-vk::SwapchainKHR& vulkan::API::Swapchain()
+vk::SwapchainKHR& VulkanWrapper::VkContainer::Swapchain()
 {
 	return swapchainInfo.m_Swapchain;
 }
 
-vulkan::CommandBuffer& vulkan::API::CreateCommandBuffer()
+VulkanWrapper::CommandBuffer& VulkanWrapper::VkContainer::CreateCommandBuffer()
 {
 	return commandBuffers.emplace_back(deviceQueue.m_Device, commandPool);
 }
 
-vk::ShaderModule vulkan::API::CreateShaderModule(const char* shaderFile)
+vk::ShaderModule VulkanWrapper::VkContainer::CreateShaderModule(const char* shaderFile)
 {
 	if (shaderModules.find(shaderFile) != shaderModules.end()) return shaderModules[shaderFile];
 
@@ -30,7 +30,7 @@ vk::ShaderModule vulkan::API::CreateShaderModule(const char* shaderFile)
 	return shaderModule;
 }
 
-void vulkan::API::SetupViewportAndScissor(vk::Viewport& viewport, vk::Rect2D& scissor)
+void VulkanWrapper::VkContainer::SetupViewportAndScissor(vk::Viewport& viewport, vk::Rect2D& scissor)
 {
 	viewport.x        = 0.0f;
 	viewport.y        = 0.0f;
@@ -43,15 +43,7 @@ void vulkan::API::SetupViewportAndScissor(vk::Viewport& viewport, vk::Rect2D& sc
 	scissor.extent = swapchainInfo.m_Extent;
 }
 
-void vulkan::API::SetupPipelineLayout(vk::PipelineLayout& pipelineLayout, vk::DescriptorSetLayout& descriptorSetLayout)
-{
-	vk::PipelineLayoutCreateInfo pipelineLayoutInfo = {};
-	pipelineLayoutInfo.setLayoutCount               = 1;
-	pipelineLayoutInfo.pSetLayouts                  = &descriptorSetLayout;
-	pipelineLayout                                  = deviceQueue.m_Device.createPipelineLayout(pipelineLayoutInfo);
-}
-
-vk::PipelineDepthStencilStateCreateInfo vulkan::API::SetupDepthAndStencilState()
+vk::PipelineDepthStencilStateCreateInfo VulkanWrapper::VkContainer::SetupDepthAndStencilState()
 {
 	vk::PipelineDepthStencilStateCreateInfo depthStencil = {};
 	depthStencil.depthTestEnable                         = VK_TRUE;
@@ -62,7 +54,7 @@ vk::PipelineDepthStencilStateCreateInfo vulkan::API::SetupDepthAndStencilState()
 	return depthStencil;
 }
 
-void vulkan::API::CreateSwapChain()
+void VulkanWrapper::VkContainer::CreateSwapChain()
 {
 	// Create the swapchain create info
 	vk::SwapchainCreateInfoKHR swapchainCreateInfo;
@@ -80,7 +72,7 @@ void vulkan::API::CreateSwapChain()
 	swapchainCreateInfo.setOldSwapchain(nullptr);
 
 	// Get the queue family indices
-	std::vector<uint32_t> queueFamilyIndices = { deviceQueue.GetQueueFamilyIndex(vulkan::QueueType::GRAPHICS), deviceQueue.GetQueueFamilyIndex(vulkan::QueueType::PRESENT) };
+	std::vector<uint32_t> queueFamilyIndices = { deviceQueue.GetQueueFamilyIndex(VulkanWrapper::QueueType::GRAPHICS), deviceQueue.GetQueueFamilyIndex(VulkanWrapper::QueueType::PRESENT) };
 
 	// Check if the graphics and present queue family indices are the same
 	if (queueFamilyIndices[0] != queueFamilyIndices[1])
@@ -125,10 +117,10 @@ void vulkan::API::CreateSwapChain()
 	swapchainInfo.m_ImageUsage   = vk::ImageUsageFlagBits::eColorAttachment;
 }
 
-void vulkan::API::CreateRenderPass()
+void VulkanWrapper::VkContainer::CreateRenderPass()
 {
 	std::array<vk::AttachmentDescription, 2> attachmentDescriptions;
-	
+
 	// Color attachment
 	attachmentDescriptions[0] = vk::AttachmentDescription(vk::AttachmentDescriptionFlags(),
 														  swapchainInfo.m_Format,
@@ -139,7 +131,7 @@ void vulkan::API::CreateRenderPass()
 														  vk::AttachmentStoreOp::eDontCare,
 														  vk::ImageLayout::eUndefined,
 														  vk::ImageLayout::ePresentSrcKHR);
-	
+
 	// Depth attachment
 	attachmentDescriptions[1] = vk::AttachmentDescription(vk::AttachmentDescriptionFlags(),
 														  vk::Format::eD16Unorm,
@@ -158,16 +150,16 @@ void vulkan::API::CreateRenderPass()
 	// Subpass
 	vk::SubpassDescription subpass(vk::SubpassDescriptionFlags(), vk::PipelineBindPoint::eGraphics, 0, nullptr, 1, &colorReference, nullptr, &depthReference);
 
-    vk::RenderPass renderPass = deviceQueue.m_Device.createRenderPass(vk::RenderPassCreateInfo(vk::RenderPassCreateFlags(), attachmentDescriptions, subpass));
+	vk::RenderPass renderPass = deviceQueue.m_Device.createRenderPass(vk::RenderPassCreateInfo(vk::RenderPassCreateFlags(), attachmentDescriptions, subpass));
 
 	// Create the render pass
 	renderPassFrameBuffers.m_RenderPass = renderPass;
 }
 
-void vulkan::API::CreateFrameBuffers()
+void VulkanWrapper::VkContainer::CreateFrameBuffers()
 {
 	CreateDepthResources();
-	
+
 	// Create the framebuffers
 	renderPassFrameBuffers.m_Framebuffers.resize(swapchainInfo.m_ImageCount);
 
@@ -189,12 +181,12 @@ void vulkan::API::CreateFrameBuffers()
 	}
 }
 
-void vulkan::API::CreateCommandBuffers()
+void VulkanWrapper::VkContainer::CreateCommandBuffers()
 {
 	// Create the command pool
 	vk::CommandPoolCreateInfo poolInfo;
 	poolInfo.setFlags(vk::CommandPoolCreateFlagBits::eResetCommandBuffer);
-	poolInfo.setQueueFamilyIndex(deviceQueue.GetQueueFamilyIndex(vulkan::QueueType::GRAPHICS));
+	poolInfo.setQueueFamilyIndex(deviceQueue.GetQueueFamilyIndex(VulkanWrapper::QueueType::GRAPHICS));
 
 	commandPool = deviceQueue.m_Device.createCommandPool(poolInfo);
 
@@ -204,8 +196,29 @@ void vulkan::API::CreateCommandBuffers()
 	commandBuffers.emplace_back(deviceQueue.m_Device, commandPool);
 }
 
-void vulkan::API::CreateGraphicsPipeline(const char* vertShader, const char* fragShader, vk::DescriptorSetLayout& descriptorSetLayout)
+void VulkanWrapper::VkContainer::CreateGraphicsPipeline(const char* vertShader, const char* fragShader, Mesh& mesh)
 {
+	// Get the descriptor set layouts from the sub meshes
+	try
+	{
+		// Get the descriptor set layouts from the sub meshes
+		std::vector<std::shared_ptr<VulkanWrapper::DescriptorSetLayout>> descriptorSetLayouts = mesh.GetAllDescriptorSetLayouts();
+		DescriptorManager::DebugLayouts(descriptorSetLayouts);
+		auto layouts = DescriptorManager::GetLayoutData(descriptorSetLayouts);
+
+		vk::PipelineLayoutCreateInfo layoutInfo;
+		layoutInfo.setLayoutCount = descriptorSetLayouts.size();
+		layoutInfo.pSetLayouts    = layouts.data();
+
+		pipelineLayout = device.createPipelineLayout(layoutInfo);
+		if (pipelineLayout == vk::PipelineLayout()) throw std::runtime_error("Failed to create pipeline layout.");
+	}
+	catch (const std::exception& e)
+	{
+		std::cerr << e.what() << std::endl;
+		exit(-1);
+	}
+
 	// Shader stages
 	std::vector<vk::PipelineShaderStageCreateInfo> shaderStages;
 
@@ -234,16 +247,42 @@ void vulkan::API::CreateGraphicsPipeline(const char* vertShader, const char* fra
 	vertexInputInfo.vertexAttributeDescriptionCount        = static_cast<uint32_t>(attributeDescriptions.size());
 	vertexInputInfo.pVertexAttributeDescriptions           = attributeDescriptions.data();
 
+	// Depth and stencil testing
+	vk::PipelineDepthStencilStateCreateInfo depthStencil = {};
+	depthStencil.depthTestEnable                         = VK_TRUE;
+	depthStencil.depthWriteEnable                        = VK_TRUE;
+	depthStencil.depthCompareOp                          = vk::CompareOp::eLess;
+	depthStencil.depthBoundsTestEnable                   = VK_FALSE;
+	depthStencil.stencilTestEnable                       = VK_FALSE;
+
+	// Color blending
+	vk::PipelineColorBlendAttachmentState colorBlendAttachment = {};
+	colorBlendAttachment.colorWriteMask                        = vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA;
+	colorBlendAttachment.blendEnable                           = VK_FALSE;
+
+	vk::PipelineColorBlendStateCreateInfo colorBlending = {};
+	colorBlending.logicOpEnable                         = VK_FALSE;
+	colorBlending.attachmentCount                       = 1;
+	colorBlending.pAttachments                          = &colorBlendAttachment;
+
+	// Dynamic states
+	std::vector<vk::DynamicState> dynamicStates = { vk::DynamicState::eViewport, vk::DynamicState::eScissor };
+
+	vk::PipelineDynamicStateCreateInfo dynamicState = {};
+	dynamicState.dynamicStateCount                  = static_cast<uint32_t>(dynamicStates.size());
+	dynamicState.pDynamicStates                     = dynamicStates.data();
+
+	// Viewport and scissor
+	vk::Viewport viewport = {};
+	vk::Rect2D   scissor  = {};
+	SetupViewportAndScissor(viewport, scissor);
+
 	// Input assembly
 	vk::PipelineInputAssemblyStateCreateInfo inputAssembly = {};
 	inputAssembly.topology                                 = vk::PrimitiveTopology::eTriangleList;
 	inputAssembly.primitiveRestartEnable                   = VK_FALSE;
 
-	// Viewport and Scissor
-	vk::Viewport viewport;
-	vk::Rect2D   scissor;
-	SetupViewportAndScissor(viewport, scissor);
-
+	// Viewport state
 	vk::PipelineViewportStateCreateInfo viewportState = {};
 	viewportState.viewportCount                       = 1;
 	viewportState.pViewports                          = &viewport;
@@ -259,77 +298,37 @@ void vulkan::API::CreateGraphicsPipeline(const char* vertShader, const char* fra
 	rasterizer.cullMode                                 = vk::CullModeFlagBits::eBack;
 	rasterizer.frontFace                                = vk::FrontFace::eClockwise;
 	rasterizer.depthBiasEnable                          = VK_FALSE;
-	rasterizer.depthBiasConstantFactor                  = 0.0f; // Optional
-	rasterizer.depthBiasClamp                           = 0.0f; // Optional
-	rasterizer.depthBiasSlopeFactor                     = 0.0f; // Optional
 
 	// Multisampling
 	vk::PipelineMultisampleStateCreateInfo multisampling = {};
 	multisampling.sampleShadingEnable                    = VK_FALSE;
 	multisampling.rasterizationSamples                   = vk::SampleCountFlagBits::e1;
-	multisampling.minSampleShading                       = 1.0f;     // Optional
-	multisampling.pSampleMask                            = nullptr;  // Optional
-	multisampling.alphaToCoverageEnable                  = VK_FALSE; // Optional
-	multisampling.alphaToOneEnable                       = VK_FALSE; // Optional
 
-	// Depth and stencil testing
-	vk::PipelineDepthStencilStateCreateInfo depthStencil = SetupDepthAndStencilState();
-
-	// Color blending
-	vk::PipelineColorBlendAttachmentState colorBlendAttachment = {};
-	colorBlendAttachment.colorWriteMask                        = vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA;
-	colorBlendAttachment.blendEnable                           = VK_FALSE;
-	colorBlendAttachment.srcColorBlendFactor                   = vk::BlendFactor::eOne;  // Optional
-	colorBlendAttachment.dstColorBlendFactor                   = vk::BlendFactor::eZero; // Optional
-	colorBlendAttachment.colorBlendOp                          = vk::BlendOp::eAdd;      // Optional
-	colorBlendAttachment.srcAlphaBlendFactor                   = vk::BlendFactor::eOne;  // Optional
-	colorBlendAttachment.dstAlphaBlendFactor                   = vk::BlendFactor::eZero; // Optional
-	colorBlendAttachment.alphaBlendOp                          = vk::BlendOp::eAdd;      // Optional
-
-	vk::PipelineColorBlendStateCreateInfo colorBlending = {};
-	colorBlending.logicOpEnable                         = VK_FALSE;
-	colorBlending.logicOp                               = vk::LogicOp::eCopy; // Optional
-	colorBlending.attachmentCount                       = 1;
-	colorBlending.pAttachments                          = &colorBlendAttachment;
-	colorBlending.blendConstants[0]                     = 0.0f; // Optional
-	colorBlending.blendConstants[1]                     = 0.0f; // Optional
-	colorBlending.blendConstants[2]                     = 0.0f; // Optional
-
-	// Dynamic state
-	std::vector<vk::DynamicState>      dynamicStates = { vk::DynamicState::eViewport, vk::DynamicState::eLineWidth };
-	vk::PipelineDynamicStateCreateInfo dynamicState  = {};
-	dynamicState.dynamicStateCount                   = static_cast<uint32_t>(dynamicStates.size());
-	dynamicState.pDynamicStates                      = dynamicStates.data();
-
-	// PipelineLayout
-	SetupPipelineLayout(graphicsPipelineLayout, descriptorSetLayout); // THIS MIGHT BE BROKY
-
-	// Create graphics pipeline
+	// Pipeline
 	vk::GraphicsPipelineCreateInfo pipelineInfo = {};
 	pipelineInfo.stageCount                     = static_cast<uint32_t>(shaderStages.size());
 	pipelineInfo.pStages                        = shaderStages.data();
 	pipelineInfo.pVertexInputState              = &vertexInputInfo;
-	pipelineInfo.pInputAssemblyState            = &inputAssembly;
-	pipelineInfo.pViewportState                 = &viewportState;
-	pipelineInfo.pRasterizationState            = &rasterizer;
-	pipelineInfo.pMultisampleState              = &multisampling;
-	pipelineInfo.pDepthStencilState             = &depthStencil;
-	pipelineInfo.pColorBlendState               = &colorBlending;
-	pipelineInfo.pDynamicState                  = nullptr; // Optional
-	pipelineInfo.layout                         = graphicsPipelineLayout;
-	pipelineInfo.renderPass                     = renderPassFrameBuffers.m_RenderPass;
-	pipelineInfo.subpass                        = 0;
-	pipelineInfo.basePipelineHandle             = nullptr; // Optional
-	pipelineInfo.basePipelineIndex              = -1;      // Optional
 
-	vk::ResultValue resValue = deviceQueue.m_Device.createGraphicsPipeline(nullptr, pipelineInfo);
+	pipelineInfo.pInputAssemblyState = &inputAssembly;
+	pipelineInfo.pViewportState      = &viewportState;
+	pipelineInfo.pRasterizationState = &rasterizer;
+	pipelineInfo.pMultisampleState   = &multisampling;
 
-	if (resValue.result != vk::Result::eSuccess) { throw std::runtime_error("Failed to create graphics pipeline!"); }
+	pipelineInfo.pDepthStencilState = &depthStencil;
+	pipelineInfo.pColorBlendState   = &colorBlending;
+	pipelineInfo.pDynamicState      = &dynamicState;
+	pipelineInfo.layout             = pipelineLayout;
 
-	graphicsPipeline = resValue.value;
+	pipelineInfo.renderPass = renderPassFrameBuffers.m_RenderPass;
+
+	pipelineInfo.subpass            = 0;
+	pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
+
+	graphicsPipeline = device.createGraphicsPipeline(VK_NULL_HANDLE, pipelineInfo).value;
 }
 
-std::vector<char> vulkan::API::ReadFile(const char* fileDir)
+std::vector<char> VulkanWrapper::VkContainer::ReadFile(const char* fileDir)
 {
 	std::ifstream file(fileDir, std::ios::ate | std::ios::binary);
 
@@ -346,7 +345,7 @@ std::vector<char> vulkan::API::ReadFile(const char* fileDir)
 	return buffer;
 }
 
-void vulkan::API::CreateDepthResources()
+void VulkanWrapper::VkContainer::CreateDepthResources()
 {
 	// Create the depth image
 	vk::ImageCreateInfo imageInfo = {};
@@ -393,7 +392,7 @@ void vulkan::API::CreateDepthResources()
 	depthTexture.imageView = deviceQueue.m_Device.createImageView(viewInfo);
 }
 
-vulkan::API::~API()
+VulkanWrapper::VkContainer::~VkContainer()
 {
 	// Wait for everything to be free
 	deviceQueue.wait();
@@ -402,7 +401,7 @@ vulkan::API::~API()
 
 	// Destroy pipeline
 	deviceQueue.m_Device.destroy(graphicsPipeline);
-	deviceQueue.m_Device.destroy(graphicsPipelineLayout);
+	deviceQueue.m_Device.destroy(pipelineLayout);
 
 	// Shader modules
 	for (auto shaderModule : shaderModules) { deviceQueue.m_Device.destroyShaderModule(shaderModule.second); }

@@ -4,8 +4,8 @@
 //glfw
 #include "GLFW/glfw3.h"
 #include "GLFW/glfw3native.h"
+#include <vulkan/vulkan.hpp>
 #include <vector>
-#include "vulkan/vulkan.hpp"
 class Window
 {
 public:
@@ -25,8 +25,8 @@ public:
 		return m_Window;
 	}
 
-    // Gets the required extensions for glfw
-    static std::vector<const char*> GetRequiredExtensions();
+	// Gets the required extensions for glfw
+	static std::vector<const char*> GetRequiredExtensions();
 
 	vk::SurfaceKHR                    m_Surface;
 	vk::SurfaceCapabilitiesKHR        m_SurfaceCapabilities;

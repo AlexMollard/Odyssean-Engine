@@ -5,7 +5,7 @@
 #include "ImGuiVulkan.h"
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_vulkan.h>
-namespace vulkan
+namespace VulkanWrapper
 {
 
 Engine::~Engine()
@@ -18,7 +18,7 @@ void Engine::Initialize(const char* windowName, int width, int height)
 	try
 	{
 		m_Init.Initialize("UIEngine", width, height);
-		m_Renderer.Init(&m_Init.m_API);
+		m_Renderer.Init(&m_Init.GetAPI());
 	}
 	catch (std::system_error e)
 	{
@@ -57,4 +57,4 @@ void* Engine::GetRenderer()
 {
 	return nullptr;
 }
-} // namespace vulkan
+} // namespace VulkanWrapper

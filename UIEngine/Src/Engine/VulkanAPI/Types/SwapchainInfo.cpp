@@ -1,8 +1,7 @@
 #include "SwapchainInfo.h"
-namespace vulkan
+namespace VulkanWrapper
 {
-SwapchainInfo::SwapchainInfo(vk::SwapchainKHR swapchain, vk::Extent2D extent, vk::Format format, vk::ImageUsageFlags imageUsage, vk::SurfaceTransformFlagBitsKHR preTransform, vk::PresentModeKHR presentMode,
-							 std::vector<vk::Image> images)
+SwapchainInfo::SwapchainInfo(vk::SwapchainKHR swapchain, vk::Extent2D extent, vk::Format format, vk::ImageUsageFlags imageUsage, vk::SurfaceTransformFlagBitsKHR preTransform, vk::PresentModeKHR presentMode, std::vector<vk::Image> images)
 {
 	m_Swapchain    = swapchain;
 	m_Extent       = extent;
@@ -22,5 +21,4 @@ uint32_t SwapchainInfo::getCurrentFrameIndex()
 {
 	return m_CurrentImage;
 }
-
-} // namespace vulkan
+} // namespace VulkanWrapper

@@ -1,6 +1,6 @@
 #pragma once
-#include "vulkan/vulkan.hpp"
-namespace vulkan
+#include <vulkan/vulkan.hpp>
+namespace VulkanWrapper
 {
 struct RenderPassFramebuffer
 {
@@ -10,8 +10,8 @@ struct RenderPassFramebuffer
 	// Helper functions
 	bool BeginRenderPass(vk::CommandBuffer commandBuffer, vk::SubpassContents subpassContents, uint32_t framebufferIndex, vk::Rect2D renderArea, std::vector<vk::ClearValue> clearValues);
 	bool EndRenderPass(vk::CommandBuffer commandBuffer);
-	
-	vk::RenderPass  m_RenderPass;
+
+	vk::RenderPass               m_RenderPass;
 	std::vector<vk::Framebuffer> m_Framebuffers;
 };
-} // namespace vulkan
+} // namespace VulkanWrapper

@@ -72,7 +72,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;_CRTDBG_MAP_ALLOC;STB_IMAGE_STATIC;VK_LAYER_ENABLE_OBJECT_TRACKER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <LanguageStandard>stdcpp20</LanguageStandard>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <AdditionalIncludeDirectories>Src;Src\Engine\VulkanAPI\vk;vcpkg_installed\x64-windows-static\x64-windows-static\include;vcpkg_installed\x64-windows-static\x64-windows-static\include\tracy;C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\core\inc;C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\fsbank\inc;C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\studio\inc;C:\VulkanSDK\1.3.236.0\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -110,7 +110,7 @@ xcopy /y "C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\co
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>Src;Src\Engine\VulkanAPI\vk;vcpkg_installed\x64-windows-static\x64-windows-static\include;vcpkg_installed\x64-windows-static\x64-windows-static\include\tracy;C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\core\inc;C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\fsbank\inc;C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\studio\inc;C:\VulkanSDK\1.3.236.0\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
       <EnableModules>true</EnableModules>
@@ -132,9 +132,16 @@ xcopy /y "C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\co
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Src\Engine\VulkanAPI\Types\DescriptorSetLayout.h" />
+    <ClInclude Include="Src\Engine\VulkanAPI\Types\DescriptorLayoutCache.h" />
+    <ClInclude Include="Src\Engine\VulkanAPI\Types\BindingData.h" />
+    <ClInclude Include="Src\Engine\VulkanAPI\DescriptorManager.h" />
+    <ClInclude Include="Src\Engine\VulkanAPI\Helpers\MeshHelper.h" />
+    <ClInclude Include="Src\Engine\VulkanAPI\Helpers\DescriptorHelper.h" />
+    <ClInclude Include="Src\Engine\VulkanAPI\Types\Material.h" />
     <ClInclude Include="Src\Engine\VulkanAPI\Types\Renderer.h" />
     <ClInclude Include="Src\Engine\VulkanAPI\Types\Mesh.h" />
-    <ClInclude Include="Src\Engine\VulkanAPI\Types\Container.h" />
+    <ClInclude Include="Src\Engine\VulkanAPI\Types\VkContainer.h" />
     <ClInclude Include="Src\Engine\VulkanAPI\Types\CommandBuffer.h" />
     <ClInclude Include="Src\Engine\VulkanAPI\Types\RenderPassFramebuffer.h" />
     <ClInclude Include="Src\Engine\VulkanAPI\Types\DeviceQueue.h" />
@@ -175,13 +182,20 @@ xcopy /y "C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\co
     <ClInclude Include="Src\Engine\VulkanAPI\Types\SyncObjectContainer.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Src\Engine\VulkanAPI\Types\DescriptorSetLayout.cpp" />
+    <ClCompile Include="Src\Engine\VulkanAPI\Types\DescriptorLayoutCache.cpp" />
+    <ClCompile Include="Src\Engine\VulkanAPI\Types\BindingData.cpp" />
+    <ClCompile Include="Src\Engine\VulkanAPI\DescriptorManager.cpp" />
+    <ClCompile Include="Src\Engine\VulkanAPI\Helpers\MeshHelper.cpp" />
     <ClCompile Include="Src\Engine\VulkanAPI\Types\common.cpp" />
-    <ClCompile Include="Src\Engine\VulkanAPI\Types\Container.cpp" />
+    <ClCompile Include="Src\Engine\VulkanAPI\Types\VkContainer.cpp" />
+    <ClCompile Include="Src\Engine\VulkanAPI\Types\Material.cpp" />
     <ClCompile Include="Src\Engine\VulkanAPI\Types\Renderer.cpp" />
     <ClCompile Include="Src\Engine\VulkanAPI\Types\Mesh.cpp" />
     <ClCompile Include="Src\Engine\VulkanAPI\Types\CommandBuffer.cpp" />
     <ClCompile Include="Src\Engine\VulkanAPI\Types\RenderPassFramebuffer.cpp" />
     <ClCompile Include="Src\Engine\VulkanAPI\Types\DeviceQueue.cpp" />
+    <ClCompile Include="Src\Engine\VulkanAPI\Types\SubMesh.cpp" />
     <ClCompile Include="Src\Nodes\Node.cpp" />
     <ClCompile Include="Src\Engine\VulkanAPI\ImGuiVulkan.cpp" />
     <ClCompile Include="Src\Engine\VulkanAPI\VulkanEngine.cpp" />
@@ -207,6 +221,9 @@ xcopy /y "C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\co
     <ClCompile Include="Src\Engine\VulkanAPI\Types\SwapchainInfo.cpp" />
     <ClCompile Include="Src\Engine\VulkanAPI\Types\Window.cpp" />
     <ClCompile Include="Src\Engine\VulkanAPI\Types\SyncObjectContainer.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Src\Engine\VulkanAPI\Types\SubMesh.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />

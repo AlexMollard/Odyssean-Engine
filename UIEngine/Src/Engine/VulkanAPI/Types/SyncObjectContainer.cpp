@@ -1,12 +1,13 @@
 #include "SyncObjectContainer.h"
 
-vulkan::SyncObjectContainer::~SyncObjectContainer()
-{
-}
+#include "common.h"
 
-vk::Result vulkan::SyncObjectContainer::init(vk::Device* device, uint32_t framesInFlight)
+VulkanWrapper::SyncObjectContainer::~SyncObjectContainer()
+{}
+
+vk::Result VulkanWrapper::SyncObjectContainer::init(vk::Device* device, uint32_t framesInFlight)
 {
-	m_Device = device;
+	m_Device         = device;
 	m_FramesInFlight = framesInFlight;
 
 	vk::SemaphoreCreateInfo semaphoreInfo = {};
@@ -16,30 +17,20 @@ vk::Result vulkan::SyncObjectContainer::init(vk::Device* device, uint32_t frames
 	fenceInfo.setFlags(vk::FenceCreateFlagBits::eSignaled);
 
 	// Create the semaphores
-	vk::Result result = m_Device->createSemaphore(&semaphoreInfo, nullptr, &m_ImageAvailableSemaphore);
-	if (result != vk::Result::eSuccess) { return result; }
-	result = m_Device->createSemaphore(&semaphoreInfo, nullptr, &m_RenderFinishedSemaphore);
-	if (result != vk::Result::eSuccess) { return result; }
+	VK_CHECK_RESULT(m_Device->createSemaphore(&semaphoreInfo, nullptr, &m_ImageAvailableSemaphore));
+	VK_CHECK_RESULT(m_Device->createSemaphore(&semaphoreInfo, nullptr, &m_RenderFinishedSemaphore));
 
 	// Create the fences
 	m_InFlightFences.resize(m_FramesInFlight);
-	for (auto& fence : m_InFlightFences)
-	{
-		result = m_Device->createFence(&fenceInfo, nullptr, &fence);
-		if (result != vk::Result::eSuccess) { return result; }
-	}
+	for (auto& fence : m_InFlightFences) { VK_CHECK_RESULT(m_Device->createFence(&fenceInfo, nullptr, &fence)); }
 
 	m_ImagesInFlight.resize(m_FramesInFlight);
-	for (auto& fence : m_ImagesInFlight)
-	{
-		result = m_Device->createFence(&fenceInfo, nullptr, &fence);
-		if (result != vk::Result::eSuccess) { return result; }
-	}
+	for (auto& fence : m_ImagesInFlight) { VK_CHECK_RESULT(m_Device->createFence(&fenceInfo, nullptr, &fence)); }
 
-	return result;
+	return vk::Result::eSuccess;
 }
 
-void vulkan::SyncObjectContainer::cleanup()
+void VulkanWrapper::SyncObjectContainer::cleanup()
 {
 	// Destroy the semaphores
 	m_Device->destroySemaphore(m_ImageAvailableSemaphore);
@@ -53,37 +44,37 @@ void vulkan::SyncObjectContainer::cleanup()
 	m_ImagesInFlight.clear();
 }
 
-void vulkan::SyncObjectContainer::resetFences()
+void VulkanWrapper::SyncObjectContainer::resetFences()
 {
 	m_Device->resetFences(m_InFlightFences[m_CurrentFrame]);
 }
 
-vk::Result vulkan::SyncObjectContainer::waitForFences()
+vk::Result VulkanWrapper::SyncObjectContainer::waitForFences()
 {
 	return m_Device->waitForFences(m_InFlightFences, VK_TRUE, UINT64_MAX);
 }
 
-vk::Semaphore& vulkan::SyncObjectContainer::getImageAvailableSemaphore()
+vk::Semaphore& VulkanWrapper::SyncObjectContainer::getImageAvailableSemaphore()
 {
 	return m_ImageAvailableSemaphore;
 }
 
-vk::Semaphore& vulkan::SyncObjectContainer::getRenderFinishedSemaphore()
+vk::Semaphore& VulkanWrapper::SyncObjectContainer::getRenderFinishedSemaphore()
 {
 	return m_RenderFinishedSemaphore;
 }
 
-vk::Fence& vulkan::SyncObjectContainer::getInFlightFence()
+vk::Fence& VulkanWrapper::SyncObjectContainer::getInFlightFence()
 {
 	return m_InFlightFences[m_CurrentFrame];
 }
 
-vk::Fence& vulkan::SyncObjectContainer::getImageInFlightFence(size_t index)
+vk::Fence& VulkanWrapper::SyncObjectContainer::getImageInFlightFence(size_t index)
 {
 	return m_ImagesInFlight[index];
 }
 
-vk::SubmitInfo vulkan::SyncObjectContainer::getSubmitInfo(const vk::CommandBuffer& commandBuffer)
+vk::SubmitInfo VulkanWrapper::SyncObjectContainer::getSubmitInfo(const vk::CommandBuffer& commandBuffer)
 {
 	vk::SubmitInfo submitInfo = {};
 	submitInfo.setWaitSemaphoreCount(1);

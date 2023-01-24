@@ -1,8 +1,8 @@
 #include "DeviceQueue.h"
-#include "common.h"
-namespace vulkan
-{
 
+#include "common.h"
+namespace VulkanWrapper
+{
 DeviceQueue::DeviceQueue(vk::Device device)
 {
 	m_Device = device;
@@ -12,16 +12,11 @@ vk::Queue DeviceQueue::GetQueue(QueueType queueType) const
 {
 	switch (queueType)
 	{
-	case QueueType::GRAPHICS:
-		return m_GraphicsQueue;
-	case QueueType::PRESENT:
-		return m_PresentQueue;
-	case QueueType::COMPUTE:
-		return m_ComputeQueue;
-	case QueueType::TRANSFER:
-		return m_TransferQueue;
-	default:
-		return nullptr;
+	case QueueType::GRAPHICS: return m_GraphicsQueue;
+	case QueueType::PRESENT: return m_PresentQueue;
+	case QueueType::COMPUTE: return m_ComputeQueue;
+	case QueueType::TRANSFER: return m_TransferQueue;
+	default: return nullptr;
 	}
 }
 
@@ -29,16 +24,11 @@ uint32_t DeviceQueue::GetQueueIndex(QueueType queueType) const
 {
 	switch (queueType)
 	{
-	case QueueType::GRAPHICS:
-		return m_GraphicsQueueIndex;
-	case QueueType::PRESENT:
-		return m_PresentQueueIndex;
-	case QueueType::COMPUTE:
-		return m_ComputeQueueIndex;
-	case QueueType::TRANSFER:
-		return m_TransferQueueIndex;
-	default:
-		return 0;
+	case QueueType::GRAPHICS: return m_GraphicsQueueIndex;
+	case QueueType::PRESENT: return m_PresentQueueIndex;
+	case QueueType::COMPUTE: return m_ComputeQueueIndex;
+	case QueueType::TRANSFER: return m_TransferQueueIndex;
+	default: return 0;
 	}
 }
 
@@ -46,16 +36,11 @@ uint32_t DeviceQueue::GetQueueFamilyIndex(QueueType queueType) const
 {
 	switch (queueType)
 	{
-	case QueueType::GRAPHICS:
-		return m_GraphicsQueueFamilyIndex;
-	case QueueType::PRESENT:
-		return m_PresentQueueFamilyIndex;
-	case QueueType::COMPUTE:
-		return m_ComputeQueueFamilyIndex;
-	case QueueType::TRANSFER:
-		return m_TransferQueueFamilyIndex;
-	default:
-		return 0;
+	case QueueType::GRAPHICS: return m_GraphicsQueueFamilyIndex;
+	case QueueType::PRESENT: return m_PresentQueueFamilyIndex;
+	case QueueType::COMPUTE: return m_ComputeQueueFamilyIndex;
+	case QueueType::TRANSFER: return m_TransferQueueFamilyIndex;
+	default: return 0;
 	}
 }
 
@@ -63,20 +48,11 @@ void DeviceQueue::SetQueue(QueueType queueType, vk::Queue queue)
 {
 	switch (queueType)
 	{
-	case QueueType::GRAPHICS:
-		m_GraphicsQueue = queue;
-		break;
-	case QueueType::PRESENT:
-		m_PresentQueue = queue;
-		break;
-	case QueueType::COMPUTE:
-		m_ComputeQueue = queue;
-		break;
-	case QueueType::TRANSFER:
-		m_TransferQueue = queue;
-		break;
-	default:
-		break;
+	case QueueType::GRAPHICS: m_GraphicsQueue = queue; break;
+	case QueueType::PRESENT: m_PresentQueue = queue; break;
+	case QueueType::COMPUTE: m_ComputeQueue = queue; break;
+	case QueueType::TRANSFER: m_TransferQueue = queue; break;
+	default: break;
 	}
 }
 
@@ -84,20 +60,11 @@ void DeviceQueue::SetQueueIndex(QueueType queueType, uint32_t queueIndex)
 {
 	switch (queueType)
 	{
-	case QueueType::GRAPHICS:
-		m_GraphicsQueueIndex = queueIndex;
-		break;
-	case QueueType::PRESENT:
-		m_PresentQueueIndex = queueIndex;
-		break;
-	case QueueType::COMPUTE:
-		m_ComputeQueueIndex = queueIndex;
-		break;
-	case QueueType::TRANSFER:
-		m_TransferQueueIndex = queueIndex;
-		break;
-	default:
-		break;
+	case QueueType::GRAPHICS: m_GraphicsQueueIndex = queueIndex; break;
+	case QueueType::PRESENT: m_PresentQueueIndex = queueIndex; break;
+	case QueueType::COMPUTE: m_ComputeQueueIndex = queueIndex; break;
+	case QueueType::TRANSFER: m_TransferQueueIndex = queueIndex; break;
+	default: break;
 	}
 }
 
@@ -105,20 +72,11 @@ void DeviceQueue::SetQueueFamilyIndex(QueueType queueType, uint32_t queueFamilyI
 {
 	switch (queueType)
 	{
-	case QueueType::GRAPHICS:
-		m_GraphicsQueueFamilyIndex = queueFamilyIndex;
-		break;
-	case QueueType::PRESENT:
-		m_PresentQueueFamilyIndex = queueFamilyIndex;
-		break;
-	case QueueType::COMPUTE:
-		m_ComputeQueueFamilyIndex = queueFamilyIndex;
-		break;
-	case QueueType::TRANSFER:
-		m_TransferQueueFamilyIndex = queueFamilyIndex;
-		break;
-	default:
-		break;
+	case QueueType::GRAPHICS: m_GraphicsQueueFamilyIndex = queueFamilyIndex; break;
+	case QueueType::PRESENT: m_PresentQueueFamilyIndex = queueFamilyIndex; break;
+	case QueueType::COMPUTE: m_ComputeQueueFamilyIndex = queueFamilyIndex; break;
+	case QueueType::TRANSFER: m_TransferQueueFamilyIndex = queueFamilyIndex; break;
+	default: break;
 	}
 }
 
@@ -126,16 +84,11 @@ bool DeviceQueue::IsQueueFamilyIndexSet(QueueType queueType) const
 {
 	switch (queueType)
 	{
-	case QueueType::GRAPHICS:
-		return m_GraphicsQueueFamilyIndex != UINT32_MAX;
-	case QueueType::PRESENT:
-		return m_PresentQueueFamilyIndex != UINT32_MAX;
-	case QueueType::COMPUTE:
-		return m_ComputeQueueFamilyIndex != UINT32_MAX;
-	case QueueType::TRANSFER:
-		return m_TransferQueueFamilyIndex != UINT32_MAX;
-	default:
-		return false;
+	case QueueType::GRAPHICS: return m_GraphicsQueueFamilyIndex != UINT32_MAX;
+	case QueueType::PRESENT: return m_PresentQueueFamilyIndex != UINT32_MAX;
+	case QueueType::COMPUTE: return m_ComputeQueueFamilyIndex != UINT32_MAX;
+	case QueueType::TRANSFER: return m_TransferQueueFamilyIndex != UINT32_MAX;
+	default: return false;
 	}
 }
 
@@ -186,8 +139,10 @@ vk::Result DeviceQueue::Present(vk::SwapchainKHR& m_Swapchain, uint32_t imageInd
 	return m_PresentQueue.presentKHR(presentInfo);
 }
 
-vk::Result DeviceQueue::CreateBuffer(vk::BufferUsageFlags usage, vk::MemoryPropertyFlags properties, AllocatedBuffer& buffer, const void* data, vk::DeviceSize size)
+VulkanWrapper::Buffer DeviceQueue::CreateBuffer(vk::BufferUsageFlags usage, vk::MemoryPropertyFlags properties, const void* data, vk::DeviceSize size)
 {
+	VulkanWrapper::Buffer buffer;
+
 	// Create the buffer
 	vk::BufferCreateInfo bufferInfo = {};
 	bufferInfo.size                 = size;
@@ -197,8 +152,8 @@ vk::Result DeviceQueue::CreateBuffer(vk::BufferUsageFlags usage, vk::MemoryPrope
 	// Allocate memory for the buffer
 	vk::MemoryRequirements memRequirements = m_Device.getBufferMemoryRequirements(buffer.buffer);
 	uint32_t               memoryTypeIndex = 0;
-	vk::Result             res             = FindMemoryType(memRequirements.memoryTypeBits, properties, memoryTypeIndex);
-	if (res != vk::Result::eSuccess) { return res; }
+	VK_CHECK_RESULT(FindMemoryType(memRequirements.memoryTypeBits, properties, memoryTypeIndex));
+
 	vk::MemoryAllocateInfo allocInfo = {};
 	allocInfo.allocationSize         = memRequirements.size;
 	allocInfo.memoryTypeIndex        = memoryTypeIndex;
@@ -215,7 +170,15 @@ vk::Result DeviceQueue::CreateBuffer(vk::BufferUsageFlags usage, vk::MemoryPrope
 		m_Device.unmapMemory(buffer.memory);
 	}
 
-	return vk::Result::eSuccess;
+	return buffer;
+}
+
+VulkanWrapper::Buffer DeviceQueue::CreateBuffer(vk::DeviceSize size, vk::BufferUsageFlags usage)
+{
+	vk::BufferCreateInfo bufferInfo = {};
+	bufferInfo.size                 = size;
+	bufferInfo.usage                = usage;
+	return { m_Device.createBuffer(bufferInfo) };
 }
 
 vk::Result DeviceQueue::CopyBuffer(vk::CommandPool& commandPool, vk::Queue queue, vk::Buffer srcBuffer, vk::Buffer dstBuffer, vk::DeviceSize size)
@@ -231,7 +194,9 @@ vk::Result DeviceQueue::CopyBuffer(vk::CommandPool& commandPool, vk::Queue queue
 	vk::CommandBufferBeginInfo beginInfo = {};
 	beginInfo.flags                      = vk::CommandBufferUsageFlagBits::eOneTimeSubmit;
 	commandBuffer.begin(beginInfo);
-	if (!commandBuffer) { return vk::Result::eErrorInitializationFailed; }
+
+	if (!commandBuffer) { VK_CHECK_RESULT(vk::Result::eErrorInitializationFailed); }
+
 	vk::BufferCopy copyRegion = {};
 	copyRegion.size           = size;
 	commandBuffer.copyBuffer(srcBuffer, dstBuffer, 1, &copyRegion);
@@ -241,8 +206,7 @@ vk::Result DeviceQueue::CopyBuffer(vk::CommandPool& commandPool, vk::Queue queue
 	vk::SubmitInfo submitInfo     = {};
 	submitInfo.commandBufferCount = 1;
 	submitInfo.pCommandBuffers    = &commandBuffer;
-	vk::Result result             = queue.submit(1, &submitInfo, nullptr);
-	if (result != vk::Result::eSuccess) { return result; }
+	VK_CHECK_RESULT(queue.submit(1, &submitInfo, nullptr));
 	queue.waitIdle();
 
 	// Free the command buffer
@@ -269,5 +233,4 @@ vk::Result DeviceQueue::FindMemoryType(uint32_t typeFilter, vk::MemoryPropertyFl
 	// If no memory type was found, return an error
 	return vk::Result::eErrorMemoryMapFailed;
 }
-
-} // namespace vulkan
+} // namespace VulkanWrapper
