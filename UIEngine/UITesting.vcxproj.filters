@@ -114,7 +114,7 @@
     <ClCompile Include="Src\Engine\VulkanAPI\Types\SubMesh.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Src\Engine\VulkanAPI\Types\Material.cpp">
+    <ClCompile Include="Src\Engine\VulkanAPI\Types\VulkanMaterial.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Src\Engine\VulkanAPI\Helpers\MeshHelper.cpp">
@@ -257,7 +257,7 @@
     <ClInclude Include="Src\Engine\VulkanAPI\Types\SyncObjectContainer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Src\Engine\VulkanAPI\Types\Material.h">
+    <ClInclude Include="Src\Engine\VulkanAPI\Types\VulkanMaterial.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Src\Engine\VulkanAPI\Helpers\DescriptorHelper.h">

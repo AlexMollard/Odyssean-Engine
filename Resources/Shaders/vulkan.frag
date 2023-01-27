@@ -1,89 +1,133 @@
 // FRAGMENT SHADER
 #version 450
 
+layout(location = 0) in vec3 fragNormal;
+layout(location = 1) in vec2 fragTexCoord;
+
 layout(set = 1, binding = 0) uniform LightProperties {
-    vec4 lightColor;
-    vec3 lightPos;
+vec4 lightColor;
+vec3 lightPos;
 } light;
 
-//layout(set = 0, binding = 2) uniform sampler2D texSampler;
-
-layout(location = 0) in vec3 fragPos;
-layout(location = 1) in vec3 fragNormal;
-layout(location = 2) in vec2 fragTexCoord;
-layout(location = 3) in vec3 fragColor;
-layout(location = 4) in vec3 fragTangent;
-layout(location = 5) in vec3 fragBitangent;
+layout(set = 2, binding = 0) uniform sampler2D diffuseMap;
+layout(set = 2, binding = 1) uniform sampler2D normalMap;
+layout(set = 2, binding = 2) uniform sampler2D metallicMap;
+layout(set = 2, binding = 3) uniform sampler2D roughnessMap;
+layout(set = 2, binding = 4) uniform sampler2D ambientMap;
 
 layout(location = 0) out vec4 outColor;
 
-const float PI = 3.14159265358979323846;
-const float epsilon = 0.0001;
+float PI = 3.14159265359;
 
-// Function to calculate the Half-vector
-vec3 HalfVector(vec3 lightDirection, vec3 viewDirection) {
-    return normalize(lightDirection + viewDirection);
+vec3 fresnelSchlick(float cosTheta, vec3 F0) {
+return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0);
 }
 
-// Function to calculate the diffuse term
-float DiffuseTerm(vec3 lightDirection, vec3 surfaceNormal) {
-    return max(dot(lightDirection, surfaceNormal), 0.0);
+float DistributionGGX(vec3 N, vec3 H, float roughness) {
+float a = roughness*roughness;
+float a2 = a*a;
+float NdotH = max(dot(N, H), 0.0);
+float NdotH2 = NdotH*NdotH;
+
+float num = a2;
+float denom = (NdotH2 * (a2 - 1.0) + 1.0);
+denom = PI * denom * denom;
+
+return num / denom;
 }
 
-// Function to calculate the specular term
-float SpecularTerm(vec3 lightDirection, vec3 viewDirection, vec3 surfaceNormal, float roughness) {
-    vec3 halfVector = HalfVector(lightDirection, viewDirection);
-    float dotProduct = dot(surfaceNormal, halfVector);
-    float roughnessSquared = roughness * roughness;
-    float specular = pow(max(dotProduct, 0.0), 1.0 / roughnessSquared);
-    return specular;
+float GeometrySchlickGGX(float NdotV, float roughness) {
+float r = (roughness + 1.0);
+float k = (r*r) / 8.0;
+
+float num = NdotV;
+float denom = NdotV * (1.0 - k) + k;
+
+return num / denom;
 }
 
-// Function to calculate the geometric term
-float GeometricTerm(vec3 lightDirection, vec3 viewDirection, vec3 surfaceNormal, float roughness) {
-    vec3 halfVector = HalfVector(lightDirection, viewDirection);
-    float dotProductView = dot(viewDirection, surfaceNormal);
-    float dotProductLight = dot(lightDirection, surfaceNormal);
-    float dotProductHalf = dot(halfVector, surfaceNormal);
-    float geometric = min(min(2.0 * dotProductHalf * dotProductView / dotProductLight, 2.0 * dotProductHalf * dotProductLight / dotProductView), 1.0);
-    return geometric;
+float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness) {
+float NdotV = max(dot(N, V), 0.0);
+float NdotL = max(dot(N, L), 0.0);
+float ggx2 = GeometrySchlickGGX(NdotV, roughness);
+float ggx1 = GeometrySchlickGGX(NdotL, roughness);
+
+return ggx1 * ggx2;
 }
 
-// Function to calculate the fresnel term
-float FresnelTerm(vec3 viewDirection, vec3 surfaceNormal, float roughness) {
-    float fresnel = pow(1.0 - max(dot(viewDirection, surfaceNormal), 0.0), 5.0);
-    return fresnel;
+vec3 IntegrateBRDF(float NdotV, float roughness) {
+vec3 V;
+V.x = sqrt(1.0 - NdotV*NdotV);
+V.y = 0.0;
+V.z = NdotV;
+
+float A = 0.0;
+float B = 0.0;
+
+vec3 N = vec3(0.0, 0.0, 1.0);
+
+const uint SAMPLE_COUNT = 1024u;
+for (uint i = 0u; i < SAMPLE_COUNT; ++i) {
+float phi = 2.0 * PI * float(i) / float(SAMPLE_COUNT);
+vec2 Xi = vec2(cos(phi), sin(phi));
+
+float cosTheta = sqrt((1.0 - Xi.x) / (1.0 + (roughness*roughness - 1.0) * Xi.x));
+float sinTheta = sqrt(1.0 - cosTheta*cosTheta);
+
+vec3 H = vec3(sinTheta * cos(phi), sinTheta * sin(phi), cosTheta);
+vec3 L = normalize(2.0 * dot(V, H) * H - V);
+
+float NdotL = max(L.z, 0.0);
+float NdotH = max(H.z, 0.0);
+float VdotH = max(dot(V, H), 0.0);
+
+if (NdotL > 0.0) {
+float G = GeometrySmith(N, V, L, roughness);
+float G_Vis = (G * VdotH) / (NdotH * NdotV);
+float Fc = pow(1.0 - VdotH, 5.0);
+
+A += (1.0 - Fc) * G_Vis;
+B += Fc * G_Vis;
+}
+}
+
+return vec3(A, B, 0.0) / float(SAMPLE_COUNT);
 }
 
 void main() {
-    float roughness = 0.5;
-    
-    // Normalize inputs
-    vec3 norm = normalize(fragNormal);
-    vec3 lightDir = normalize(light.lightPos - fragPos);
-    vec3 viewDirection = normalize(-fragPos);
+vec3 albedo = texture(diffuseMap, fragTexCoord).rgb;
+vec3 normal = texture(normalMap, fragTexCoord).rgb;
+float metallic = texture(metallicMap, fragTexCoord).r;
+float roughness = texture(roughnessMap, fragTexCoord).r;
+float ao = texture(ambientMap, fragTexCoord).r;
 
-    // Calculate diffuse term
-    float diffuse = DiffuseTerm(lightDir,norm);
+vec3 N = normalize(fragNormal);
+vec3 V = normalize(light.lightPos - gl_FragCoord.xyz);
+vec3 L = normalize(light.lightPos - gl_FragCoord.xyz);
 
-    // Calculate specular term
-    float specular = SpecularTerm(lightDir, viewDirection, norm, roughness);
+vec3 H = normalize(V + L);
+float NdotL = max(dot(N, L), 0.0);
 
-    // Calculate geometric term
-    float geometric = GeometricTerm(lightDir, viewDirection, norm, roughness);
+vec3 F0 = vec3(0.04);
+F0 = mix(F0, albedo, metallic);
 
-    // Calculate fresnel term
-    float fresnel = FresnelTerm(viewDirection, norm, roughness);
+vec3 Lo = vec3(0.0);
+vec3 F = fresnelSchlick(max(dot(H, V), 0.0), F0);
+float G = GeometrySmith(N, V, L, roughness);
+float D = DistributionGGX(N, H, roughness);
 
-    // Calculate diffuse color
-    vec4 diffuseColor = vec4(1.0,1.0,1.0, 1.0);
+vec3 kS = F;
+vec3 kD = 1.0 - kS;
+kD *= 1.0 - metallic;
 
-    // Calculate final color
-    vec3 finalColor = light.lightColor.rgb * (diffuse * diffuseColor.rgb + specular * fresnel * geometric);
+float NdotV = max(dot(N, V), 0.0);
+vec3 specular = F * G * D / (4.0 * NdotL * NdotV + 0.001);
 
-    vec3 ambientColor = diffuseColor.rgb * 0.1;
+vec3 ambient = (kD * albedo / PI + specular) * light.lightColor.rgb * ao;
 
-    // Output color
-    outColor = vec4(finalColor + ambientColor, 1.0);
+ambient *= 1.0 - NdotL * 0.5;
 
+vec3 radiance = NdotL * (kD * albedo / PI + specular) * light.lightColor.rgb;
+
+outColor = vec4(radiance + ambient, 1.0);
 }

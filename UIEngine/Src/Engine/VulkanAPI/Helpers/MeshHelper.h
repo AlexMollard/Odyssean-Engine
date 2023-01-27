@@ -1,7 +1,7 @@
 #pragma once
+#include "../Types/SubMesh.h"
 #include <string>
 #include <vector>
-#include "../Types/SubMesh.h"
 
 namespace VulkanWrapper
 {
@@ -12,7 +12,10 @@ struct DeviceQueue;
 struct aiScene;
 struct aiMesh;
 struct aiNode;
-namespace VulkanWrapper { struct VkContainer; }
+namespace VulkanWrapper
+{
+struct VkContainer;
+}
 
 namespace vk
 {
@@ -37,4 +40,7 @@ private:
 
 	// Helper function to process a mesh in a scene
 	static void ProcessMesh(const aiScene* scene, aiMesh* mesh, std::vector<VulkanWrapper::SubMesh>& subMeshes);
+
+	static glm::vec2 ComputeTexCoords(glm::vec3 pos);
+	static void      CalculateTangents(VulkanWrapper::SubMesh& subMesh);
 };

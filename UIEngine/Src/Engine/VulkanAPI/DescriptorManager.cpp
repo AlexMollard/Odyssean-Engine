@@ -14,7 +14,7 @@ VulkanWrapper::DescriptorManager::DescriptorManager(vk::Device device) : m_devic
 	poolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
 	poolInfo.pPoolSizes    = poolSizes.data();
 	poolInfo.maxSets       = 32;
-	poolInfo.flags 	   = vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet;
+	poolInfo.flags         = vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet;
 
 	m_descriptorPool = m_device.createDescriptorPool(poolInfo);
 
@@ -107,6 +107,18 @@ void VulkanWrapper::DescriptorManager::createBaseDescriptorLayouts()
 
 	// Create the layout and add it to both the hash map and string map
 	m_descriptorLayoutCache.addDescriptorSetLayout("MaterialLayout", createDescriptorSetLayout(materialBindings));
+
+	// BASIC PBR MATERIAL
+	std::vector<BindingData> pbrMaterialBindings = {
+		{0, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment}, // diffuseMap
+		{1, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment}, // normalMap
+		{2, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment}, // roughnessMap
+		{3, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment}, // metallicMap
+		{4, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment}, // aoMap
+	};
+
+	// Create the layout and add it to both the hash map and string map
+	m_descriptorLayoutCache.addDescriptorSetLayout("PBRMaterialLayout", createDescriptorSetLayout(pbrMaterialBindings));
 
 	// SKYBOX
 	std::vector<BindingData> skyboxBindings = {

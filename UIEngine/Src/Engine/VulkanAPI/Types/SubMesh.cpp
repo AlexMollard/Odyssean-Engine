@@ -111,21 +111,46 @@ void VulkanWrapper::SubMesh::CreateBuffers(DeviceQueue& devices)
 	devices.m_Device.unmapMemory(indexBufferMemory);
 }
 
-void VulkanWrapper::SubMesh::CreateDescriptorSets(VulkanWrapper::DescriptorManager& descriptorManager)
+void VulkanWrapper::SubMesh::CreateDescriptorSets(VulkanWrapper::VkContainer& api)
 {
 	// Get descriptor set layouts
 	std::vector<std::shared_ptr<VulkanWrapper::DescriptorSetLayout>> layouts;
 
-	auto MVPLayout      = descriptorManager.getLayout("MVPLayout");
-	auto LightsLayout   = descriptorManager.getLayout("LightsLayout");
-	auto MaterialLayout = descriptorManager.getLayout("MaterialLayout");
+	auto MVPLayout      = api.descriptorManager->getLayout("MVPLayout");
+	auto LightsLayout   = api.descriptorManager->getLayout("LightsLayout");
+	auto MaterialLayout = api.descriptorManager->getLayout("PBRMaterialLayout");
 
 	layouts.push_back(MVPLayout);
 	layouts.push_back(LightsLayout);
 	layouts.push_back(MaterialLayout);
 
+	m_material = VulkanMaterial::CreateDebugMaterial(api);
+
 	// Allocate descriptor sets
-	m_descriptorSets = descriptorManager.allocateDescriptorSets(layouts, 1);
+	m_descriptorSets = api.descriptorManager->allocateDescriptorSets(layouts, 1);
+
+	// Material
+	std::vector<vk::WriteDescriptorSet>         writeDescriptorSets;
+	std::vector<const vk::DescriptorImageInfo*> descriptorImageInfos = m_material.GetDescriptorData(api);
+
+	writeDescriptorSets.reserve(descriptorImageInfos.size());
+
+
+	// Iterate through the descriptorImageInfos and create a write descriptor set for each one
+	for (uint32_t i = 0; i < descriptorImageInfos.size(); ++i)
+	{
+		vk::WriteDescriptorSet writeDescriptorSet;
+		writeDescriptorSet.dstSet          = m_descriptorSets[2];
+		writeDescriptorSet.dstBinding      = i;
+		writeDescriptorSet.dstArrayElement = 0;
+		writeDescriptorSet.descriptorType  = vk::DescriptorType::eCombinedImageSampler;
+		writeDescriptorSet.descriptorCount = 1;
+		writeDescriptorSet.pImageInfo      = descriptorImageInfos[i];
+
+		writeDescriptorSets.push_back(writeDescriptorSet);
+	}
+
+	api.device.updateDescriptorSets(writeDescriptorSets, nullptr);
 }
 
 void VulkanWrapper::SubMesh::UpdateDescriptorSets(vk::Device& device, VulkanWrapper::Buffer* mvpBuffer, VulkanWrapper::Buffer* lightsBuffer)
@@ -164,9 +189,6 @@ void VulkanWrapper::SubMesh::UpdateDescriptorSets(vk::Device& device, VulkanWrap
 	lightsWriteDescriptorSet.pBufferInfo     = &lightsBufferInfo;
 
 	writeDescriptorSets.push_back(lightsWriteDescriptorSet);
-
-	// Material
-	// NEEDS TO BE DONE
 
 	device.updateDescriptorSets(writeDescriptorSets, nullptr);
 }

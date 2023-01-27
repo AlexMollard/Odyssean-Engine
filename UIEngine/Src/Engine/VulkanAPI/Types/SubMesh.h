@@ -1,5 +1,5 @@
 #pragma once
-#include "Material.h"
+#include "VulkanMaterial.h"
 #include "VkContainer.h"
 #include <glm/glm.hpp>
 
@@ -21,15 +21,14 @@ struct Vertex
 
 struct ModelViewProjection
 {
-	glm::mat4 model;
-	glm::mat4 view;
-	glm::mat4 projection;
+	glm::mat4 mvp;
 };
 
 struct LightProperties
 {
-	glm::vec4 lightColor;
+	glm::vec3 lightColor;
 	glm::vec3 lightPos;
+	float     lightIntensity;
 };
 
 class SubMesh
@@ -40,7 +39,7 @@ public:
 
 	// Function to create buffers, descriptor sets, and descriptor set layouts
 	void CreateBuffers(DeviceQueue& devices);
-	void CreateDescriptorSets(VulkanWrapper::DescriptorManager& descriptorManager);
+	void CreateDescriptorSets(VulkanWrapper::VkContainer& api);
 
 	// Function to update descriptor sets, bind buffers, and add the mesh to a command buffer
 	void UpdateDescriptorSets(vk::Device& device, VulkanWrapper::Buffer* mvpBuffer, VulkanWrapper::Buffer* lightsBuffer);
@@ -54,7 +53,7 @@ public:
 	std::vector<uint32_t> m_indices;
 	VulkanWrapper::Buffer m_vertexBuffer;
 	VulkanWrapper::Buffer m_indexBuffer;
-	Material              m_material;
+	VulkanMaterial              m_material;
 
 	// vertex tangents and bitangents
 	std::vector<glm::vec3> m_tangents;

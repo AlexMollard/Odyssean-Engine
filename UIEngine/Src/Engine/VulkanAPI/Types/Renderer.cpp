@@ -31,7 +31,7 @@ void VulkanWrapper::Renderer::Init(VulkanWrapper::VkContainer* api)
 	m_DescriptorManager      = new DescriptorManager(api->device);
 	m_API->descriptorManager = m_DescriptorManager;
 
-	m_Mesh = new VulkanWrapper::Mesh(api->device, m_DescriptorManager);
+	m_Mesh = new VulkanWrapper::Mesh(api->device, api->deviceQueue.m_PhysicalDevice, m_DescriptorManager);
 	m_Mesh->LoadModel(*api, "../Resources/Meshes/knot.obj");
 
 	// Create the graphics pipeline
@@ -54,6 +54,13 @@ void VulkanWrapper::Renderer::Destroy()
 {
 	m_Mesh->Destroy();
 	delete m_Mesh;
+
+	// destroy all the textures being held by the vulkan container
+	for (auto& texture : m_API->textureCache)
+	{
+		texture.second->destroy(m_API->device);
+		delete texture.second;
+	}
 }
 
 void VulkanWrapper::Renderer::recreateSwapChain()
@@ -103,15 +110,16 @@ void VulkanWrapper::Renderer::BeginFrame()
 	const float time        = std::chrono::duration<float>(currentTime - startTime).count();
 
 	LightProperties light;
-	light.lightPos   = glm::vec3(glm::sin(time) * 2.0f, 0.0f, glm::cos(time) * 2.0f);
-	float r          = glm::sin(time * 2.0f) * 0.5f + 0.5f;
-	float g          = glm::sin(time * 0.7f) * 0.5f + 0.5f;
-	float b          = glm::sin(time * 1.3f) * 0.5f + 0.5f;
-	light.lightColor = glm::vec4(r, g, b, 0.75f);
+	light.lightPos       = glm::vec3(glm::sin(time) * 2.0f, 0.0f, glm::cos(time) * 2.0f);
+	float r              = glm::sin(time * 2.0f) * 0.5f + 0.5f;
+	float g              = glm::sin(time * 0.7f) * 0.5f + 0.5f;
+	float b              = glm::sin(time * 1.3f) * 0.5f + 0.5f;
+	light.lightColor     = glm::vec3(r, g, b);
+	light.lightIntensity = 0.75f;
 
 	glm::mat4 model(1.0f);
-	model = glm::translate(model, glm::vec3(0.0f, 0.0f, 1.0f));
-	model = glm::scale(model, glm::vec3(0.005f));
+	model = glm::translate(model, glm::vec3(0.0f));
+	model = glm::scale(model, glm::vec3(0.01f));
 	model = glm::rotate(model, glm::radians(time * 10), glm::vec3(0.0f, 1.0f, 0.0f));
 
 	glm::mat4 lightModel(1.0f);
@@ -121,19 +129,15 @@ void VulkanWrapper::Renderer::BeginFrame()
 	// Temp Camera controls (WASD + Mouse)
 	UpdateCamera();
 
-	ModelViewProjection ubo      = { model, view, proj };
-	ModelViewProjection uboLight = { lightModel, view, proj };
+	ModelViewProjection ubo = { proj * view * model };
 
-	m_Mesh->UpdateBuffers(ubo, light);
+	m_Mesh->UpdateBuffers(*m_API, ubo, light);
 
-	// Place light right above lightmodel
 	light.lightPos = glm::vec3(lightModel[3][0], lightModel[3][1], lightModel[3][2]);
 
 	auto renderFunc = [&]() {
 		// Bind the graphics pipeline
 		m_API->commandBuffers[m_API->swapchainInfo.getCurrentFrameIndex()].BindPipeline(vk::PipelineBindPoint::eGraphics, m_API->graphicsPipeline);
-
-		//m_LightMesh->AddToCommandBuffer(m_API->deviceQueue.m_Device, m_API->commandBuffers[m_API->swapchainInfo.getCurrentFrameIndex()], m_API->graphicsPipeline, m_API->graphicsPipelineLayout);
 
 		m_Mesh->BindForDrawing(*m_API, m_API->commandBuffers[m_API->swapchainInfo.getCurrentFrameIndex()].get(), m_API->pipelineLayout);
 	};

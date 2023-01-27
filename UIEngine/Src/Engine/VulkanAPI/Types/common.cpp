@@ -134,6 +134,8 @@ VulkanWrapper::Texture* VulkanWrapper::Texture::Load(VulkanWrapper::VkContainer&
 
 	stbi_uc* pixels = stbi_load(dir, &width, &height, &channels, STBI_rgb_alpha);
 
+	if (!pixels) { throw std::runtime_error("Failed to load texture image!"); }
+
 	auto texture = new Texture();
 	texture->Create(api, queue, pixels, width, height);
 

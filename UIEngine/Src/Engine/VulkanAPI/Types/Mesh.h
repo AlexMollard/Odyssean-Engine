@@ -13,7 +13,7 @@ struct VkContainer;
 // Define struct for mesh
 struct Mesh
 {
-	Mesh(vk::Device& device, DescriptorManager* descriptorManager) : m_device(device), m_descriptorManager(descriptorManager)
+	Mesh(vk::Device& device, vk::PhysicalDevice& physicalDevice, DescriptorManager* descriptorManager) : m_device(device), m_physicalDevice(physicalDevice), m_descriptorManager(descriptorManager)
 	{}
 	~Mesh() = default;
 
@@ -35,7 +35,7 @@ struct Mesh
 	// Helper function to bind buffers and descriptor sets for
 	std::vector<std::shared_ptr<VulkanWrapper::DescriptorSetLayout>> GetAllDescriptorSetLayouts();
 
-	void UpdateBuffers(const ModelViewProjection& mvp, const LightProperties& properties);
+	void UpdateBuffers(VulkanWrapper::VkContainer& api, const ModelViewProjection& mvp, const LightProperties& properties);
 	void BindForDrawing(VulkanWrapper::VkContainer& api, vk::CommandBuffer& commandBuffer, vk::PipelineLayout& pipelineLayout);
 	void SetSubMeshes(const std::vector<VulkanWrapper::SubMesh>& subMeshes);
 
@@ -43,6 +43,7 @@ struct Mesh
 
 private:
 	vk::Device m_device;
+	vk::PhysicalDevice m_physicalDevice;
 
 	std::vector<SubMesh> m_subMeshes;
 

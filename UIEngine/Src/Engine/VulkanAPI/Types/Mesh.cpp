@@ -53,7 +53,7 @@ void Mesh::AllocateDescriptors(VulkanWrapper::VkContainer& api)
 	CreateLightPropertiesBuffer(api.deviceQueue);
 
 	// Allocate the descriptor sets for each sub mesh
-	for (auto& subMesh : m_subMeshes) { subMesh.CreateDescriptorSets(*m_descriptorManager); }
+	for (auto& subMesh : m_subMeshes) { subMesh.CreateDescriptorSets(api); }
 }
 
 std::vector<std::shared_ptr<VulkanWrapper::DescriptorSetLayout>> Mesh::GetAllDescriptorSetLayouts()
@@ -62,12 +62,12 @@ std::vector<std::shared_ptr<VulkanWrapper::DescriptorSetLayout>> Mesh::GetAllDes
 
 	layouts.push_back(m_descriptorManager->getLayout("MVPLayout"));
 	layouts.push_back(m_descriptorManager->getLayout("LightsLayout"));
-	layouts.push_back(m_descriptorManager->getLayout("MaterialLayout"));
+	layouts.push_back(m_descriptorManager->getLayout("PBRMaterialLayout"));
 
 	return layouts;
 }
 
-void Mesh::UpdateBuffers(const ModelViewProjection& mvp, const LightProperties& properties)
+void Mesh::UpdateBuffers(VulkanWrapper::VkContainer& api, const ModelViewProjection& mvp, const LightProperties& properties)
 {
 	m_mvpBuffer.Update(m_device, &mvp, sizeof(ModelViewProjection));
 	m_lightPropertiesBuffer.Update(m_device, &properties, sizeof(LightProperties));
