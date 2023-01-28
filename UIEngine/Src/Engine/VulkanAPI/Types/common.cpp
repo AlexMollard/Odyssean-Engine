@@ -2,9 +2,16 @@
 
 #include "DeviceQueue.h"
 
+#ifndef STBIWDEF
+#define STBIWDEF extern
+#endif
+
 #define STB_IMAGE_IMPLEMENTATION
 #include "VkContainer.h"
 #include "stb_image.h"
+
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include "stb_image_write.h"
 
 namespace VulkanWrapper
 {
@@ -174,4 +181,59 @@ vk::MappedMemoryRange Buffer::Update(vk::Device& device, const void* data, size_
 
 	return range;
 }
+
+void Texture::CreateDebugMetalnessTexture(const char* dir)
+{
+	// This function will create a 1x1 jpg image with the color 255, 255, 255, 255
+	// This is the default color for the metalness texture
+	// Using stb_image_write.h to write the image
+
+	// Create the image
+	int            width    = 1;
+	int            height   = 1;
+	int            channels = 4;
+	auto* data     = new unsigned char[width * height * channels];
+	memset(data, 255, width * height * channels);
+
+	stbi_write_jpg(dir, width, height, channels, data, 100);
+
+	delete[] data;
+}
+
+void Texture::CreateDebugRoughnessTexture(const char* dir)
+{
+	// This function will create a 1x1 jpg image with the color 128, 128, 128, 255
+	// This is the default color for the roughness texture
+	// Using stb_image_write.h to write the image
+
+	// Create the image
+	int            width    = 1;
+	int            height   = 1;
+	int            channels = 4;
+	auto* data     = new unsigned char[width * height * channels];
+	memset(data, 128, width * height * channels);
+	
+	stbi_write_jpg(dir, width, height, channels, data, 100);
+
+	delete[] data;
+}
+
+void Texture::CreateDebugAmbientTexture(const char* dir)
+{
+	// This function will create a 1x1 jpg image with the color 0, 0, 0, 255
+	// This is the default color for the ambient texture
+	// Using stb_image_write.h to write the image
+
+	// Create the image
+	int   width    = 1;
+	int   height   = 1;
+	int   channels = 4;
+	auto* data     = new unsigned char[width * height * channels];
+	memset(data, 0, width * height * channels);
+
+	stbi_write_jpg(dir, width, height, channels, data, 100);
+
+	delete[] data;
+}
+
 } // namespace VulkanWrapper

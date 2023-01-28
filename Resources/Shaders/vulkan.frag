@@ -123,9 +123,7 @@ kD *= 1.0 - metallic;
 float NdotV = max(dot(N, V), 0.0);
 vec3 specular = F * G * D / (4.0 * NdotL * NdotV + 0.001);
 
-vec3 ambient = (kD * albedo / PI + specular) * light.lightColor.rgb * ao;
-
-ambient *= 1.0 - NdotL * 0.5;
+vec3 ambient = (albedo * ao) * 0.1;
 
 vec3 radiance = NdotL * (kD * albedo / PI + specular) * light.lightColor.rgb;
 

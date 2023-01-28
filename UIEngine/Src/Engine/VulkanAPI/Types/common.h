@@ -22,10 +22,10 @@ namespace VulkanWrapper
 class DeviceQueue;
 struct Buffer
 {
-	vk::Buffer               buffer;
-	vk::DeviceMemory         memory;
+	vk::Buffer       buffer;
+	vk::DeviceMemory memory;
 
-	vk::MappedMemoryRange    Update(vk::Device& device, const void* data, size_t size);
+	vk::MappedMemoryRange Update(vk::Device& device, const void* data, size_t size);
 };
 
 struct Texture
@@ -41,5 +41,9 @@ struct Texture
 
 	vk::Result                     destroy(vk::Device& device);
 	const vk::DescriptorImageInfo& GetDescriptorImageInfo() const;
+
+	static void CreateDebugMetalnessTexture(const char* dir);
+	static void CreateDebugRoughnessTexture(const char* dir);
+	static void CreateDebugAmbientTexture(const char* dir);
 };
 } // namespace VulkanWrapper
