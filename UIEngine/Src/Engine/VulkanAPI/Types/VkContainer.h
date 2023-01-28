@@ -59,6 +59,7 @@ struct VkContainer
 
 	// Descriptor set stuff
 	VulkanWrapper::DescriptorManager* descriptorManager = nullptr;
+	vk::DescriptorPool                imguiDescriptorPool;
 
 	Window window;
 

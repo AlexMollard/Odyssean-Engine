@@ -109,7 +109,7 @@ vk::CommandBuffer DeviceQueue::BeginSingleTimeCommands(vk::CommandPool& commandP
 	return commandBuffer;
 }
 
-void DeviceQueue::EndSingleTimeCommands(vk::CommandPool& commandPool, vk::Queue param2, vk::CommandBuffer commandBuffer)
+void DeviceQueue::EndSingleTimeCommands(vk::CommandPool& commandPool, vk::Queue queue, vk::CommandBuffer commandBuffer)
 {
 	commandBuffer.end();
 
@@ -117,8 +117,8 @@ void DeviceQueue::EndSingleTimeCommands(vk::CommandPool& commandPool, vk::Queue 
 	submitInfo.setCommandBufferCount(1);
 	submitInfo.setPCommandBuffers(&commandBuffer);
 
-	param2.submit(submitInfo, nullptr);
-	param2.waitIdle();
+	queue.submit(submitInfo, nullptr);
+	queue.waitIdle();
 
 	m_Device.freeCommandBuffers(commandPool, commandBuffer);
 }

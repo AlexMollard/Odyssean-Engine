@@ -3,13 +3,13 @@
 #include "VulkanEngine.h"
 
 #include "ImGuiVulkan.h"
-#include <imgui_impl_glfw.h>
-#include <imgui_impl_vulkan.h>
+
 namespace VulkanWrapper
 {
 
 Engine::~Engine()
 {
+	ImGuiVulkan::DestroyImgui(m_Init.GetAPI());
 	m_Renderer.Destroy();
 }
 
@@ -19,6 +19,7 @@ void Engine::Initialize(const char* windowName, int width, int height)
 	{
 		m_Init.Initialize("UIEngine", width, height);
 		m_Renderer.Init(&m_Init.GetAPI());
+		ImGuiVulkan::SetUpImgui(m_Init.GetAPI());
 	}
 	catch (std::system_error e)
 	{
@@ -33,6 +34,9 @@ float Engine::Update()
 	m_Window->Update();
 	m_close = m_Window->GetClose();
 
+	ImGuiVulkan::NewFrame(m_Init.GetAPI());
+
+	ImGuiVulkan::EndFrame(m_Init.GetAPI());
 	return 0.0f;
 }
 

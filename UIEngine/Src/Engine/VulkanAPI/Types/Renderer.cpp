@@ -1,5 +1,6 @@
 #include "Renderer.h"
 
+#include "../ImGuiVulkan.h"
 #include "Mesh.h"
 #include <iostream>
 #include <vulkan/vulkan.hpp>
@@ -110,10 +111,9 @@ void VulkanWrapper::Renderer::BeginFrame()
 	const float time        = std::chrono::duration<float>(currentTime - startTime).count();
 
 	LightProperties light;
-	light.lightPos       = glm::vec3(glm::sin(time) * 2.0f, 0.0f, glm::cos(time) * 2.0f);
-	float r              = glm::sin(time * 2.0f) * 0.5f + 0.5f;
-	float g              = glm::sin(time * 0.7f) * 0.5f + 0.5f;
-	float b              = glm::sin(time * 1.3f) * 0.5f + 0.5f;
+	float           r    = glm::sin(time * 2.0f) * 0.5f + 0.5f;
+	float           g    = glm::sin(time * 0.7f) * 0.5f + 0.5f;
+	float           b    = glm::sin(time * 1.3f) * 0.5f + 0.5f;
 	light.lightColor     = glm::vec3(r, g, b);
 	light.lightIntensity = 0.75f;
 
@@ -140,10 +140,16 @@ void VulkanWrapper::Renderer::BeginFrame()
 		m_API->commandBuffers[m_API->swapchainInfo.getCurrentFrameIndex()].BindPipeline(vk::PipelineBindPoint::eGraphics, m_API->graphicsPipeline);
 
 		m_Mesh->BindForDrawing(*m_API, m_API->commandBuffers[m_API->swapchainInfo.getCurrentFrameIndex()].get(), m_API->pipelineLayout);
+		
+		ImGuiVulkan::Render(*m_API);
 	};
 
 	m_API->commandBuffers[m_API->swapchainInfo.getCurrentFrameIndex()].DoRenderPass(m_API->renderPassFrameBuffers.m_RenderPass, m_API->renderPassFrameBuffers.m_Framebuffers[m_API->swapchainInfo.getCurrentFrameIndex()], m_API->swapchainInfo.m_Extent,
 																					renderFunc);
+
+	//m_API->commandBuffers[m_API->swapchainInfo.getCurrentFrameIndex()].Begin();
+	//m_API->commandBuffers[m_API->swapchainInfo.getCurrentFrameIndex()].DoRenderPass(m_API->renderPassFrameBuffers.m_RenderPass, m_API->renderPassFrameBuffers.m_Framebuffers[m_API->swapchainInfo.getCurrentFrameIndex()], m_API->swapchainInfo.m_Extent,
+	//																				[&]() { ImGuiVulkan::Render(*m_API); });
 }
 
 void VulkanWrapper::Renderer::EndFrame()

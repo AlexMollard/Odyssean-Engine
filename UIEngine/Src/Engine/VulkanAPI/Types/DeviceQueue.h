@@ -46,7 +46,7 @@ public:
 
 	vk::CommandBuffer BeginSingleTimeCommands(vk::CommandPool& commandPool);
 
-	void EndSingleTimeCommands(vk::CommandPool& commandPool, vk::Queue param2, vk::CommandBuffer commandBuffer);
+	void EndSingleTimeCommands(vk::CommandPool& commandPool, vk::Queue queue, vk::CommandBuffer commandBuffer);
 
 private:
 	vk::Queue m_GraphicsQueue; // Used for pushing geometry to the GPU

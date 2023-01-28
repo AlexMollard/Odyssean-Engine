@@ -95,3 +95,18 @@ bool Window::GetMinimized()
 	if (m_Width == 0 || m_Height == 0) { m_Minimized = true; }
 	return m_Minimized;
 }
+
+int Window::GetMouseState(bool mouseIndex)
+{
+	return m_MouseButtons[mouseIndex];
+}
+
+float Window::GetMouseWheel()
+{
+	return m_ScrollY;
+}
+
+void Window::ResetMouseWheel()
+{
+	m_ScrollY = 0;
+}

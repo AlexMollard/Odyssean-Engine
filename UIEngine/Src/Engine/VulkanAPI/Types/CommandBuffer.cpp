@@ -53,7 +53,7 @@ void CommandBuffer::DoRenderPass(vk::RenderPass renderPass, vk::Framebuffer fram
 
 	renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
 	renderPassInfo.pClearValues    = clearValues.data();
-
+	
 	SetScissor(renderArea);
 	SetViewport(renderArea);
 

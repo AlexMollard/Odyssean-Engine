@@ -64,4 +64,7 @@ private:
 
 public:
 	bool GetMinimized();
+	int GetMouseState(bool mouseIndex);
+	float GetMouseWheel();
+	void  ResetMouseWheel();
 };
