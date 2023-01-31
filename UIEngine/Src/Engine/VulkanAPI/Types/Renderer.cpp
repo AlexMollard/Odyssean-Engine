@@ -18,7 +18,7 @@ void VulkanWrapper::Renderer::Init(VulkanWrapper::VkContainer* api)
 	m_API->CreateSwapChain();
 
 	// Create the render pass
-	m_API->CreateRenderPass();
+	m_API->CreateRenderPasses();
 
 	// Create the frame buffers
 	m_API->CreateFrameBuffers();
@@ -73,7 +73,7 @@ void VulkanWrapper::Renderer::recreateSwapChain()
 	m_API->CreateSwapChain();
 
 	// Recreate the render pass
-	m_API->CreateRenderPass();
+	m_API->CreateRenderPasses();
 
 	// Recreate the frame buffers
 	m_API->CreateFrameBuffers();
@@ -140,16 +140,12 @@ void VulkanWrapper::Renderer::BeginFrame()
 		m_API->commandBuffers[m_API->swapchainInfo.getCurrentFrameIndex()].BindPipeline(vk::PipelineBindPoint::eGraphics, m_API->graphicsPipeline);
 
 		m_Mesh->BindForDrawing(*m_API, m_API->commandBuffers[m_API->swapchainInfo.getCurrentFrameIndex()].get(), m_API->pipelineLayout);
-		
+
 		ImGuiVulkan::Render(*m_API);
 	};
 
 	m_API->commandBuffers[m_API->swapchainInfo.getCurrentFrameIndex()].DoRenderPass(m_API->renderPassFrameBuffers.m_RenderPass, m_API->renderPassFrameBuffers.m_Framebuffers[m_API->swapchainInfo.getCurrentFrameIndex()], m_API->swapchainInfo.m_Extent,
 																					renderFunc);
-
-	//m_API->commandBuffers[m_API->swapchainInfo.getCurrentFrameIndex()].Begin();
-	//m_API->commandBuffers[m_API->swapchainInfo.getCurrentFrameIndex()].DoRenderPass(m_API->renderPassFrameBuffers.m_RenderPass, m_API->renderPassFrameBuffers.m_Framebuffers[m_API->swapchainInfo.getCurrentFrameIndex()], m_API->swapchainInfo.m_Extent,
-	//																				[&]() { ImGuiVulkan::Render(*m_API); });
 }
 
 void VulkanWrapper::Renderer::EndFrame()

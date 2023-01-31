@@ -117,7 +117,7 @@ void VulkanWrapper::VkContainer::CreateSwapChain()
 	swapchainInfo.m_ImageUsage   = vk::ImageUsageFlagBits::eColorAttachment;
 }
 
-void VulkanWrapper::VkContainer::CreateRenderPass()
+void VulkanWrapper::VkContainer::CreateRenderPasses()
 {
 	std::array<vk::AttachmentDescription, 2> attachmentDescriptions;
 
@@ -150,17 +150,40 @@ void VulkanWrapper::VkContainer::CreateRenderPass()
 	// Subpass
 	vk::SubpassDescription subpass(vk::SubpassDescriptionFlags(), vk::PipelineBindPoint::eGraphics, 0, nullptr, 1, &colorReference, nullptr, &depthReference);
 
-	vk::RenderPass renderPass = deviceQueue.m_Device.createRenderPass(vk::RenderPassCreateInfo(vk::RenderPassCreateFlags(), attachmentDescriptions, subpass));
+	// Create the render pass
+	vk::RenderPass renderPass           = deviceQueue.m_Device.createRenderPass(vk::RenderPassCreateInfo(vk::RenderPassCreateFlags(), attachmentDescriptions, subpass));
+	renderPassFrameBuffers.m_RenderPass = renderPass;
+
+	//Create the no depth render pass
+	std::array<vk::AttachmentDescription, 1> attachmentDescriptions2;
+
+	// Color attachment
+	attachmentDescriptions2[0] = vk::AttachmentDescription(vk::AttachmentDescriptionFlags(),
+														   swapchainInfo.m_Format,
+														   vk::SampleCountFlagBits::e1,
+														   vk::AttachmentLoadOp::eClear,
+														   vk::AttachmentStoreOp::eStore,
+														   vk::AttachmentLoadOp::eDontCare,
+														   vk::AttachmentStoreOp::eDontCare,
+														   vk::ImageLayout::eUndefined,
+														   vk::ImageLayout::ePresentSrcKHR);
+
+	// Attachment references
+	vk::AttachmentReference colorReference2(0, vk::ImageLayout::eColorAttachmentOptimal);
+
+	// Subpass
+	vk::SubpassDescription subpass2(vk::SubpassDescriptionFlags(), vk::PipelineBindPoint::eGraphics, 0, nullptr, 1, &colorReference2, nullptr, nullptr);
 
 	// Create the render pass
-	renderPassFrameBuffers.m_RenderPass = renderPass;
+	vk::RenderPass renderPass2                 = deviceQueue.m_Device.createRenderPass(vk::RenderPassCreateInfo(vk::RenderPassCreateFlags(), attachmentDescriptions2, subpass2));
+	renderPassFrameBuffers.m_RenderPassNoDepth = renderPass2;
 }
 
 void VulkanWrapper::VkContainer::CreateFrameBuffers()
 {
 	CreateDepthResources();
 
-	// Create the framebuffers
+	// Create the frame buffers
 	renderPassFrameBuffers.m_Framebuffers.resize(swapchainInfo.m_ImageCount);
 
 	for (size_t i = 0; i < swapchainInfo.m_ImageCount; i++)
@@ -194,6 +217,11 @@ void VulkanWrapper::VkContainer::CreateCommandBuffers()
 	commandBuffers.emplace_back(deviceQueue.m_Device, commandPool);
 	commandBuffers.emplace_back(deviceQueue.m_Device, commandPool);
 	commandBuffers.emplace_back(deviceQueue.m_Device, commandPool);
+
+	// These command buffers will be used with the no depth render pass
+	commandBuffersNoDepth.emplace_back(deviceQueue.m_Device, commandPool);
+	commandBuffersNoDepth.emplace_back(deviceQueue.m_Device, commandPool);
+	commandBuffersNoDepth.emplace_back(deviceQueue.m_Device, commandPool);
 }
 
 void VulkanWrapper::VkContainer::CreateGraphicsPipeline(const char* vertShader, const char* fragShader, Mesh& mesh)
@@ -408,19 +436,26 @@ VulkanWrapper::VkContainer::~VkContainer()
 
 	// Command buffers
 	for (auto commandBuffer : commandBuffers) { deviceQueue.m_Device.freeCommandBuffers(commandPool, commandBuffer.get()); }
+
 	// Command pool
 	deviceQueue.m_Device.destroy(commandPool);
-	// renderPass
+
+	// renderPasses
 	deviceQueue.m_Device.destroy(renderPassFrameBuffers.m_RenderPass);
-	// Framebuffers
+	deviceQueue.m_Device.destroy(renderPassFrameBuffers.m_RenderPassNoDepth);
+
+	// Frame buffers
 	for (auto framebuffer : renderPassFrameBuffers.m_Framebuffers) { deviceQueue.m_Device.destroy(framebuffer); }
+
 	// Depth image
 	depthTexture.destroy(deviceQueue.m_Device);
 
 	// Image views
 	for (auto imageView : swapchainInfo.m_ImageViews) { deviceQueue.m_Device.destroy(imageView); }
+
 	// Swapchain
 	deviceQueue.m_Device.destroy(swapchainInfo.m_Swapchain);
+
 	// Surface
 	instance.destroy(window.m_Surface);
 	deviceQueue.m_Device.destroy();

@@ -56,6 +56,7 @@ struct VkContainer
 
 	vk::CommandPool            commandPool;
 	std::vector<CommandBuffer> commandBuffers;
+	std::vector<CommandBuffer> commandBuffersNoDepth;
 
 	// Descriptor set stuff
 	VulkanWrapper::DescriptorManager* descriptorManager = nullptr;
@@ -75,7 +76,7 @@ struct VkContainer
 	vk::PipelineDepthStencilStateCreateInfo SetupDepthAndStencilState();
 
 	void CreateSwapChain();
-	void CreateRenderPass();
+	void CreateRenderPasses();
 	void CreateDepthResources();
 	void CreateFrameBuffers();
 	void CreateCommandBuffers();

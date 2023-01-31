@@ -18,4 +18,8 @@ public:
 	static void NewFrame(VulkanWrapper::VkContainer& vkContainer);
 	static void EndFrame(VulkanWrapper::VkContainer& vkContainer);
 	static void Render(VulkanWrapper::VkContainer& vkContainer);
+
+	static void Resize(VulkanWrapper::VkContainer& vkContainer, int width, int height);
+
+	static const bool const UsingViewports = false;
 };

@@ -12,6 +12,7 @@ struct RenderPassFramebuffer
 	bool EndRenderPass(vk::CommandBuffer commandBuffer);
 
 	vk::RenderPass               m_RenderPass;
+	vk::RenderPass               m_RenderPassNoDepth;
 	std::vector<vk::Framebuffer> m_Framebuffers;
 };
 } // namespace VulkanWrapper

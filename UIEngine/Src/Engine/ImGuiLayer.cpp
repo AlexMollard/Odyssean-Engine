@@ -22,7 +22,7 @@ void ImGuiLayer::Init(GLFWwindow* window)
 	io->ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 	io->ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 	io->Fonts->AddFontFromFileTTF("../Resources/Fonts/FiraCode-Regular.ttf", 18);
-	SetStyle();
+	ImGuiLayer::SetStyle();
 
 	// Setup Platform/Renderer backends
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
@@ -35,7 +35,7 @@ void ImGuiLayer::SetStyle()
 	auto&   style  = ImGui::GetStyle();
 	ImVec4* colors = style.Colors;
 
-	const ImVec4 bgColor          = ColorFromBytes(37, 37, 38);
+	const ImVec4 bgColor          = ImVec4(0.1f, 0.1f, 0.1f, 0.75f);
 	const ImVec4 lightBgColor     = ColorFromBytes(82, 82, 85);
 	const ImVec4 veryLightBgColor = ColorFromBytes(90, 90, 95);
 

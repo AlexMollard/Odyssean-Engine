@@ -8,6 +8,8 @@
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_vulkan.h"
 
+#include "Engine/ImGuiLayer.h"
+
 int ImGuiVulkan::SetUpImgui(VulkanWrapper::VkContainer& vkContainer)
 {
 	vk::Device device = vkContainer.device;
@@ -47,11 +49,14 @@ int ImGuiVulkan::SetUpImgui(VulkanWrapper::VkContainer& vkContainer)
 
 		// Setup Dear ImGui docking
 		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
-		io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 
 		ImGuiStyle& style = ImGui::GetStyle();
-		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+		ImGuiLayer::SetStyle();
+
+
+		if (ImGuiVulkan::UsingViewports)
 		{
+			io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 			style.WindowRounding              = 0.0f;
 			style.Colors[ImGuiCol_WindowBg].w = 1.0f;
 		}
@@ -194,7 +199,7 @@ void ImGuiVulkan::SetPlatformIO(VulkanWrapper::VkContainer& vkContainer)
 	platformIO.Platform_GetWindowPos = [](ImGuiViewport* vp) -> ImVec2 {
 		int x, y;
 		glfwGetWindowPos((GLFWwindow*)vp->PlatformHandle, &x, &y);
-		return ImVec2((float)x, (float)y);
+		return { (float)x, (float)y };
 	};
 
 	// platform set window size
@@ -204,7 +209,7 @@ void ImGuiVulkan::SetPlatformIO(VulkanWrapper::VkContainer& vkContainer)
 	platformIO.Platform_GetWindowSize = [](ImGuiViewport* vp) -> ImVec2 {
 		int w, h;
 		glfwGetWindowSize((GLFWwindow*)vp->PlatformHandle, &w, &h);
-		return ImVec2((float)w, (float)h);
+		return { (float)w, (float)h };
 	};
 
 	// platform set window focus
@@ -251,12 +256,13 @@ void ImGuiVulkan::NewFrame(VulkanWrapper::VkContainer& vkContainer)
 
 	// Docking
 	static bool               dockspaceOpen  = true;
-	static ImGuiDockNodeFlags dockspaceFlags = ImGuiDockNodeFlags_None | ImGuiDockNodeFlags_PassthruCentralNode | ImGuiWindowFlags_NoBackground;
+	static ImGuiDockNodeFlags dockspaceFlags = ImGuiDockNodeFlags_None | ImGuiWindowFlags_NoBackground | ImGuiDockNodeFlags_PassthruCentralNode;
 
 	// We are using the ImGuiWindowFlags_NoDocking flag to make the parent window not dockable into,
 	// because it would be confusing to have two docking targets within each others.
-	ImGuiWindowFlags windowFlags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
-	if (dockspaceFlags & ImGuiDockNodeFlags_PassthruCentralNode) dockspaceFlags |= ImGuiWindowFlags_NoBackground;
+	ImGuiWindowFlags windowFlags = ImGuiWindowFlags_None;
+	windowFlags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
+	windowFlags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoDecoration;
 
 	ImGuiViewport* viewport = ImGui::GetMainViewport();
 	ImGui::SetNextWindowPos(viewport->WorkPos);
@@ -264,41 +270,14 @@ void ImGuiVulkan::NewFrame(VulkanWrapper::VkContainer& vkContainer)
 	ImGui::SetNextWindowViewport(viewport->ID);
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
-	windowFlags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
-	windowFlags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus | ImGuiWindowFlags_NoBackground;
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, { 0.0f, 0.0f});
 
-	ImGui::Begin("DockSpace Demo", &dockspaceOpen, windowFlags);
-	ImGui::PopStyleVar(2);
+	ImGui::Begin("MainDockSpace", &dockspaceOpen, windowFlags);
+	ImGui::PopStyleVar(3);
 
 	// DockSpace
-	ImGuiIO& io = ImGui::GetIO();
-	if (io.ConfigFlags & ImGuiConfigFlags_DockingEnable)
-	{
-		ImGuiID dockspaceId = ImGui::GetID("MyDockspace");
-		ImGui::DockSpace(dockspaceId, ImVec2(0.0f, 0.0f), dockspaceFlags);
-	}
-
-	// Menu Bar
-	if (ImGui::BeginMenuBar())
-	{
-		if (ImGui::BeginMenu("File"))
-		{
-			if (ImGui::MenuItem("New")) {}
-			if (ImGui::MenuItem("Open", "Ctrl+O")) {}
-			if (ImGui::BeginMenu("Open Recent"))
-			{
-				ImGui::MenuItem("TestScene");
-				ImGui::MenuItem("OtherScene");
-				ImGui::MenuItem("OpenGL");
-				ImGui::EndMenu();
-			}
-			if (ImGui::MenuItem("Save", "Ctrl+S")) {}
-			if (ImGui::MenuItem("Save As..")) {}
-			ImGui::EndMenu();
-		}
-
-		ImGui::EndMenuBar();
-	}
+	ImGuiID dockspaceId = ImGui::GetID("MainDockspace");
+	ImGui::DockSpace(dockspaceId, ImVec2(0.0f, 0.0f), dockspaceFlags);
 
 	// Demo Window
 	ImGui::ShowDemoWindow();
@@ -311,7 +290,7 @@ void ImGuiVulkan::EndFrame(VulkanWrapper::VkContainer& vkContainer)
 {
 	ImGui::EndFrame();
 
-	if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+	if (ImGuiVulkan::UsingViewports)
 	{
 		GLFWwindow* backup_current_context = glfwGetCurrentContext();
 
@@ -324,6 +303,13 @@ void ImGuiVulkan::EndFrame(VulkanWrapper::VkContainer& vkContainer)
 void ImGuiVulkan::Render(VulkanWrapper::VkContainer& vkContainer)
 {
 	ImGui::Render();
-	ImGui::RenderPlatformWindowsDefault();
+
+	if (ImGuiVulkan::UsingViewports) ImGui::RenderPlatformWindowsDefault();
+
 	ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), vkContainer.commandBuffers[vkContainer.swapchainInfo.getCurrentFrameIndex()].get());
+}
+
+void ImGuiVulkan::Resize(VulkanWrapper::VkContainer& vkContainer, int width, int height)
+{
+	// To be implemented.
 }

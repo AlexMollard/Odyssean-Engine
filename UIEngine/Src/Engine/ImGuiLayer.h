@@ -14,7 +14,7 @@ public:
 
 	void Init(GLFWwindow* window);
 
-	void SetStyle();
+	static void SetStyle();
 	void DisplaySystemStats();
 	void ShowHierarchyWindow(bool* p_open);
 	void ShowInspectorWindow(bool* p_open, flecs::entity entity);
