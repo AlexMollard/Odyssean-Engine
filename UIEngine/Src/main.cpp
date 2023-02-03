@@ -1,6 +1,3 @@
-#include "pch.h"
-
-#include "Scenes/TestingScene.h"
 #include "Scenes/VulkanScene.h"
 #include <crtdbg.h>
 
