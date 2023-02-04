@@ -30,15 +30,19 @@ private:
 
 	void CreateExtensions();
 	void GetRequiredExtensions(vk::InstanceCreateInfo& createInfo);
-	void CheckRequiredExtensions(const std::vector<const char*>& requiredExtensions, const std::vector<vk::ExtensionProperties>& supportedExtensions);
-	bool IsExtensionSupported(const char* extension, const std::vector<vk::ExtensionProperties>& supportedExtensions);
-	void CheckRequiredLayers(const std::vector<const char*>& requiredLayers, const std::vector<vk::LayerProperties>& supportedLayers);
-	bool IsLayerSupported(const char* layer, const std::vector<vk::LayerProperties>& supportedLayers);
+	void CheckRequiredExtensions(const std::vector<const char*>& requiredExtensions, const std::vector<vk::ExtensionProperties>& supportedExtensions) const;
+	bool IsExtensionSupported(const char* extension, const std::vector<vk::ExtensionProperties>& supportedExtensions) const;
+	void CheckRequiredLayers(const std::vector<const char*>& requiredLayers, const std::vector<vk::LayerProperties>& supportedLayers) const;
+	bool IsLayerSupported(const char* layer, const std::vector<vk::LayerProperties>& supportedLayers) const;
 
 	// Init functions for the API
 	void InitInstance();
 	void InitDevice();
 	void InitSurface();
-	
+
+	// Debug functions
+	static void OutputSeverity(VkDebugUtilsMessageSeverityFlagBitsEXT severity);
+	static void OutputMessageType(VkDebugUtilsMessageTypeFlagsEXT type);
+
 	VulkanWrapper::VkContainer m_API;
 };

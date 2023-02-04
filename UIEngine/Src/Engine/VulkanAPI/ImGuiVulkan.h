@@ -21,5 +21,5 @@ public:
 
 	static void Resize(VulkanWrapper::VkContainer& vkContainer, int width, int height);
 
-	static const bool const UsingViewports = false;
+	static const bool UsingViewports = false;
 };

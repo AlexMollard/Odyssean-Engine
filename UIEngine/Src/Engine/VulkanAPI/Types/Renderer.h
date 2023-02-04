@@ -33,7 +33,7 @@ public:
 private:
 	VulkanWrapper::VkContainer*       m_API               = nullptr;
 	VulkanWrapper::Mesh*              m_Mesh              = nullptr;
-	VulkanWrapper::DescriptorManager* m_DescriptorManager = nullptr;
+	std::shared_ptr<VulkanWrapper::DescriptorManager> m_DescriptorManager = nullptr;
 
 	glm::mat4   view;
 	glm::vec3   m_CameraPos;

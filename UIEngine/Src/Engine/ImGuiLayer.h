@@ -10,17 +10,17 @@ class ImGuiLayer
 {
 public:
 	ImGuiLayer() = default;
-	~ImGuiLayer();
+	~ImGuiLayer() = default;
 
 	void Init(GLFWwindow* window);
 
 	static void SetStyle();
-	void DisplaySystemStats();
-	void ShowHierarchyWindow(bool* p_open);
-	void ShowInspectorWindow(bool* p_open, flecs::entity entity);
-	void ShowProfilerWindow(bool* p_open);
+	void DisplaySystemStats() const;
+	void ShowHierarchyWindow(bool* p_open) const;
+	void ShowInspectorWindow(bool* p_open, flecs::entity entity) const;
+	void ShowProfilerWindow(bool* p_open) const;
 	void NewFrame(BS::thread_pool& pool); // before rendering (where you would call imgui::NewFrame)
-	void UpdateViewPorts();
+	void UpdateViewPorts() const;
 
 private:
 	ImGuiIO* io;

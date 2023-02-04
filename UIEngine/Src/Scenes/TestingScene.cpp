@@ -37,7 +37,7 @@ void TestingScene::Enter()
 		y = height / 2 + radius * sin(glm::radians(angle));
 
 		auto entity = ECS::CreateQuad(glm::vec3(x, y, 0), glm::vec2(10, 10), glm::vec4(1, 1, 1, 1), std::to_string(x / y).c_str());
-		entity.child_of(centerQuad);
+		entity->child_of(*centerQuad);
 	}
 
 

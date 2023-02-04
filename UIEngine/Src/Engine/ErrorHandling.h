@@ -1,8 +1,6 @@
 #pragma once
-#include <boost/filesystem.hpp>
-#include <boost/stacktrace.hpp>
 #include <iostream>
-#include <signal.h>
+#include <csignal>
 #include <source_location>
 #include <thread>
 
@@ -53,35 +51,3 @@
 #define S_INFO(message)
 
 #endif
-
-// Wrap the boost stacktrace in a namespace so we dont get redifinition errors
-namespace StackTrace
-{
-// Get the stack trace
-inline std::string GetStackTrace(const std::vector<boost::stacktrace::frame>& frames)
-{
-	std::ifstream ifs("backtrace.dump");
-
-	std::string callStack;
-	for (auto& frame : frames) { callStack += frame.source_file() + "(" + std::to_string(frame.source_line()) + "): " + frame.name() + "\n"; }
-
-	return callStack;
-}
-
-// Just a info output with file info
-inline void ThreadStack(const std::string& message)
-{
-	std::vector<boost::stacktrace::frame> frames = boost::stacktrace::basic_stacktrace().as_vector();
-	frames.erase(frames.begin(), frames.begin() + 3);
-
-	std::cout << "PRINTING CALLSTACK" << std::endl;
-	// thread GetStackTrace as it can take a while to get the stack trace
-	std::thread stackTraceThread([frames]() {
-		std::string callStack = GetStackTrace(frames);
-		std::clog << "Call Stack:\n" << callStack << '\n';
-	});
-	stackTraceThread.detach();
-}
-} // namespace StackTrace
-
-#define S_TRACE(message) StackTrace::ThreadStack(message);

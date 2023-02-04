@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "Scenes/VulkanScene.h"
 #include <crtdbg.h>
 
@@ -11,7 +12,7 @@ int main()
 
 	GraphicsAPI graphicsAPI = GraphicsAPI::Vulkan;
 
-	UIEngine::Engine engine = UIEngine::Engine();
+	auto engine = UIEngine::Engine();
 	engine.Init("UIEngine", 1920, 1080, graphicsAPI);
 
 	auto& sceneStateMachine = engine.GetSceneStateMachine();
@@ -23,10 +24,8 @@ int main()
 
 	while (!engine.GetClose())
 	{
-		float dt = engine.Update();
-
 		// If dt is -float max then don't continue
-		if (dt == -FLT_MAX) break;
+		if (engine.Update() == -FLT_MAX) break;
 
 		engine.Render();
 	}

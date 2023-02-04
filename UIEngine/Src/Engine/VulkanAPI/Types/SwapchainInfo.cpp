@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "SwapchainInfo.h"
 namespace VulkanWrapper
 {

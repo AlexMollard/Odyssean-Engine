@@ -20,7 +20,7 @@ public:
 	void Init();
 
 	// Update the ECS
-	void Update(BS::thread_pool& pool);
+	void Update(const BS::thread_pool& pool);
 
 	// Destroy the ECS
 	void Destroy();
@@ -43,7 +43,7 @@ public:
 	}
 
 	// Create a basic quad entity (quad, transform)
-	static flecs::entity& CreateQuad(const glm::vec3& position, const glm::vec2& size, const glm::vec4& color, const char* name = nullptr);
+	static flecs::entity* CreateQuad(const glm::vec3& position, const glm::vec2& size, const glm::vec4& color, const char* name = nullptr);
 
 	// Create a basic text entity (text, transform)
 	static flecs::entity* CreateText(const std::string& text, const glm::vec3& position, const glm::vec4& color);
@@ -54,11 +54,7 @@ public:
 	}
 
 	// Gets a given nodes inspector function that is used to draw the node in the inspector
-	static void GetNodeInspectorFunction(flecs::entity& entity);
-
-	// Thread for the ECS
-	std::thread m_ECSUpdateThread;
-	std::mutex  m_ECSUpdateMutex;
+	static void GetNodeInspectorFunction(const flecs::entity& entity);
 
 private:
 	// Private constructor

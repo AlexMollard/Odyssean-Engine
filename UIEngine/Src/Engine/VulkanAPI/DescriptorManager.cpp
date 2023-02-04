@@ -1,3 +1,5 @@
+#include "pch.h"
+
 #include "DescriptorManager.h"
 
 #include <iostream>

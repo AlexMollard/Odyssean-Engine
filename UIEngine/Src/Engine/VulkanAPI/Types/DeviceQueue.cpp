@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "DeviceQueue.h"
 
 #include "common.h"

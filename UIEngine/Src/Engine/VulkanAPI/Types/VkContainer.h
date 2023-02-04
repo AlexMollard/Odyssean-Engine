@@ -59,7 +59,7 @@ struct VkContainer
 	std::vector<CommandBuffer> commandBuffersNoDepth;
 
 	// Descriptor set stuff
-	VulkanWrapper::DescriptorManager* descriptorManager = nullptr;
+	std::shared_ptr<VulkanWrapper::DescriptorManager> descriptorManager = nullptr;
 	vk::DescriptorPool                imguiDescriptorPool;
 
 	Window window;

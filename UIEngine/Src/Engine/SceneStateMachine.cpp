@@ -3,7 +3,6 @@
 #include "SceneStateMachine.h"
 
 #include "Scene.h"
-#include <WinBase.h>
 
 // Add a scene to the state machine.
 void SceneStateMachine::AddScene(Scene* scene)

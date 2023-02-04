@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "Renderer.h"
 
 #include "../ImGuiVulkan.h"
@@ -29,10 +30,10 @@ void VulkanWrapper::Renderer::Init(VulkanWrapper::VkContainer* api)
 	// Create the command buffers
 	m_API->CreateCommandBuffers();
 
-	m_DescriptorManager      = new DescriptorManager(api->device);
+	m_DescriptorManager      = std::make_shared<DescriptorManager>(api->device);
 	m_API->descriptorManager = m_DescriptorManager;
 
-	m_Mesh = new VulkanWrapper::Mesh(api->device, api->deviceQueue.m_PhysicalDevice, m_DescriptorManager);
+	m_Mesh = new VulkanWrapper::Mesh(api->device, api->deviceQueue.m_PhysicalDevice, m_DescriptorManager.get());
 	m_Mesh->LoadModel(*api, "../Resources/Meshes/knot.obj");
 
 	// Create the graphics pipeline

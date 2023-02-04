@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "ImGuiVulkan.h"
 
 // Include the ImGui

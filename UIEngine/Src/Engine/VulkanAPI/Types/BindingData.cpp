@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "BindingData.h"
 
 VulkanWrapper::BindingData::BindingData(uint32_t binding, vk::DescriptorType descriptorType, uint32_t descriptorCount, vk::ShaderStageFlags stageFlags)

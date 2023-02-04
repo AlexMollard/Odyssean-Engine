@@ -1,11 +1,10 @@
+#include "pch.h"
 #include "MeshHelper.h"
 
 #include "../Types/VulkanMaterial.h"
 #include "../Types/Mesh.h"
 #include "../Types/SubMesh.h"
 #include "../Types/VkContainer.h"
-#include "glm/ext/scalar_constants.inl"
-#include "glm/gtc/constants.inl"
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>

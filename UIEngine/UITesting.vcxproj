@@ -21,7 +21,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>ClangCL</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
     <EnableASAN>
     </EnableASAN>
@@ -54,7 +54,7 @@
     <CopyLocalProjectReference>false</CopyLocalProjectReference>
     <CopyLocalDebugSymbols>false</CopyLocalDebugSymbols>
     <RunCodeAnalysis>false</RunCodeAnalysis>
-    <EnableMicrosoftCodeAnalysis>false</EnableMicrosoftCodeAnalysis>
+    <EnableMicrosoftCodeAnalysis>true</EnableMicrosoftCodeAnalysis>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <AllProjectIncludesArePublic>true</AllProjectIncludesArePublic>
@@ -65,7 +65,7 @@
     <VcpkgEnableManifest>true</VcpkgEnableManifest>
     <VcpkgManifestInstall>true</VcpkgManifestInstall>
     <VcpkgTriplet Condition="'$(Platform)'=='x64'">x64-windows-static</VcpkgTriplet>
-    <VcpkgAutoLink>false</VcpkgAutoLink>
+    <VcpkgAutoLink>true</VcpkgAutoLink>
   </PropertyGroup>
   <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <VcpkgUseStatic>true</VcpkgUseStatic>
@@ -120,6 +120,10 @@ xcopy /y "C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\co
     <Manifest>
       <EnableDpiAwareness>true</EnableDpiAwareness>
     </Manifest>
+    <PreBuildEvent>
+      <Command>
+      </Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -169,7 +173,6 @@ xcopy /y "C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\co
     <ClInclude Include="Src\Engine\VulkanAPI\Types\common.h" />
     <ClInclude Include="Src\Engine\VulkanAPI\VulkanEngine.h" />
     <ClInclude Include="Src\Engine\VulkanAPI\VulkanInit.h" />
-    <ClInclude Include="Src\pch.h" />
     <ClInclude Include="Src\Engine\BaseRenderer.h" />
     <ClInclude Include="Src\Engine\OpenGLAPI\OpenGLRenderer.h" />
     <ClInclude Include="Src\Engine\BaseEngine.h" />
@@ -194,6 +197,7 @@ xcopy /y "C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\co
     <ClInclude Include="Src\Engine\TextComponent.h" />
     <ClInclude Include="Src\Engine\Texture.h" />
     <ClInclude Include="Src\Engine\OpenGLAPI\OpenGLWindow.h" />
+    <ClInclude Include="Src\pch.h" />
     <ClInclude Include="Src\Scenes\TestingScene.h" />
     <ClInclude Include="Src\Scenes\VulkanScene.h" />
     <ClInclude Include="Src\Engine\VulkanAPI\Types\SwapchainInfo.h" />
@@ -225,7 +229,6 @@ xcopy /y "C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\co
     <ClCompile Include="Src\Engine\Engine.cpp" />
     <ClCompile Include="Src\Engine\ECS.cpp" />
     <ClCompile Include="Src\Engine\ImGuiLayer.cpp" />
-    <ClCompile Include="Src\pch.cpp" />
     <ClCompile Include="Src\Engine\Renderer2D.cpp" />
     <ClCompile Include="Src\Engine\Resource.cpp" />
     <ClCompile Include="Src\Engine\ResourceManager.cpp" />

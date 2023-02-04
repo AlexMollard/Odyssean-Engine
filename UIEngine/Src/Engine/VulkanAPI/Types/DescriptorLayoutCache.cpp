@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "DescriptorLayoutCache.h"
 
 VulkanWrapper::DescriptorLayoutCache::DescriptorLayoutCache(vk::Device device) : m_device(device)

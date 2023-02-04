@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "common.h"
 
 #include "DeviceQueue.h"
@@ -212,7 +213,7 @@ void Texture::CreateDebugRoughnessTexture(const char* dir)
 	int            channels = 4;
 	auto* data     = new unsigned char[width * height * channels];
 	memset(data, 128, width * height * channels);
-	
+
 	stbi_write_jpg(dir, width, height, channels, data, 100);
 
 	delete[] data;
