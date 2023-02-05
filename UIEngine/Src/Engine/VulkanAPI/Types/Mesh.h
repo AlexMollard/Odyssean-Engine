@@ -1,10 +1,15 @@
 #pragma once
-#include "../DescriptorManager.h"
 #include "SubMesh.h"
+#include "DescriptorSetLayout.h"
 
 struct aiScene;
 struct aiNode;
 struct aiMesh;
+
+namespace VulkanWrapper
+{
+class DescriptorManager;
+}
 
 namespace VulkanWrapper
 {
@@ -42,7 +47,7 @@ struct Mesh
 	std::string m_directory;
 
 private:
-	vk::Device m_device;
+	vk::Device         m_device;
 	vk::PhysicalDevice m_physicalDevice;
 
 	std::vector<SubMesh> m_subMeshes;

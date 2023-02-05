@@ -1,7 +1,15 @@
 #pragma once
 #include "VulkanMaterial.h"
-#include "VkContainer.h"
 #include <glm/glm.hpp>
+#include "common.h"
+
+namespace vk { class PipelineLayout; }
+
+namespace VulkanWrapper { class CommandBuffer; }
+
+namespace vk { class DescriptorSet; }
+
+namespace VulkanWrapper { struct Buffer; }
 
 namespace VulkanWrapper
 {
@@ -39,14 +47,14 @@ public:
 
 	// Function to create buffers, descriptor sets, and descriptor set layouts
 	void CreateBuffers(DeviceQueue& devices);
-	void CreateDescriptorSets(VulkanWrapper::VkContainer& api);
+	void CreateDescriptorSets();
 
 	// Function to update descriptor sets, bind buffers, and add the mesh to a command buffer
-	void UpdateDescriptorSets(vk::Device& device, VulkanWrapper::Buffer* mvpBuffer, VulkanWrapper::Buffer* lightsBuffer);
+	void UpdateDescriptorSets(VulkanWrapper::Buffer* mvpBuffer, VulkanWrapper::Buffer* lightsBuffer);
 	void BindBuffers(vk::CommandBuffer& commandBuffer, vk::PipelineLayout& pipelineLayout);
 
 	// Function to destroy buffers
-	void DestroyBuffers(VulkanWrapper::DescriptorManager& descManager, vk::Device& device);
+	void DestroyBuffers();
 
 	// Variables for vertices, indices, and textures
 	std::vector<Vertex>   m_vertices;

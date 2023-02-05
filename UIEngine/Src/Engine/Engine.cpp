@@ -31,12 +31,12 @@ Engine::~Engine()
 {
 	if (m_graphicsAPI == GraphicsAPI::OpenGL)
 	{
-		OpenGLEngine* engine = static_cast<OpenGLEngine*>(m_engine);
+		auto engine = static_cast<OpenGLEngine*>(m_engine);
 		delete engine;
 	}
 	else if (m_graphicsAPI == GraphicsAPI::Vulkan)
 	{
-		VulkanWrapper::Engine* engine = static_cast<VulkanWrapper::Engine*>(m_engine);
+		auto engine = static_cast<VulkanWrapper::Engine*>(m_engine);
 		delete engine;
 	}
 }
@@ -45,7 +45,7 @@ float Engine::Update()
 {
 	if (m_graphicsAPI == GraphicsAPI::OpenGL)
 	{
-		OpenGLEngine* engine = static_cast<OpenGLEngine*>(m_engine);
+		auto engine = static_cast<OpenGLEngine*>(m_engine);
 
 		m_close = engine->GetClose();
 
@@ -53,15 +53,16 @@ float Engine::Update()
 
 		return engine->Update(m_sceneStateMachine);
 	}
-	else if (m_graphicsAPI == GraphicsAPI::Vulkan)
+
+	if (m_graphicsAPI == GraphicsAPI::Vulkan)
 	{
-		VulkanWrapper::Engine* engine = static_cast<VulkanWrapper::Engine*>(m_engine);
+		auto engine = static_cast<VulkanWrapper::Engine*>(m_engine);
 
 		m_close = engine->GetClose();
 
 		if (m_close) return -FLT_MAX;
 
-		return engine->Update();
+		return engine->Update(m_sceneStateMachine);
 	}
 
 	return -FLT_MAX;
@@ -71,30 +72,14 @@ void Engine::Render()
 {
 	if (m_graphicsAPI == GraphicsAPI::OpenGL)
 	{
-		OpenGLEngine* engine = static_cast<OpenGLEngine*>(m_engine);
+		auto engine = static_cast<OpenGLEngine*>(m_engine);
 		engine->Render(m_sceneStateMachine);
 	}
 	else if (m_graphicsAPI == GraphicsAPI::Vulkan)
 	{
-		VulkanWrapper::Engine* engine = static_cast<VulkanWrapper::Engine*>(m_engine);
-		engine->Render();
+		auto engine = static_cast<VulkanWrapper::Engine*>(m_engine);
+		engine->Render(m_sceneStateMachine);
 	}
-}
-
-const void* Engine::GetRenderer()
-{
-	if (m_graphicsAPI == GraphicsAPI::OpenGL)
-	{
-		OpenGLEngine* engine = static_cast<OpenGLEngine*>(m_engine);
-		return engine->GetRenderer();
-	}
-	else if (m_graphicsAPI == GraphicsAPI::Vulkan)
-	{
-		VulkanWrapper::Engine* engine = static_cast<VulkanWrapper::Engine*>(m_engine);
-		return engine->GetRenderer();
-	}
-
-	return nullptr;
 }
 
 SceneStateMachine& Engine::GetSceneStateMachine()

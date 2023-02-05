@@ -10,7 +10,7 @@ class Window
 {
 public:
 	Window() = default;
-	~Window();
+	~Window() = default;
 
 	void Initialize(const char* windowName, int width, int height);
 	void Update();
@@ -62,9 +62,15 @@ private:
 	// Framebuffer Resize
 	bool m_FramebufferResized = false;
 
+	// Timing stuff
+	float m_Dt = 0.0f;
+	double m_LastFrame = 0.0f;
+	double m_CurrentFrame = 0.0f;
+
 public:
-	bool GetMinimized();
-	int GetMouseState(bool mouseIndex);
-	float GetMouseWheel();
+	bool GetMinimized() const;
+	int GetMouseState(bool mouseIndex) const;
+	double GetMouseWheel() const;
 	void  ResetMouseWheel();
+	float GetDt() const;
 };

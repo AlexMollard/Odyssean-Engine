@@ -1,17 +1,18 @@
 #include "pch.h"
-#include "Renderer.h"
+#include "Renderer_old.h"
 
 #include "../ImGuiVulkan.h"
 #include "Mesh.h"
 #include <iostream>
 #include <vulkan/vulkan.hpp>
+#include "Renderer_old.h"
 
-VulkanWrapper::Renderer::~Renderer()
+VulkanWrapper::Renderer_old::~Renderer_old()
 {
 	//Destroy();
 }
 
-void VulkanWrapper::Renderer::Init(VulkanWrapper::VkContainer* api)
+void VulkanWrapper::Renderer_old::Init(VulkanWrapper::VkContainer* api)
 {
 	m_API = api;
 
@@ -37,7 +38,7 @@ void VulkanWrapper::Renderer::Init(VulkanWrapper::VkContainer* api)
 	m_Mesh->LoadModel(*api, "../Resources/Meshes/knot.obj");
 
 	// Create the graphics pipeline
-	m_API->CreateGraphicsPipeline("../Resources/Shaders/compiled/vulkan_vert.spv", "../Resources/Shaders/compiled/vulkan_frag.spv", *m_Mesh);
+	m_API->CreateGraphicsPipeline("../Resources/Shaders/compiled/vulkan_vert.spv", "../Resources/Shaders/compiled/vulkan_frag.spv", m_Mesh->GetAllDescriptorSetLayouts());
 
 	view          = glm::mat4(1.0f);
 	m_CameraPos   = glm::vec3(0.0f, 0.0f, 3.0f);
@@ -52,7 +53,7 @@ void VulkanWrapper::Renderer::Init(VulkanWrapper::VkContainer* api)
 	m_Window      = m_API->window.GetWindow();
 }
 
-void VulkanWrapper::Renderer::Destroy()
+void VulkanWrapper::Renderer_old::Destroy()
 {
 	m_Mesh->Destroy();
 	delete m_Mesh;
@@ -65,7 +66,7 @@ void VulkanWrapper::Renderer::Destroy()
 	}
 }
 
-void VulkanWrapper::Renderer::recreateSwapChain()
+void VulkanWrapper::Renderer_old::recreateSwapChain()
 {
 	// Wait for the device to be idle
 	m_API->deviceQueue.wait();
@@ -83,7 +84,7 @@ void VulkanWrapper::Renderer::recreateSwapChain()
 	m_API->CreateCommandBuffers();
 }
 
-void VulkanWrapper::Renderer::BeginFrame()
+void VulkanWrapper::Renderer_old::BeginFrame()
 {
 	// Get the next image
 	vk::Result result = m_API->swapchainInfo.GetNextImage(m_API->deviceQueue.m_Device, m_API->syncObjectContainer.getImageAvailableSemaphore());
@@ -111,7 +112,7 @@ void VulkanWrapper::Renderer::BeginFrame()
 	const auto  currentTime = std::chrono::high_resolution_clock::now();
 	const float time        = std::chrono::duration<float>(currentTime - startTime).count();
 
-	LightProperties light;
+	LightProperties light{};
 	float           r    = glm::sin(time * 2.0f) * 0.5f + 0.5f;
 	float           g    = glm::sin(time * 0.7f) * 0.5f + 0.5f;
 	float           b    = glm::sin(time * 1.3f) * 0.5f + 0.5f;
@@ -149,7 +150,7 @@ void VulkanWrapper::Renderer::BeginFrame()
 																					renderFunc);
 }
 
-void VulkanWrapper::Renderer::EndFrame()
+void VulkanWrapper::Renderer_old::EndFrame()
 {
 	vk::Device& device = m_API->deviceQueue.m_Device;
 
@@ -177,10 +178,10 @@ void VulkanWrapper::Renderer::EndFrame()
 	else { VK_CHECK_RESULT(result); }
 }
 
-void VulkanWrapper::Renderer::RenderUI()
+void VulkanWrapper::Renderer_old::RenderUI()
 {}
 
-void VulkanWrapper::Renderer::UpdateCamera()
+void VulkanWrapper::Renderer_old::UpdateCamera()
 {
 	// Get the delta time from the last frame
 	float time      = glfwGetTime();

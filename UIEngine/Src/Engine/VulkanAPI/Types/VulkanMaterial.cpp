@@ -7,6 +7,8 @@
 #include <fstream>
 #include <iostream>
 #include <vulkan/vulkan.hpp>
+#include "DeviceQueue.h"
+#include "VkContainer.h"
 
 int VulkanWrapper::VulkanMaterial::GetTextureCount()
 {

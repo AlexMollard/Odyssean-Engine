@@ -1,4 +1,6 @@
 #pragma once
+#include <assimp/material.h>
+#include <map>
 #include <string>
 #include <vector>
 
@@ -15,13 +17,13 @@ class SubMesh;
 
 struct VulkanMaterial
 {
-	std::string m_Name;
+	std::string                          m_Name;
 	std::map<aiTextureType, std::string> m_Textures;
 
 	int GetTextureCount();
 
 	const std::vector<const vk::DescriptorImageInfo*>& GetDescriptorData(VulkanWrapper::VkContainer& api);
-	static void ProcessMaterial(aiMaterial* material, SubMesh& subMesh);
+	static void                                        ProcessMaterial(aiMaterial* material, SubMesh& subMesh);
 
 	std::string& operator[](int index);
 	std::string& operator[](aiTextureType type);
@@ -30,6 +32,6 @@ struct VulkanMaterial
 
 	bool hasTexture(aiTextureType type);
 
-	static CreateDebugMaterial(VulkanWrapper::VkContainer& api);
+	static void CreateDebugMaterial(VulkanWrapper::VkContainer& api);
 };
 } // namespace VulkanWrapper

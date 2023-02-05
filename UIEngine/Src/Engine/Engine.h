@@ -28,8 +28,6 @@ public:
 		return m_close;
 	}
 
-	const void* GetRenderer();
-
 	SceneStateMachine& GetSceneStateMachine();
 
 private:

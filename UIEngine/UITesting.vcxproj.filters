@@ -96,7 +96,7 @@
     <ClCompile Include="Src\Engine\VulkanAPI\Types\Window.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Src\Engine\VulkanAPI\Types\Renderer.cpp">
+    <ClCompile Include="Src\Engine\VulkanAPI\Types\Renderer_old.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Src\Engine\VulkanAPI\Types\VkContainer.cpp">
@@ -127,6 +127,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Src\Engine\VulkanAPI\Types\DescriptorSetLayout.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Engine\Renderer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Engine\VulkanAPI\Helpers\VkRenderHelper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -245,7 +251,7 @@
     <ClInclude Include="Src\Engine\VulkanAPI\Types\Window.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Src\Engine\VulkanAPI\Types\Renderer.h">
+    <ClInclude Include="Src\Engine\VulkanAPI\Types\Renderer_old.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Src\Engine\VulkanAPI\Types\SyncObjectContainer.h">
@@ -273,6 +279,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Src\pch.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Engine\Renderer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Engine\VulkanAPI\Helpers\VkRenderHelper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Engine\VulkanAPI\Types\Material.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -24,7 +24,7 @@ public:
 	virtual void ProcessInput(){ /* Override This */ };
 	virtual void Update(float deltaTime){ /* Override This */ };
 	virtual void LateUpdate(float deltaTime){ /* Override This */ };
-	virtual void Draw(const BaseRenderer& renderer){ /* Override This */ };
+	virtual void Draw(){ /* Override This */ };
 
 	// virtual destructor
 	virtual ~Scene() = default;

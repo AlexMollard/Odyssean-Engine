@@ -1,8 +1,6 @@
 #include "pch.h"
-#include "Window.h"
 
-Window::~Window()
-{}
+#include "Window.h"
 
 void Window::Initialize(const char* windowName, int width, int height)
 {
@@ -16,40 +14,45 @@ void Window::Initialize(const char* windowName, int width, int height)
 
 	glfwSetWindowUserPointer(m_Window, this);
 	glfwSetWindowCloseCallback(m_Window, [](GLFWwindow* window) {
-		auto app     = reinterpret_cast<Window*>(glfwGetWindowUserPointer(window));
+		auto app     = std::bit_cast<Window*>(glfwGetWindowUserPointer(window));
 		app->m_close = true;
 	});
 
-	glfwSetKeyCallback(m_Window, [](GLFWwindow* window, int key, int scancode, int action, int mods) {
-		auto app         = reinterpret_cast<Window*>(glfwGetWindowUserPointer(window));
+	glfwSetKeyCallback(m_Window, [](GLFWwindow* window, int key, int, int action, int) {
+		auto app         = std::bit_cast<Window*>(glfwGetWindowUserPointer(window));
 		app->m_Keys[key] = action != GLFW_RELEASE;
 	});
 
-	glfwSetMouseButtonCallback(m_Window, [](GLFWwindow* window, int button, int action, int mods) {
-		auto app                    = reinterpret_cast<Window*>(glfwGetWindowUserPointer(window));
+	glfwSetMouseButtonCallback(m_Window, [](GLFWwindow* window, int button, int action, int) {
+		auto app                    = std::bit_cast<Window*>(glfwGetWindowUserPointer(window));
 		app->m_MouseButtons[button] = action != GLFW_RELEASE;
 	});
 
 	glfwSetCursorPosCallback(m_Window, [](GLFWwindow* window, double xpos, double ypos) {
-		auto app      = reinterpret_cast<Window*>(glfwGetWindowUserPointer(window));
+		auto app      = std::bit_cast<Window*>(glfwGetWindowUserPointer(window));
 		app->m_MouseX = xpos;
 		app->m_MouseY = ypos;
 	});
 
 	glfwSetScrollCallback(m_Window, [](GLFWwindow* window, double xoffset, double yoffset) {
-		auto app       = reinterpret_cast<Window*>(glfwGetWindowUserPointer(window));
+		auto app       = std::bit_cast<Window*>(glfwGetWindowUserPointer(window));
 		app->m_ScrollX = xoffset;
 		app->m_ScrollY = yoffset;
 	});
 
-	glfwSetFramebufferSizeCallback(m_Window, [](GLFWwindow* window, int width, int height) {
-		auto app                  = reinterpret_cast<Window*>(glfwGetWindowUserPointer(window));
+	glfwSetFramebufferSizeCallback(m_Window, [](GLFWwindow* window, int, int) {
+		auto app                  = std::bit_cast<Window*>(glfwGetWindowUserPointer(window));
 		app->m_FramebufferResized = true;
 	});
 }
 
 void Window::Update()
 {
+	// Delta time
+	m_CurrentFrame = glfwGetTime();
+	m_Dt           = (float)(m_CurrentFrame - m_LastFrame);
+	m_LastFrame    = m_CurrentFrame;
+
 	glfwPollEvents();
 
 	if (m_FramebufferResized)
@@ -90,19 +93,19 @@ std::vector<const char*> Window::GetRequiredExtensions()
 	return extensions;
 }
 
-bool Window::GetMinimized()
+bool Window::GetMinimized() const
 {
 	bool m_Minimized = false;
 	if (m_Width == 0 || m_Height == 0) { m_Minimized = true; }
 	return m_Minimized;
 }
 
-int Window::GetMouseState(bool mouseIndex)
+int Window::GetMouseState(bool mouseIndex) const
 {
 	return m_MouseButtons[mouseIndex];
 }
 
-float Window::GetMouseWheel()
+double Window::GetMouseWheel() const
 {
 	return m_ScrollY;
 }
@@ -110,4 +113,9 @@ float Window::GetMouseWheel()
 void Window::ResetMouseWheel()
 {
 	m_ScrollY = 0;
+}
+
+float Window::GetDt() const
+{
+	return m_Dt;
 }

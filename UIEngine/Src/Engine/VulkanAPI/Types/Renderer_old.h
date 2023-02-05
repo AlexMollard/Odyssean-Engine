@@ -10,13 +10,13 @@ class DescriptorManager;
 namespace VulkanWrapper
 {
 class Mesh;
-class Renderer
+class Renderer_old
 {
 public:
-	Renderer() = default;
-	Renderer(VulkanWrapper::VkContainer* api) : m_API(api){};
+	Renderer_old() = default;
+	Renderer_old(VulkanWrapper::VkContainer* api) : m_API(api){};
 
-	~Renderer();
+	~Renderer_old();
 
 	void Init(VulkanWrapper::VkContainer* api);
 	void Destroy();

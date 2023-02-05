@@ -1,10 +1,9 @@
 #pragma once
 #include <string>
 #include <vector>
-#include "assimp/material.h"
 #include <map>
+#include "assimp/material.h"
 
-class aiMaterial;
 namespace vk
 {
 struct DescriptorImageInfo;
@@ -34,7 +33,7 @@ struct VulkanMaterial
 
 	bool hasTexture(aiTextureType type);
 
-	
+
 	static VulkanMaterial CreateDebugMaterial(VulkanWrapper::VkContainer& api);
 };
 } // namespace VulkanWrapper

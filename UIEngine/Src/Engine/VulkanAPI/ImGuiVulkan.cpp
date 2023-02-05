@@ -64,7 +64,7 @@ int ImGuiVulkan::SetUpImgui(VulkanWrapper::VkContainer& vkContainer)
 
 		ImGui_ImplGlfw_InitForVulkan(vkContainer.window.GetWindow(), true);
 		ImGui_ImplVulkan_InitInfo initInfo = {};
-		initInfo.Instance                  = vkContainer.instance;
+		initInfo.Instance                  = vkContainer.vulkanInstance;
 		initInfo.PhysicalDevice            = vkContainer.deviceQueue.m_PhysicalDevice;
 		initInfo.Device                    = vkContainer.device;
 		initInfo.Queue                     = vkContainer.deviceQueue.GetQueue(VulkanWrapper::QueueType::GRAPHICS);

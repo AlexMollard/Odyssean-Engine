@@ -11,6 +11,7 @@
 #include "Window.h"
 #include "common.h"
 #include <map>
+#include <Engine/Renderer.h>
 
 namespace VulkanWrapper
 {
@@ -19,13 +20,24 @@ struct Mesh;
 
 namespace VulkanWrapper
 {
-struct VkContainer
+class VkContainer
 {
+	VkContainer(){};
+	VkContainer(const VkContainer&)            = delete;
+	VkContainer& operator=(const VkContainer&) = delete;
+
+public:
 	~VkContainer();
+
+	inline static VkContainer& instance()
+	{
+		static VkContainer instance;
+		return instance;
+	}
 
 	// Vulkan API
 	vk::InstanceCreateInfo instanceCreateInfo;
-	vk::Instance           instance;
+	vk::Instance           vulkanInstance;
 
 	// Extensions and Layers
 	std::vector<const char*> extensions;
@@ -35,11 +47,11 @@ struct VkContainer
 	vk::DebugUtilsMessengerEXT debugMessenger;
 
 	// Pipeline
-	vk::PipelineLayout                      pipelineLayout;
-	vk::Pipeline                            graphicsPipeline;
-	std::map<std::string, vk::ShaderModule> shaderModules;
+	vk::PipelineLayout pipelineLayout;
+	vk::Pipeline       graphicsPipeline;
 
-	std::map<std::string, VulkanWrapper::Texture*> textureCache;
+	std::map<std::string, vk::ShaderModule, std::less<>>        shaderModules;
+	std::map<std::string, VulkanWrapper::Texture*, std::less<>> textureCache;
 
 	// Depth Buffer
 	Texture depthTexture;
@@ -51,6 +63,7 @@ struct VkContainer
 	SwapchainInfo         swapchainInfo;
 	RenderPassFramebuffer renderPassFrameBuffers;
 	SyncObjectContainer   syncObjectContainer;
+	Renderer::VulkanImpl* renderer;
 
 	vk::Device& device = deviceQueue.m_Device;
 
@@ -60,7 +73,7 @@ struct VkContainer
 
 	// Descriptor set stuff
 	std::shared_ptr<VulkanWrapper::DescriptorManager> descriptorManager = nullptr;
-	vk::DescriptorPool                imguiDescriptorPool;
+	vk::DescriptorPool                                imguiDescriptorPool;
 
 	Window window;
 
@@ -75,12 +88,14 @@ struct VkContainer
 
 	vk::PipelineDepthStencilStateCreateInfo SetupDepthAndStencilState();
 
+	void SetDescriptorManager(std::shared_ptr<VulkanWrapper::DescriptorManager> newDescriptorManager);
 	void CreateSwapChain();
 	void CreateRenderPasses();
 	void CreateDepthResources();
 	void CreateFrameBuffers();
 	void CreateCommandBuffers();
-	void CreateGraphicsPipeline(const char* vertShader, const char* fragShader, Mesh& mesh);
+	void CreateGraphicsPipeline(const char* vertShader, const char* fragShader, std::vector<std::shared_ptr<VulkanWrapper::DescriptorSetLayout>> descriptorSetLayouts);
+	void SetVulkanRenderer(Renderer::VulkanImpl* newVulkanRenderer);
 
 	std::vector<char> ReadFile(const char* fileDir);
 };

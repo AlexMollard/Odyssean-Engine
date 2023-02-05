@@ -25,7 +25,7 @@ public:
 	void Update(float deltaTime);
 
 	// Render the current state
-	void Render(const BaseRenderer& renderer);
+	void Render();
 
 	// Destroy all scenes.
 	void Destroy();

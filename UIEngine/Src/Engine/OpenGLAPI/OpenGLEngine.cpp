@@ -19,11 +19,11 @@ OpenGLEngine::~OpenGLEngine()
 	delete pool;
 	pool = nullptr;
 	ECS::Instance()->Destroy();
-	
+
 	ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplGlfw_Shutdown();
 	ImGui::DestroyContext();
-	
+
 	// Delete FBO
 	glDeleteFramebuffers(1, &m_fbo);
 	glDeleteTextures(1, &m_Texture);
@@ -38,7 +38,7 @@ void OpenGLEngine::Initialize(const char* windowName, int width, int height)
 
 	// ImGui Setup
 	m_ImguiLayer.Init(m_Window.GetWindow());
-	ImGui_ImplOpenGL3_Init("#version 450");	
+	ImGui_ImplOpenGL3_Init("#version 450");
 
 
 	m_close = false;
@@ -96,7 +96,7 @@ void OpenGLEngine::Render(SceneStateMachine& stateMachine)
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	// Render state machine
-	stateMachine.Render(*m_renderer);
+	stateMachine.Render();
 
 	// Unbind fbo
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);

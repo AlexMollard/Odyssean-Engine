@@ -1,9 +1,11 @@
 #include "pch.h"
+
 #include "VkContainer.h"
 
 #include "Mesh.h"
 #include <fstream>
 #include <iostream>
+#include "../../Renderer.h"
 
 vk::SwapchainKHR& VulkanWrapper::VkContainer::Swapchain()
 {
@@ -53,6 +55,11 @@ vk::PipelineDepthStencilStateCreateInfo VulkanWrapper::VkContainer::SetupDepthAn
 	depthStencil.depthBoundsTestEnable                   = VK_FALSE;
 	depthStencil.stencilTestEnable                       = VK_FALSE;
 	return depthStencil;
+}
+
+void VulkanWrapper::VkContainer::SetDescriptorManager(std::shared_ptr<VulkanWrapper::DescriptorManager> newDescriptorManager)
+{
+	descriptorManager = newDescriptorManager;
 }
 
 void VulkanWrapper::VkContainer::CreateSwapChain()
@@ -225,13 +232,12 @@ void VulkanWrapper::VkContainer::CreateCommandBuffers()
 	commandBuffersNoDepth.emplace_back(deviceQueue.m_Device, commandPool);
 }
 
-void VulkanWrapper::VkContainer::CreateGraphicsPipeline(const char* vertShader, const char* fragShader, Mesh& mesh)
+void VulkanWrapper::VkContainer::CreateGraphicsPipeline(const char* vertShader, const char* fragShader, std::vector<std::shared_ptr<VulkanWrapper::DescriptorSetLayout>> descriptorSetLayouts)
 {
 	// Get the descriptor set layouts from the sub meshes
 	try
 	{
 		// Get the descriptor set layouts from the sub meshes
-		std::vector<std::shared_ptr<VulkanWrapper::DescriptorSetLayout>> descriptorSetLayouts = mesh.GetAllDescriptorSetLayouts();
 		DescriptorManager::DebugLayouts(descriptorSetLayouts);
 		auto layouts = DescriptorManager::GetLayoutData(descriptorSetLayouts);
 
@@ -374,6 +380,11 @@ std::vector<char> VulkanWrapper::VkContainer::ReadFile(const char* fileDir)
 	return buffer;
 }
 
+void VulkanWrapper::VkContainer::SetVulkanRenderer(Renderer::VulkanImpl* newVulkanRenderer)
+{
+	renderer = newVulkanRenderer;
+}
+
 void VulkanWrapper::VkContainer::CreateDepthResources()
 {
 	// Create the depth image
@@ -458,8 +469,8 @@ VulkanWrapper::VkContainer::~VkContainer()
 	deviceQueue.m_Device.destroy(swapchainInfo.m_Swapchain);
 
 	// Surface
-	instance.destroy(window.m_Surface);
+	vulkanInstance.destroy(window.m_Surface);
 	deviceQueue.m_Device.destroy();
-	instance.destroy();
+	vulkanInstance.destroy();
 	window.Destroy();
 }

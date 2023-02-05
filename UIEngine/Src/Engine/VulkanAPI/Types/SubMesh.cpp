@@ -1,7 +1,11 @@
 #include "pch.h"
+
 #include "SubMesh.h"
 
+#include "DeviceQueue.h"
+#include "VkContainer.h"
 #include <iostream>
+#include "CommandBuffer.h"
 
 std::vector<vk::VertexInputAttributeDescription> VulkanWrapper::Vertex::GetVertexAttributes()
 {
@@ -112,8 +116,10 @@ void VulkanWrapper::SubMesh::CreateBuffers(DeviceQueue& devices)
 	devices.m_Device.unmapMemory(indexBufferMemory);
 }
 
-void VulkanWrapper::SubMesh::CreateDescriptorSets(VulkanWrapper::VkContainer& api)
+void VulkanWrapper::SubMesh::CreateDescriptorSets()
 {
+	VulkanWrapper::VkContainer& api = VulkanWrapper::VkContainer::instance();
+
 	// Get descriptor set layouts
 	std::vector<std::shared_ptr<VulkanWrapper::DescriptorSetLayout>> layouts;
 
@@ -136,7 +142,6 @@ void VulkanWrapper::SubMesh::CreateDescriptorSets(VulkanWrapper::VkContainer& ap
 
 	writeDescriptorSets.reserve(descriptorImageInfos.size());
 
-
 	// Iterate through the descriptorImageInfos and create a write descriptor set for each one
 	for (uint32_t i = 0; i < descriptorImageInfos.size(); ++i)
 	{
@@ -154,7 +159,7 @@ void VulkanWrapper::SubMesh::CreateDescriptorSets(VulkanWrapper::VkContainer& ap
 	api.device.updateDescriptorSets(writeDescriptorSets, nullptr);
 }
 
-void VulkanWrapper::SubMesh::UpdateDescriptorSets(vk::Device& device, VulkanWrapper::Buffer* mvpBuffer, VulkanWrapper::Buffer* lightsBuffer)
+void VulkanWrapper::SubMesh::UpdateDescriptorSets(VulkanWrapper::Buffer* mvpBuffer, VulkanWrapper::Buffer* lightsBuffer)
 {
 	// Update descriptor sets
 	std::vector<vk::WriteDescriptorSet> writeDescriptorSets;
@@ -191,7 +196,7 @@ void VulkanWrapper::SubMesh::UpdateDescriptorSets(vk::Device& device, VulkanWrap
 
 	writeDescriptorSets.push_back(lightsWriteDescriptorSet);
 
-	device.updateDescriptorSets(writeDescriptorSets, nullptr);
+	VulkanWrapper::VkContainer::instance().device.updateDescriptorSets(writeDescriptorSets, nullptr);
 }
 
 void VulkanWrapper::SubMesh::BindBuffers(vk::CommandBuffer& commandBuffer, vk::PipelineLayout& pipelineLayout)
@@ -207,8 +212,10 @@ void VulkanWrapper::SubMesh::BindBuffers(vk::CommandBuffer& commandBuffer, vk::P
 	commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, pipelineLayout, 0, m_descriptorSets.size(), m_descriptorSets.data(), 0, nullptr);
 }
 
-void VulkanWrapper::SubMesh::DestroyBuffers(VulkanWrapper::DescriptorManager& descManager, vk::Device& device)
+void VulkanWrapper::SubMesh::DestroyBuffers()
 {
+	const vk::Device& device = VulkanWrapper::VkContainer::instance().device;
+
 	device.destroyBuffer(m_vertexBuffer.buffer);
 	device.freeMemory(m_vertexBuffer.memory);
 

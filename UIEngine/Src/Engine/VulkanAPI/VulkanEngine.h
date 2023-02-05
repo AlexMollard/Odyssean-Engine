@@ -1,9 +1,9 @@
 #pragma once
 #include "../ImGuiLayer.h"
-#include "Types/Renderer.h"
 #include "VulkanInit.h"
 
 #include "Engine/BaseEngine.h"
+#include "Engine/Renderer.h"
 
 namespace VulkanWrapper
 {
@@ -16,16 +16,16 @@ public:
 	void Initialize(const char* windowName, int width, int height) override;
 
 	// Returns DT
-	float Update() override;
-	void  Render() override;
+	float Update(SceneStateMachine& stateMachine);
+	void  Render(SceneStateMachine& stateMachine);
 
 	bool GetClose() const override;
 
 	void* GetRenderer();
 
 private:
-	VulkanInit              m_Init;
-	VulkanWrapper::Renderer m_Renderer;
+	VulkanInit m_Init;
+	Renderer   m_Renderer{ Renderer::API::VULKAN};
 
 	Window* m_Window;
 	bool    m_close      = false;

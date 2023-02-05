@@ -10,7 +10,12 @@ namespace VulkanWrapper
 Engine::~Engine()
 {
 	ImGuiVulkan::DestroyImgui(m_Init.GetAPI());
-	m_Renderer.Destroy();
+
+	for (auto& texture : m_Init.GetAPI().textureCache)
+	{
+		texture.second->destroy(m_Init.GetAPI().device);
+		delete texture.second;
+	}
 }
 
 void Engine::Initialize(const char* windowName, int width, int height)
@@ -18,7 +23,15 @@ void Engine::Initialize(const char* windowName, int width, int height)
 	try
 	{
 		m_Init.Initialize("UIEngine", width, height);
-		m_Renderer.Init(&m_Init.GetAPI());
+
+		auto const& impl_ptr = m_Renderer.GetImpl();
+
+		auto vulkan_impl_ptr = dynamic_cast<Renderer::VulkanImpl*>(impl_ptr.get());
+
+		vulkan_impl_ptr->InitRenderer();
+
+		m_Init.GetAPI().SetVulkanRenderer(vulkan_impl_ptr);
+
 		ImGuiVulkan::SetUpImgui(m_Init.GetAPI());
 	}
 	catch (std::system_error e)
@@ -29,27 +42,28 @@ void Engine::Initialize(const char* windowName, int width, int height)
 	m_Window = m_Init.GetWindow();
 }
 
-float Engine::Update()
+float Engine::Update(SceneStateMachine& stateMachine)
 {
 	m_Window->Update();
 	m_close = m_Window->GetClose();
 
 	ImGuiVulkan::NewFrame(m_Init.GetAPI());
 
+	stateMachine.Update(m_Window->GetDt());
+
 	ImGuiVulkan::EndFrame(m_Init.GetAPI());
 	return 0.0f;
 }
 
-void Engine::Render()
+void Engine::Render(SceneStateMachine& stateMachine)
 {
 	// First we check if the window is minimized
 	if (m_Window->GetMinimized()) { return; }
 
-	// Now we begin all the vulkan commands
-	m_Renderer.BeginFrame();
+	// Render state machine
+	stateMachine.Render();
 
-	// We end the frame
-	m_Renderer.EndFrame();
+	m_Renderer.Draw();
 }
 
 bool Engine::GetClose() const

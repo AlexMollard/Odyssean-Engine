@@ -9,10 +9,7 @@
 class TestingScene : public Scene
 {
 public:
-	explicit TestingScene(std::string_view inName)
-	{
-		name = inName;
-	};
+	explicit TestingScene(std::string_view inName) : name(inName){};
 
 	void OnCreate() override{ /*To Be Impelmented*/ };
 	void Enter() override;
@@ -21,14 +18,14 @@ public:
 	void OnDestroy() override{ /*To Be Impelmented*/ };
 
 	void Update(float deltaTime) override;
-	void Draw(const BaseRenderer& renderer) override;
+	void Draw() override;
 
 private:
 	std::string name;
 
 	glm::vec3 direction = glm::vec3(0.2f, 0.2f, 0.0f);
 
-	ShaderOpenGL* m_litShader  = nullptr;
-	ShaderOpenGL* m_textShader = nullptr;
-	Renderer2D*   m_Renderer   = nullptr;
+	std::shared_ptr<ShaderOpenGL> m_litShader  = nullptr;
+	std::shared_ptr<ShaderOpenGL> m_textShader = nullptr;
+	std::shared_ptr<Renderer2D>   m_Renderer   = nullptr;
 };

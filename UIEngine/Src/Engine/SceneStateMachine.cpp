@@ -54,9 +54,9 @@ void SceneStateMachine::Update(float deltaTime)
 	if (currentScene) currentScene->Update(deltaTime);
 }
 
-void SceneStateMachine::Render(const BaseRenderer& renderer)
+void SceneStateMachine::Render()
 {
-	if (currentScene) currentScene->Draw(renderer);
+	if (currentScene) currentScene->Draw();
 }
 
 void SceneStateMachine::Destroy()

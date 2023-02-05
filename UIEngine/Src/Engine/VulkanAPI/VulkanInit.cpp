@@ -181,13 +181,13 @@ void VulkanInit::InitInstance()
 	m_API.instanceCreateInfo.setPNext(&m_DebugMessengerCreateInfo);
 
 	// Create the Vulkan instance
-	m_API.instance = vk::createInstance(m_API.instanceCreateInfo);
+	m_API.vulkanInstance = vk::createInstance(m_API.instanceCreateInfo);
 }
 
 void VulkanInit::InitDevice()
 {
 	// Get the physical device
-	m_API.deviceQueue.m_PhysicalDevice = m_API.instance.enumeratePhysicalDevices().front();
+	m_API.deviceQueue.m_PhysicalDevice = m_API.vulkanInstance.enumeratePhysicalDevices().front();
 	InitSurface();
 
 	VulkanWrapper::DeviceQueue& deviceQueue = m_API.deviceQueue;
@@ -289,7 +289,7 @@ void VulkanInit::InitSurface()
 {
 	// Create the surface using glfw
 	VkSurfaceKHR tmpSurface = {};
-	S_ASSERT(glfwCreateWindowSurface(m_API.instance, m_API.window.GetWindow(), nullptr, &tmpSurface) == VK_SUCCESS, "failed ot create window surface!")
+	S_ASSERT(glfwCreateWindowSurface(m_API.vulkanInstance, m_API.window.GetWindow(), nullptr, &tmpSurface) == VK_SUCCESS, "failed ot create window surface!")
 
 	Window& window = m_API.window;
 

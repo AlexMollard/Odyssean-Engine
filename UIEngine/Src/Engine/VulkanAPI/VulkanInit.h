@@ -44,5 +44,5 @@ private:
 	static void OutputSeverity(VkDebugUtilsMessageSeverityFlagBitsEXT severity);
 	static void OutputMessageType(VkDebugUtilsMessageTypeFlagsEXT type);
 
-	VulkanWrapper::VkContainer m_API;
+	VulkanWrapper::VkContainer& m_API = VulkanWrapper::VkContainer::instance();
 };

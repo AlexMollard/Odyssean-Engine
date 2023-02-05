@@ -4,6 +4,8 @@
 #include "../Helpers/MeshHelper.h"
 #include "../VulkanInit.h"
 #include <iostream>
+#include "../DescriptorManager.h"
+
 
 namespace VulkanWrapper
 {
@@ -39,7 +41,7 @@ void Mesh::AllocateBuffers(DeviceQueue& devices)
 
 void Mesh::FreeBuffers()
 {
-	for (auto& subMesh : m_subMeshes) { subMesh.DestroyBuffers(*m_descriptorManager, m_device); }
+	for (auto& subMesh : m_subMeshes) { subMesh.DestroyBuffers(); }
 
 	m_device.destroyBuffer(m_mvpBuffer.buffer);
 	m_device.freeMemory(m_mvpBuffer.memory);
@@ -54,7 +56,7 @@ void Mesh::AllocateDescriptors(VulkanWrapper::VkContainer& api)
 	CreateLightPropertiesBuffer(api.deviceQueue);
 
 	// Allocate the descriptor sets for each sub mesh
-	for (auto& subMesh : m_subMeshes) { subMesh.CreateDescriptorSets(api); }
+	for (auto& subMesh : m_subMeshes) { subMesh.CreateDescriptorSets(); }
 }
 
 std::vector<std::shared_ptr<VulkanWrapper::DescriptorSetLayout>> Mesh::GetAllDescriptorSetLayouts()
@@ -73,7 +75,7 @@ void Mesh::UpdateBuffers(VulkanWrapper::VkContainer& api, const ModelViewProject
 	m_mvpBuffer.Update(m_device, &mvp, sizeof(ModelViewProjection));
 	m_lightPropertiesBuffer.Update(m_device, &properties, sizeof(LightProperties));
 
-	for (auto& subMesh : m_subMeshes) { subMesh.UpdateDescriptorSets(m_device, &m_mvpBuffer, &m_lightPropertiesBuffer); }
+	for (auto& subMesh : m_subMeshes) { subMesh.UpdateDescriptorSets(&m_mvpBuffer, &m_lightPropertiesBuffer); }
 }
 
 void Mesh::BindForDrawing(VulkanWrapper::VkContainer& api, vk::CommandBuffer& commandBuffer, vk::PipelineLayout& pipelineLayout)
