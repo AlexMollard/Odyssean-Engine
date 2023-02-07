@@ -25,7 +25,7 @@ public:
 
 private:
 	VulkanInit m_Init;
-	Renderer   m_Renderer{ Renderer::API::VULKAN};
+	Renderer   m_Renderer{ Renderer::API::VULKAN };
 
 	Window* m_Window;
 	bool    m_close      = false;

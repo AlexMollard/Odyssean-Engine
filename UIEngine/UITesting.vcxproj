@@ -155,6 +155,7 @@ xcopy /y "C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\co
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Src\Engine\InputManager.h" />
     <ClInclude Include="Src\Engine\Renderer.h" />
     <ClInclude Include="Src\Engine\VulkanAPI\Types\DescriptorSetLayout.h" />
     <ClInclude Include="Src\Engine\VulkanAPI\Types\DescriptorLayoutCache.h" />
@@ -170,6 +171,7 @@ xcopy /y "C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\co
     <ClInclude Include="Src\Engine\VulkanAPI\Types\CommandBuffer.h" />
     <ClInclude Include="Src\Engine\VulkanAPI\Types\RenderPassFramebuffer.h" />
     <ClInclude Include="Src\Engine\VulkanAPI\Types\DeviceQueue.h" />
+    <ClInclude Include="Src\Engine\Input.h" />
     <ClInclude Include="Src\Nodes\Node.h" />
     <ClInclude Include="Src\Engine\VulkanAPI\ImGuiVulkan.h" />
     <ClInclude Include="Src\Engine\VulkanAPI\Types\common.h" />
@@ -208,6 +210,7 @@ xcopy /y "C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\co
     <ClInclude Include="Src\Engine\VulkanAPI\Helpers\VkRenderHelper.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Src\Engine\InputManager.cpp" />
     <ClCompile Include="Src\Engine\Renderer.cpp" />
     <ClCompile Include="Src\Engine\VulkanAPI\Types\DescriptorSetLayout.cpp" />
     <ClCompile Include="Src\Engine\VulkanAPI\Types\DescriptorLayoutCache.cpp" />

@@ -38,4 +38,6 @@ private:
 	node::Camera m_Camera;
 
 	std::string name;
+
+	std::pair<float, float> m_prevMousePos = {0.0f, 0.0f};
 };

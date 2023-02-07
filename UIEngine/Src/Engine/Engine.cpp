@@ -4,6 +4,7 @@
 
 #include "Engine/OpenGlAPI/OpenGLEngine.h"
 #include "Engine/VulkanAPI/VulkanEngine.h"
+#include "InputManager.h"
 
 namespace UIEngine
 {
@@ -24,6 +25,7 @@ void Engine::Init(const char* windowName, int width, int height, GraphicsAPI gra
 		engine->Initialize(windowName, width, height);
 		m_engine = engine;
 		m_close  = false;
+		InputManager::GetInstance().Init(VulkanWrapper::VkContainer::instance().window.GetWindow());
 	}
 }
 
@@ -43,6 +45,8 @@ Engine::~Engine()
 
 float Engine::Update()
 {
+	InputManager::GetInstance().Update();
+
 	if (m_graphicsAPI == GraphicsAPI::OpenGL)
 	{
 		auto engine = static_cast<OpenGLEngine*>(m_engine);
