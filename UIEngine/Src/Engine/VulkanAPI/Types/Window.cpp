@@ -13,37 +13,49 @@ void Window::Initialize(const char* windowName, int width, int height)
 	m_Window = glfwCreateWindow(width, height, windowName, nullptr, nullptr);
 
 	glfwSetWindowUserPointer(m_Window, this);
-	glfwSetWindowCloseCallback(m_Window, [](GLFWwindow* window) {
-		auto app     = std::bit_cast<Window*>(glfwGetWindowUserPointer(window));
-		app->m_close = true;
-	});
+	glfwSetWindowCloseCallback(m_Window,
+	                           [](GLFWwindow* window)
+	                           {
+		                           auto app     = std::bit_cast<Window*>(glfwGetWindowUserPointer(window));
+		                           app->m_close = true;
+	                           });
 
-	glfwSetKeyCallback(m_Window, [](GLFWwindow* window, int key, int, int action, int) {
-		auto app         = std::bit_cast<Window*>(glfwGetWindowUserPointer(window));
-		app->m_Keys[key] = action != GLFW_RELEASE;
-	});
+	glfwSetKeyCallback(m_Window,
+	                   [](GLFWwindow* window, int key, int, int action, int)
+	                   {
+		                   auto app         = std::bit_cast<Window*>(glfwGetWindowUserPointer(window));
+		                   app->m_Keys[key] = action != GLFW_RELEASE;
+	                   });
 
-	glfwSetMouseButtonCallback(m_Window, [](GLFWwindow* window, int button, int action, int) {
-		auto app                    = std::bit_cast<Window*>(glfwGetWindowUserPointer(window));
-		app->m_MouseButtons[button] = action != GLFW_RELEASE;
-	});
+	glfwSetMouseButtonCallback(m_Window,
+	                           [](GLFWwindow* window, int button, int action, int)
+	                           {
+		                           auto app                    = std::bit_cast<Window*>(glfwGetWindowUserPointer(window));
+		                           app->m_MouseButtons[button] = action != GLFW_RELEASE;
+	                           });
 
-	glfwSetCursorPosCallback(m_Window, [](GLFWwindow* window, double xpos, double ypos) {
-		auto app      = std::bit_cast<Window*>(glfwGetWindowUserPointer(window));
-		app->m_MouseX = xpos;
-		app->m_MouseY = ypos;
-	});
+	glfwSetCursorPosCallback(m_Window,
+	                         [](GLFWwindow* window, double xpos, double ypos)
+	                         {
+		                         auto app      = std::bit_cast<Window*>(glfwGetWindowUserPointer(window));
+		                         app->m_MouseX = xpos;
+		                         app->m_MouseY = ypos;
+	                         });
 
-	glfwSetScrollCallback(m_Window, [](GLFWwindow* window, double xoffset, double yoffset) {
-		auto app       = std::bit_cast<Window*>(glfwGetWindowUserPointer(window));
-		app->m_ScrollX = xoffset;
-		app->m_ScrollY = yoffset;
-	});
+	glfwSetScrollCallback(m_Window,
+	                      [](GLFWwindow* window, double xoffset, double yoffset)
+	                      {
+		                      auto app       = std::bit_cast<Window*>(glfwGetWindowUserPointer(window));
+		                      app->m_ScrollX = xoffset;
+		                      app->m_ScrollY = yoffset;
+	                      });
 
-	glfwSetFramebufferSizeCallback(m_Window, [](GLFWwindow* window, int, int) {
-		auto app                  = std::bit_cast<Window*>(glfwGetWindowUserPointer(window));
-		app->m_FramebufferResized = true;
-	});
+	glfwSetFramebufferSizeCallback(m_Window,
+	                               [](GLFWwindow* window, int, int)
+	                               {
+		                               auto app                  = std::bit_cast<Window*>(glfwGetWindowUserPointer(window));
+		                               app->m_FramebufferResized = true;
+	                               });
 }
 
 void Window::Update()
@@ -72,7 +84,10 @@ void Window::Update()
 	glfwGetCursorPos(m_Window, &m_MouseX, &m_MouseY);
 	// Need to setup scroll stuff again
 
-	if (m_Keys[GLFW_KEY_ESCAPE]) { m_close = true; }
+	if (m_Keys[GLFW_KEY_ESCAPE])
+	{
+		m_close = true;
+	}
 }
 
 void Window::Destroy()
@@ -84,7 +99,7 @@ void Window::Destroy()
 // GetRequiredExtensions
 std::vector<const char*> Window::GetRequiredExtensions()
 {
-	uint32_t     glfwExtensionCount = 0;
+	uint32_t glfwExtensionCount = 0;
 	const char** glfwExtensions;
 	glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
 
@@ -96,7 +111,10 @@ std::vector<const char*> Window::GetRequiredExtensions()
 bool Window::GetMinimized() const
 {
 	bool m_Minimized = false;
-	if (m_Width == 0 || m_Height == 0) { m_Minimized = true; }
+	if (m_Width == 0 || m_Height == 0)
+	{
+		m_Minimized = true;
+	}
 	return m_Minimized;
 }
 

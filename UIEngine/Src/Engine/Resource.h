@@ -3,7 +3,7 @@
 
 class Resource
 {
-	template <class T>
+	template<class T>
 	friend class ResourceManager;
 
 public:
@@ -33,8 +33,7 @@ public:
 	}
 
 protected:
-	Resource(const Resource&)
-	{}
+	Resource(const Resource&) {}
 
 	Resource& operator=(const Resource&)
 	{

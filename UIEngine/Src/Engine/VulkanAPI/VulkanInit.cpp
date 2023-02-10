@@ -26,11 +26,21 @@ void VulkanInit::OutputSeverity(VkDebugUtilsMessageSeverityFlagBitsEXT severity)
 {
 	switch (severity)
 	{
-	case VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT: std::cout << "\033[1;34m" << vk::to_string(static_cast<vk::DebugUtilsMessageSeverityFlagBitsEXT>(severity)) << "\033[0m "; break;
-	case VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT: std::cout << "\033[1;33m" << vk::to_string(static_cast<vk::DebugUtilsMessageSeverityFlagBitsEXT>(severity)) << "\033[0m "; break;
-	case VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT: std::cout << "\033[1;31m" << vk::to_string(static_cast<vk::DebugUtilsMessageSeverityFlagBitsEXT>(severity)) << "\033[0m "; break;
-	case VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT: std::cout << "\033[1;32m" << vk::to_string(static_cast<vk::DebugUtilsMessageSeverityFlagBitsEXT>(severity)) << "\033[0m "; break;
-	case VK_DEBUG_UTILS_MESSAGE_SEVERITY_FLAG_BITS_MAX_ENUM_EXT: std::cout << "\033[1;37m" << vk::to_string(static_cast<vk::DebugUtilsMessageSeverityFlagBitsEXT>(severity)) << "\033[0m "; break;
+	case VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT:
+		std::cout << "\033[1;34m" << vk::to_string(static_cast<vk::DebugUtilsMessageSeverityFlagBitsEXT>(severity)) << "\033[0m ";
+		break;
+	case VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT:
+		std::cout << "\033[1;33m" << vk::to_string(static_cast<vk::DebugUtilsMessageSeverityFlagBitsEXT>(severity)) << "\033[0m ";
+		break;
+	case VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT:
+		std::cout << "\033[1;31m" << vk::to_string(static_cast<vk::DebugUtilsMessageSeverityFlagBitsEXT>(severity)) << "\033[0m ";
+		break;
+	case VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT:
+		std::cout << "\033[1;32m" << vk::to_string(static_cast<vk::DebugUtilsMessageSeverityFlagBitsEXT>(severity)) << "\033[0m ";
+		break;
+	case VK_DEBUG_UTILS_MESSAGE_SEVERITY_FLAG_BITS_MAX_ENUM_EXT:
+		std::cout << "\033[1;37m" << vk::to_string(static_cast<vk::DebugUtilsMessageSeverityFlagBitsEXT>(severity)) << "\033[0m ";
+		break;
 	default: std::cout << "\033[1;37m" << vk::to_string(static_cast<vk::DebugUtilsMessageSeverityFlagBitsEXT>(severity)) << "\033[0m "; break;
 	}
 }
@@ -39,10 +49,18 @@ void VulkanInit::OutputMessageType(VkDebugUtilsMessageTypeFlagsEXT type)
 {
 	switch (type)
 	{
-	case VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT: std::cout << "\033[1;32m" << vk::to_string(static_cast<vk::DebugUtilsMessageTypeFlagBitsEXT>(type)) << "\033[0m" << std::endl; break;
-	case VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT: std::cout << "\033[1;33m" << vk::to_string(static_cast<vk::DebugUtilsMessageTypeFlagBitsEXT>(type)) << "\033[0m" << std::endl; break;
-	case VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT: std::cout << "\033[1;31m" << vk::to_string(static_cast<vk::DebugUtilsMessageTypeFlagBitsEXT>(type)) << "\033[0m" << std::endl; break;
-	case VK_DEBUG_UTILS_MESSAGE_TYPE_FLAG_BITS_MAX_ENUM_EXT: std::cout << "\033[1;37m" << vk::to_string(static_cast<vk::DebugUtilsMessageTypeFlagBitsEXT>(type)) << "\033[0m" << std::endl; break;
+	case VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT:
+		std::cout << "\033[1;32m" << vk::to_string(static_cast<vk::DebugUtilsMessageTypeFlagBitsEXT>(type)) << "\033[0m" << std::endl;
+		break;
+	case VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT:
+		std::cout << "\033[1;33m" << vk::to_string(static_cast<vk::DebugUtilsMessageTypeFlagBitsEXT>(type)) << "\033[0m" << std::endl;
+		break;
+	case VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT:
+		std::cout << "\033[1;31m" << vk::to_string(static_cast<vk::DebugUtilsMessageTypeFlagBitsEXT>(type)) << "\033[0m" << std::endl;
+		break;
+	case VK_DEBUG_UTILS_MESSAGE_TYPE_FLAG_BITS_MAX_ENUM_EXT:
+		std::cout << "\033[1;37m" << vk::to_string(static_cast<vk::DebugUtilsMessageTypeFlagBitsEXT>(type)) << "\033[0m" << std::endl;
+		break;
 	default: std::cout << "\033[1;37m" << vk::to_string(static_cast<vk::DebugUtilsMessageTypeFlagBitsEXT>(type)) << "\033[0m" << std::endl; break;
 	}
 }
@@ -55,11 +73,14 @@ void VulkanInit::CreateExtensions()
 
 	// Create the debug messenger create info
 	m_DebugMessengerCreateInfo.setMessageSeverity(vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning | vk::DebugUtilsMessageSeverityFlagBitsEXT::eError);
-	m_DebugMessengerCreateInfo.setMessageType(vk::DebugUtilsMessageTypeFlagBitsEXT::eGeneral | vk::DebugUtilsMessageTypeFlagBitsEXT::eValidation | vk::DebugUtilsMessageTypeFlagBitsEXT::ePerformance);
+	m_DebugMessengerCreateInfo.setMessageType(vk::DebugUtilsMessageTypeFlagBitsEXT::eGeneral | vk::DebugUtilsMessageTypeFlagBitsEXT::eValidation |
+	                                          vk::DebugUtilsMessageTypeFlagBitsEXT::ePerformance);
 	m_DebugMessengerCreateInfo.setPUserData(nullptr);
 
 	// Set the callback function
-	PFN_vkDebugUtilsMessengerCallbackEXT callback = [](VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void*) {
+	PFN_vkDebugUtilsMessengerCallbackEXT callback = [](VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType,
+	                                                   const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void*)
+	{
 		// Print message name
 		std::cout << "Validation layer: " << pCallbackData->pMessageIdName << std::endl;
 
@@ -70,7 +91,10 @@ void VulkanInit::CreateExtensions()
 		std::cout << "Message: " << pCallbackData->pMessage << std::endl;
 
 		// Print message description
-		if (pCallbackData->cmdBufLabelCount > 0) { std::cout << "Description: " << pCallbackData->pCmdBufLabels->pLabelName << std::endl; }
+		if (pCallbackData->cmdBufLabelCount > 0)
+		{
+			std::cout << "Description: " << pCallbackData->pCmdBufLabels->pLabelName << std::endl;
+		}
 
 		// Print message severity with color
 		std::cout << "Severity: ";
@@ -98,7 +122,10 @@ void VulkanInit::GetRequiredExtensions(vk::InstanceCreateInfo& createInfo)
 	m_SupportedLayers = vk::enumerateInstanceLayerProperties();
 
 	// Add the extensions to the API (must not go out of range)
-	for (const auto& extension : Window::GetRequiredExtensions()) { m_API.extensions.push_back(extension); }
+	for (const auto& extension : Window::GetRequiredExtensions())
+	{
+		m_API.extensions.push_back(extension);
+	}
 
 	// Add the extensions to the create info
 	createInfo.setEnabledExtensionCount(static_cast<uint32_t>(m_API.extensions.size()));
@@ -117,7 +144,10 @@ void VulkanInit::GetRequiredExtensions(vk::InstanceCreateInfo& createInfo)
 
 void VulkanInit::CheckRequiredLayers(const std::vector<const char*>& requiredLayers, const std::vector<vk::LayerProperties>& supportedLayers) const
 {
-	for (const auto& requiredLayer : requiredLayers) { S_ASSERT(IsLayerSupported(requiredLayer, supportedLayers), "Required layer is not supported: " + std::string(requiredLayer)) }
+	for (const auto& requiredLayer : requiredLayers)
+	{
+		S_ASSERT(IsLayerSupported(requiredLayer, supportedLayers), "Required layer is not supported: " + std::string(requiredLayer))
+	}
 }
 
 bool VulkanInit::IsLayerSupported(const char* layer, const std::vector<vk::LayerProperties>& supportedLayers) const
@@ -140,7 +170,10 @@ bool VulkanInit::IsLayerSupported(const char* layer, const std::vector<vk::Layer
 // Checks if the required extensions are supported
 void VulkanInit::CheckRequiredExtensions(const std::vector<const char*>& requiredExtensions, const std::vector<vk::ExtensionProperties>& supportedExtensions) const
 {
-	for (const auto& requiredExtension : requiredExtensions) { S_ASSERT(IsExtensionSupported(requiredExtension, supportedExtensions), "Required extension is not supported: " + std::string(requiredExtension)) }
+	for (const auto& requiredExtension : requiredExtensions)
+	{
+		S_ASSERT(IsExtensionSupported(requiredExtension, supportedExtensions), "Required extension is not supported: " + std::string(requiredExtension))
+	}
 }
 
 bool VulkanInit::IsExtensionSupported(const char* extension, const std::vector<vk::ExtensionProperties>& supportedExtensions) const
@@ -239,14 +272,18 @@ void VulkanInit::InitDevice()
 
 	// Create the queue create infos
 	std::vector<vk::DeviceQueueCreateInfo> queueCreateInfos;
-	queueCreateInfos.emplace_back(vk::DeviceQueueCreateFlags(), deviceQueue.GetQueueFamilyIndex(VulkanWrapper::QueueType::GRAPHICS), static_cast<uint32_t>(queuePriorities.size()), queuePriorities.data());
-	queueCreateInfos.emplace_back(vk::DeviceQueueCreateFlags(), deviceQueue.GetQueueFamilyIndex(VulkanWrapper::QueueType::PRESENT), static_cast<uint32_t>(queuePriorities.size()), queuePriorities.data());
+	queueCreateInfos.emplace_back(vk::DeviceQueueCreateFlags(), deviceQueue.GetQueueFamilyIndex(VulkanWrapper::QueueType::GRAPHICS),
+	                              static_cast<uint32_t>(queuePriorities.size()), queuePriorities.data());
+	queueCreateInfos.emplace_back(vk::DeviceQueueCreateFlags(), deviceQueue.GetQueueFamilyIndex(VulkanWrapper::QueueType::PRESENT),
+	                              static_cast<uint32_t>(queuePriorities.size()), queuePriorities.data());
 
 	if (deviceQueue.IsQueueFamilyIndexSet(VulkanWrapper::QueueType::TRANSFER))
-		queueCreateInfos.emplace_back(vk::DeviceQueueCreateFlags(), deviceQueue.GetQueueFamilyIndex(VulkanWrapper::QueueType::TRANSFER), static_cast<uint32_t>(queuePriorities.size()), queuePriorities.data());
+		queueCreateInfos.emplace_back(vk::DeviceQueueCreateFlags(), deviceQueue.GetQueueFamilyIndex(VulkanWrapper::QueueType::TRANSFER),
+		                              static_cast<uint32_t>(queuePriorities.size()), queuePriorities.data());
 
 	if (deviceQueue.IsQueueFamilyIndexSet(VulkanWrapper::QueueType::COMPUTE))
-		queueCreateInfos.emplace_back(vk::DeviceQueueCreateFlags(), deviceQueue.GetQueueFamilyIndex(VulkanWrapper::QueueType::COMPUTE), static_cast<uint32_t>(queuePriorities.size()), queuePriorities.data());
+		queueCreateInfos.emplace_back(vk::DeviceQueueCreateFlags(), deviceQueue.GetQueueFamilyIndex(VulkanWrapper::QueueType::COMPUTE),
+		                              static_cast<uint32_t>(queuePriorities.size()), queuePriorities.data());
 
 	// Create the device create info
 	auto deviceCreateInfo = vk::DeviceCreateInfo(vk::DeviceCreateFlags(), static_cast<uint32_t>(queueCreateInfos.size()), queueCreateInfos.data());
@@ -277,9 +314,11 @@ void VulkanInit::InitDevice()
 	deviceQueue.SetQueue(VulkanWrapper::QueueType::GRAPHICS, m_API.deviceQueue.m_Device.getQueue(deviceQueue.GetQueueFamilyIndex(VulkanWrapper::QueueType::GRAPHICS), 0));
 	deviceQueue.SetQueue(VulkanWrapper::QueueType::PRESENT, m_API.deviceQueue.m_Device.getQueue(deviceQueue.GetQueueFamilyIndex(VulkanWrapper::QueueType::PRESENT), 0));
 
-	if (deviceQueue.IsQueueFamilyIndexSet(VulkanWrapper::QueueType::TRANSFER)) deviceQueue.SetQueue(VulkanWrapper::QueueType::TRANSFER, m_API.deviceQueue.m_Device.getQueue(deviceQueue.GetQueueFamilyIndex(VulkanWrapper::QueueType::TRANSFER), 0));
+	if (deviceQueue.IsQueueFamilyIndexSet(VulkanWrapper::QueueType::TRANSFER))
+		deviceQueue.SetQueue(VulkanWrapper::QueueType::TRANSFER, m_API.deviceQueue.m_Device.getQueue(deviceQueue.GetQueueFamilyIndex(VulkanWrapper::QueueType::TRANSFER), 0));
 
-	if (deviceQueue.IsQueueFamilyIndexSet(VulkanWrapper::QueueType::COMPUTE)) deviceQueue.SetQueue(VulkanWrapper::QueueType::COMPUTE, m_API.deviceQueue.m_Device.getQueue(deviceQueue.GetQueueFamilyIndex(VulkanWrapper::QueueType::COMPUTE), 0));
+	if (deviceQueue.IsQueueFamilyIndexSet(VulkanWrapper::QueueType::COMPUTE))
+		deviceQueue.SetQueue(VulkanWrapper::QueueType::COMPUTE, m_API.deviceQueue.m_Device.getQueue(deviceQueue.GetQueueFamilyIndex(VulkanWrapper::QueueType::COMPUTE), 0));
 
 	// Set the device queue
 	m_API.deviceQueue = deviceQueue;
@@ -315,5 +354,8 @@ void VulkanInit::InitSurface()
 
 	// Get the surface image count
 	window.m_SurfaceImageCount = window.m_SurfaceCapabilities.minImageCount + 1;
-	if (window.m_SurfaceCapabilities.maxImageCount > 0 && window.m_SurfaceImageCount > window.m_SurfaceCapabilities.maxImageCount) { window.m_SurfaceImageCount = window.m_SurfaceCapabilities.maxImageCount; }
+	if (window.m_SurfaceCapabilities.maxImageCount > 0 && window.m_SurfaceImageCount > window.m_SurfaceCapabilities.maxImageCount)
+	{
+		window.m_SurfaceImageCount = window.m_SurfaceCapabilities.maxImageCount;
+	}
 }

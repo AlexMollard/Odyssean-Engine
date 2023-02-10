@@ -12,15 +12,15 @@ public:
 
 	vk::DescriptorPoolSize createDescriptorPoolSize();
 
-	uint32_t             getBinding() const;
-	vk::DescriptorType   getDescriptorType() const;
-	uint32_t             getDescriptorCount() const;
+	uint32_t getBinding() const;
+	vk::DescriptorType getDescriptorType() const;
+	uint32_t getDescriptorCount() const;
 	vk::ShaderStageFlags getStageFlags() const;
 
 private:
-	uint32_t             m_binding;
-	vk::DescriptorType   m_descriptorType;
-	uint32_t             m_descriptorCount;
+	uint32_t m_binding;
+	vk::DescriptorType m_descriptorType;
+	uint32_t m_descriptorCount;
 	vk::ShaderStageFlags m_stageFlags;
 };
 } // namespace VulkanWrapper

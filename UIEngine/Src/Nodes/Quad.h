@@ -8,8 +8,7 @@ class Quad : Node
 {
 public:
 	Quad() = default;
-	Quad(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color) : m_Size(size), m_Color(color)
-	{}
+	Quad(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color) : m_Size(size), m_Color(color) {}
 	~Quad() = default;
 
 	// Getters

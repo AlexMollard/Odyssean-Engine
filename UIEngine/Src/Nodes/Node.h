@@ -5,5 +5,4 @@ class Node
 {
 	// Inspector
 	virtual void Inspector(){};
-
 };

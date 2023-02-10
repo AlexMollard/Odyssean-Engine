@@ -1,9 +1,11 @@
 #include "pch.h"
+
 #include "BindingData.h"
 
 VulkanWrapper::BindingData::BindingData(uint32_t binding, vk::DescriptorType descriptorType, uint32_t descriptorCount, vk::ShaderStageFlags stageFlags)
-: m_binding(binding), m_descriptorType(descriptorType), m_descriptorCount(descriptorCount), m_stageFlags(stageFlags)
-{}
+    : m_binding(binding), m_descriptorType(descriptorType), m_descriptorCount(descriptorCount), m_stageFlags(stageFlags)
+{
+}
 
 vk::DescriptorSetLayoutBinding VulkanWrapper::BindingData::createDescriptorSetLayoutBinding()
 {

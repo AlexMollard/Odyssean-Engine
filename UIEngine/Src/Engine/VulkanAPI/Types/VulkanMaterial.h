@@ -1,8 +1,8 @@
 #pragma once
+#include "assimp/material.h"
+#include <map>
 #include <string>
 #include <vector>
-#include <map>
-#include "assimp/material.h"
 
 namespace vk
 {
@@ -32,7 +32,6 @@ struct VulkanMaterial
 	std::vector<const vk::DescriptorImageInfo*> m_DescriptorImageInfos;
 
 	bool hasTexture(aiTextureType type);
-
 
 	static VulkanMaterial CreateDebugMaterial(VulkanWrapper::VkContainer& api);
 };

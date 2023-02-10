@@ -1,6 +1,6 @@
 #pragma once
-#include "SubMesh.h"
 #include "DescriptorSetLayout.h"
+#include "SubMesh.h"
 
 struct aiScene;
 struct aiNode;
@@ -18,8 +18,10 @@ struct VkContainer;
 // Define struct for mesh
 struct Mesh
 {
-	Mesh(vk::Device& device, vk::PhysicalDevice& physicalDevice, DescriptorManager* descriptorManager) : m_device(device), m_physicalDevice(physicalDevice), m_descriptorManager(descriptorManager)
-	{}
+	Mesh(vk::Device& device, vk::PhysicalDevice& physicalDevice, DescriptorManager* descriptorManager)
+	    : m_device(device), m_physicalDevice(physicalDevice), m_descriptorManager(descriptorManager)
+	{
+	}
 	~Mesh() = default;
 
 	// Functions to create and destroy the mesh
@@ -47,7 +49,7 @@ struct Mesh
 	std::string m_directory;
 
 private:
-	vk::Device         m_device;
+	vk::Device m_device;
 	vk::PhysicalDevice m_physicalDevice;
 
 	std::vector<SubMesh> m_subMeshes;

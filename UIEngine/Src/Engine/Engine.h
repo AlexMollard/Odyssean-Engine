@@ -21,7 +21,7 @@ public:
 
 	// Returns DT
 	float Update();
-	void  Render();
+	void Render();
 
 	bool GetClose() const
 	{

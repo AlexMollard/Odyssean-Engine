@@ -1,6 +1,6 @@
 #pragma once
-#include <vulkan/vulkan.hpp>
 #include <functional>
+#include <vulkan/vulkan.hpp>
 
 namespace VulkanWrapper
 {
@@ -24,7 +24,8 @@ public:
 	void BindPipeline(vk::PipelineBindPoint pipelineBindPoint, vk::Pipeline pipeline) const;
 	void BindVertexBuffers(uint32_t firstBinding, vk::ArrayProxy<const vk::Buffer> buffers, vk::ArrayProxy<const vk::DeviceSize> offsets) const;
 	void BindIndexBuffer(vk::Buffer buffer, vk::DeviceSize offset, vk::IndexType indexType) const;
-	void BindDescriptorSets(vk::PipelineBindPoint pipelineBindPoint, vk::PipelineLayout layout, uint32_t firstSet, vk::ArrayProxy<const vk::DescriptorSet> descriptorSets, vk::ArrayProxy<const uint32_t> dynamicOffsets) const;
+	void BindDescriptorSets(vk::PipelineBindPoint pipelineBindPoint, vk::PipelineLayout layout, uint32_t firstSet, vk::ArrayProxy<const vk::DescriptorSet> descriptorSets,
+	                        vk::ArrayProxy<const uint32_t> dynamicOffsets) const;
 
 	void SetViewport(const vk::Extent2D& viewport) const;
 	void SetScissor(const vk::Extent2D& scissor) const;

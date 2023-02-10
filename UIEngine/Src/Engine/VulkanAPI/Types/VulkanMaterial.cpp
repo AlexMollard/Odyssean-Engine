@@ -1,14 +1,15 @@
 #include "pch.h"
+
 #include "VulkanMaterial.h"
 
+#include "DeviceQueue.h"
 #include "SubMesh.h"
+#include "VkContainer.h"
 #include <assimp/scene.h>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <vulkan/vulkan.hpp>
-#include "DeviceQueue.h"
-#include "VkContainer.h"
 
 int VulkanWrapper::VulkanMaterial::GetTextureCount()
 {
@@ -25,7 +26,10 @@ void VulkanWrapper::VulkanMaterial::ProcessMaterial(aiMaterial* material, SubMes
 	aiString path;
 	for (int i = 0; i < aiTextureType_UNKNOWN; i++)
 	{
-		if (material->GetTexture((aiTextureType)i, 0, &path) == AI_SUCCESS) { subMesh.m_material.m_Textures[(aiTextureType)i] = path.C_Str(); }
+		if (material->GetTexture((aiTextureType)i, 0, &path) == AI_SUCCESS)
+		{
+			subMesh.m_material.m_Textures[(aiTextureType)i] = path.C_Str();
+		}
 	}
 }
 
@@ -46,11 +50,13 @@ bool VulkanWrapper::VulkanMaterial::hasTexture(aiTextureType type)
 
 const std::vector<const vk::DescriptorImageInfo*>& VulkanWrapper::VulkanMaterial::GetDescriptorData(VulkanWrapper::VkContainer& api)
 {
-	if (!m_DescriptorImageInfos.empty()) return m_DescriptorImageInfos;
+	if (!m_DescriptorImageInfos.empty())
+		return m_DescriptorImageInfos;
 
 	for (int i = 0; i < aiTextureType_UNKNOWN; i++)
 	{
-		if (m_Textures[(aiTextureType)i].empty()) continue;
+		if (m_Textures[(aiTextureType)i].empty())
+			continue;
 		VulkanWrapper::Texture* currentTex = Texture::Load(api, api.deviceQueue.GetQueue(QueueType::GRAPHICS), m_Textures[(aiTextureType)i].c_str());
 		m_DescriptorImageInfos.push_back(&currentTex->GetDescriptorImageInfo());
 	}
@@ -72,8 +78,10 @@ VulkanWrapper::VulkanMaterial VulkanWrapper::VulkanMaterial::CreateDebugMaterial
 	// Check if the textures actually exist
 	for (int i = 0; i < aiTextureType_UNKNOWN; i++)
 	{
-		if (material.m_Textures[(aiTextureType)i].empty()) continue;
-		if (std::filesystem::exists(material.m_Textures[(aiTextureType)i])) continue;
+		if (material.m_Textures[(aiTextureType)i].empty())
+			continue;
+		if (std::filesystem::exists(material.m_Textures[(aiTextureType)i]))
+			continue;
 
 		std::cout << "Texture " << material.m_Textures[(aiTextureType)i] << " does not exist. Creating a debug texture." << std::endl;
 

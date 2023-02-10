@@ -31,6 +31,6 @@ public:
 	void Destroy();
 
 private:
-	Scene*              currentScene = nullptr;
+	Scene* currentScene = nullptr;
 	std::vector<Scene*> scenes;
 };

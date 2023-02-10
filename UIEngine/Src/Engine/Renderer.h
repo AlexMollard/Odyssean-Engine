@@ -1,19 +1,18 @@
 #pragma once
+#include "../Helpers/VkRenderHelper.h"
 #include "glm/fwd.hpp"
 #include <Engine/ErrorHandling.h>
 #include <memory>
-#include "../Helpers/VkRenderHelper.h"
-
-namespace node { class Camera; }
-
 
 namespace VulkanWrapper
 {
 struct VkContainer;
-}
-namespace VulkanWrapper
-{
 struct Mesh;
+} // namespace VulkanWrapper
+
+namespace node
+{
+class Camera;
 }
 
 class Renderer
@@ -45,6 +44,7 @@ public:
 
 		void AddMesh(const VulkanWrapper::Mesh& mesh, const glm::mat4& model) const;
 		void SetCamera(node::Camera& camera);
+
 	private:
 		std::unique_ptr<VkRenderHelper> m_RenderHelper = nullptr;
 	};
@@ -77,6 +77,6 @@ public:
 	};
 
 private:
-	API                   current_api;
+	API current_api;
 	std::unique_ptr<Impl> impl;
 };

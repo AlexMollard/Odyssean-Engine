@@ -8,11 +8,12 @@ struct RenderPassFramebuffer
 	RenderPassFramebuffer(vk::RenderPass renderPass, std::vector<vk::Framebuffer> framebuffer);
 
 	// Helper functions
-	bool BeginRenderPass(vk::CommandBuffer commandBuffer, vk::SubpassContents subpassContents, uint32_t framebufferIndex, vk::Rect2D renderArea, std::vector<vk::ClearValue> clearValues);
+	bool BeginRenderPass(vk::CommandBuffer commandBuffer, vk::SubpassContents subpassContents, uint32_t framebufferIndex, vk::Rect2D renderArea,
+	                     std::vector<vk::ClearValue> clearValues);
 	bool EndRenderPass(vk::CommandBuffer commandBuffer);
 
-	vk::RenderPass               m_RenderPass;
-	vk::RenderPass               m_RenderPassNoDepth;
+	vk::RenderPass m_RenderPass;
+	vk::RenderPass m_RenderPassNoDepth;
 	std::vector<vk::Framebuffer> m_Framebuffers;
 };
 } // namespace VulkanWrapper

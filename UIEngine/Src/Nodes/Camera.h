@@ -38,8 +38,10 @@ public:
 		m_Yaw += xoffset;
 		m_Pitch += yoffset;
 
-		if (m_Pitch > 89.0f) m_Pitch = 89.0f;
-		if (m_Pitch < -89.0f) m_Pitch = -89.0f;
+		if (m_Pitch > 89.0f)
+			m_Pitch = 89.0f;
+		if (m_Pitch < -89.0f)
+			m_Pitch = -89.0f;
 
 		glm::vec3 front;
 		front.x = cos(glm::radians(m_Yaw)) * cos(glm::radians(m_Pitch));

@@ -14,7 +14,7 @@ public:
 
 	// Returns DT
 	float Update(SceneStateMachine& stateMachine);
-	void  Render(SceneStateMachine& stateMachine);
+	void Render(SceneStateMachine& stateMachine);
 
 	bool GetClose() const
 	{
@@ -35,9 +35,9 @@ public:
 	}
 
 private:
-	bool           m_close = true;
+	bool m_close = true;
 	OpenGLRenderer m_renderer;
-	ImGuiLayer     m_ImguiLayer;
+	ImGuiLayer m_ImguiLayer;
 
 	BS::thread_pool* pool = nullptr;
 

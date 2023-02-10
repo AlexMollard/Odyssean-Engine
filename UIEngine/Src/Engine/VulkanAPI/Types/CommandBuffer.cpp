@@ -1,4 +1,5 @@
 #include "pch.h"
+
 #include "CommandBuffer.h"
 namespace VulkanWrapper
 {
@@ -47,7 +48,7 @@ void CommandBuffer::DoRenderPass(vk::RenderPass renderPass, vk::Framebuffer fram
 	renderPassInfo.framebuffer             = framebuffer;
 	renderPassInfo.renderArea.extent       = renderArea;
 
-	static std::array<float, 4>   clearColor = { 0.1f, 0.1f, 0.25f, 1.0f };
+	static std::array<float, 4> clearColor = { 0.1f, 0.1f, 0.25f, 1.0f };
 	std::array<vk::ClearValue, 2> clearValues{};
 	clearValues[0].setColor(vk::ClearColorValue(clearColor));
 	clearValues[1].setDepthStencil({ 1.0f, 0 });
@@ -81,7 +82,8 @@ void CommandBuffer::BindIndexBuffer(vk::Buffer buffer, vk::DeviceSize offset, vk
 	m_CommandBuffer.bindIndexBuffer(buffer, offset, indexType);
 }
 
-void CommandBuffer::BindDescriptorSets(vk::PipelineBindPoint pipelineBindPoint, vk::PipelineLayout layout, uint32_t firstSet, vk::ArrayProxy<const vk::DescriptorSet> descriptorSets, vk::ArrayProxy<const uint32_t> dynamicOffsets) const
+void CommandBuffer::BindDescriptorSets(vk::PipelineBindPoint pipelineBindPoint, vk::PipelineLayout layout, uint32_t firstSet,
+                                       vk::ArrayProxy<const vk::DescriptorSet> descriptorSets, vk::ArrayProxy<const uint32_t> dynamicOffsets) const
 {
 	m_CommandBuffer.bindDescriptorSets(pipelineBindPoint, layout, firstSet, descriptorSets, dynamicOffsets);
 }

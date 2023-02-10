@@ -9,7 +9,7 @@ struct GLFWwindow;
 class ImGuiLayer
 {
 public:
-	ImGuiLayer() = default;
+	ImGuiLayer()  = default;
 	~ImGuiLayer() = default;
 
 	void Init(GLFWwindow* window);

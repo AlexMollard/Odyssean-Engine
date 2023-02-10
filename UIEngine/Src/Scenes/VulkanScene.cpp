@@ -24,8 +24,7 @@ void VulkanScene::Enter()
 	m_KnotMesh->LoadModel(m_API, "../Resources/Meshes/knot.obj");
 
 	// Create the graphics pipeline
-	m_API.CreateGraphicsPipeline("../Resources/Shaders/compiled/vulkan_vert.spv", "../Resources/Shaders/compiled/vulkan_frag.spv",
-								 m_KnotMesh->GetAllDescriptorSetLayouts());
+	m_API.CreateGraphicsPipeline("../Resources/Shaders/compiled/vulkan_vert.spv", "../Resources/Shaders/compiled/vulkan_frag.spv", m_KnotMesh->GetAllDescriptorSetLayouts());
 
 	m_Renderer.SetCamera(m_Camera);
 }
@@ -39,10 +38,10 @@ void VulkanScene::Update(float deltaTime)
 {
 	// basic camera movement
 	float cameraSpeed = 2.5f * deltaTime;
-	if (InputManager::GetInstance().IsKeyHeld(Input::Keyboard::LEFT_SHIFT)) { cameraSpeed *= 2.0f; }
-
-	bool wasd[] = { InputManager::GetInstance().IsKeyHeld('W'), InputManager::GetInstance().IsKeyHeld('A'),
-					InputManager::GetInstance().IsKeyHeld('S'), InputManager::GetInstance().IsKeyHeld('D') };
+	if (InputManager::GetInstance().IsKeyHeld(Input::Keyboard::LEFT_SHIFT))
+	{
+		cameraSpeed *= 2.0f;
+	}
 
 	std::pair<float, float> mousePos = InputManager::GetInstance().GetMousePosition();
 
@@ -54,10 +53,22 @@ void VulkanScene::Update(float deltaTime)
 		m_Camera.Rotate(xoffset, -yoffset);
 	}
 
-	if (wasd[0]) { m_Camera.MoveForward(cameraSpeed); }
-	if (wasd[1]) { m_Camera.MoveLeft(cameraSpeed); }
-	if (wasd[2]) { m_Camera.MoveBackward(cameraSpeed); }
-	if (wasd[3]) { m_Camera.MoveRight(cameraSpeed); }
+	if (InputManager::GetInstance().IsKeyHeld('W'))
+	{
+		m_Camera.MoveForward(cameraSpeed);
+	}
+	if (InputManager::GetInstance().IsKeyHeld('A'))
+	{
+		m_Camera.MoveLeft(cameraSpeed);
+	}
+	if (InputManager::GetInstance().IsKeyHeld('S'))
+	{
+		m_Camera.MoveBackward(cameraSpeed);
+	}
+	if (InputManager::GetInstance().IsKeyHeld('D'))
+	{
+		m_Camera.MoveRight(cameraSpeed);
+	}
 
 	m_prevMousePos = mousePos;
 }
@@ -65,6 +76,6 @@ void VulkanScene::Update(float deltaTime)
 void VulkanScene::Draw()
 {
 	glm::mat4 model = glm::mat4(1.0f);
-	model            = glm::scale(model, glm::vec3(0.2f));
+	model           = glm::scale(model, glm::vec3(0.2f));
 	m_Renderer.AddMesh(*m_KnotMesh, model);
 }

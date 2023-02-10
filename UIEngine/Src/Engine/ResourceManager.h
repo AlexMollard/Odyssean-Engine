@@ -3,12 +3,12 @@
 #include <string>
 #include <unordered_map>
 
-template <class T>
+template<class T>
 class ResourceManager
 {
 private:
 	std::unordered_map<std::string, std::shared_ptr<T>> Map;
-	std::string                                         Name;
+	std::string Name;
 
 	void ReleaseAll() const
 	{
@@ -18,11 +18,14 @@ private:
 public:
 	std::shared_ptr<T> Load(const std::string& filename, void* args = nullptr)
 	{
-		//S_ASSERT(!filename.empty(), "filename cannot be null")
+		// S_ASSERT(!filename.empty(), "filename cannot be null")
 
 		auto it = Map.find(filename);
 
-		if (it != Map.end()) { return (*it).second; }
+		if (it != Map.end())
+		{
+			return (*it).second;
+		}
 
 		std::shared_ptr<T> resource = std::make_shared<T>(filename, args);
 
@@ -41,7 +44,10 @@ public:
 	{
 		auto it = Map.find(resource->GetName());
 
-		if (it != Map.end()) { return (*it).second; }
+		if (it != Map.end())
+		{
+			return (*it).second;
+		}
 
 		Map.insert(std::make_pair(resource->GetName(), resource));
 
@@ -50,7 +56,7 @@ public:
 
 	bool Unload(const std::string_view filename) const
 	{
-		//S_ASSERT(!filename.empty(), "filename cannot be null")
+		// S_ASSERT(!filename.empty(), "filename cannot be null")
 
 		std::string FileName = filename.data();
 
@@ -62,13 +68,13 @@ public:
 			return true;
 		}
 
-		//S_ASSERT(false, "cannot find " + FileName)
+		// S_ASSERT(false, "cannot find " + FileName)
 		return false;
 	}
 
 	void Initialise(const std::string_view name)
 	{
-		//S_ASSERT(!name.empty(), "Null m_name is not allowed")
+		// S_ASSERT(!name.empty(), "Null m_name is not allowed")
 
 		Name = name;
 	}

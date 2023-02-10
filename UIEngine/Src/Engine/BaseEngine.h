@@ -15,10 +15,7 @@ public:
 	{
 		return -FLT_MAX;
 	}
-	virtual void  Render(){};
+	virtual void Render(){};
 
 	virtual bool GetClose() const = 0;
-
-private:
-	bool m_close = true;
 };

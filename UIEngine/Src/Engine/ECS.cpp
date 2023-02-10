@@ -21,14 +21,16 @@ flecs::entity ECS::CreateEntity()
 flecs::entity* ECS::CreateQuad(const glm::vec3& position, const glm::vec2& size, const glm::vec4& color, const char* name)
 {
 	s_IDIncrementor++;
-	std::string   entityName = name ? name : std::format("Quad: {}", s_IDIncrementor);
+	std::string entityName   = name ? name : std::format("Quad: {}", s_IDIncrementor);
 	flecs::entity quadEntity = Instance()->CreateEntity();
-	quadEntity.set([&position, &size, &color, &entityName](node::Quad& quad, node::Transform& transform, node::Tag& tag) {
-		transform.SetPosition(position);
-		quad.SetSize(size);
-		quad.SetColor(color);
-		tag.SetName(entityName.c_str());
-	});
+	quadEntity.set(
+	    [&position, &size, &color, &entityName](node::Quad& quad, node::Transform& transform, node::Tag& tag)
+	    {
+		    transform.SetPosition(position);
+		    quad.SetSize(size);
+		    quad.SetColor(color);
+		    tag.SetName(entityName.c_str());
+	    });
 	quadEntity.set_name(entityName.c_str());
 	return quadEntity.get_ref<flecs::entity>().get();
 }
@@ -36,23 +38,34 @@ flecs::entity* ECS::CreateQuad(const glm::vec3& position, const glm::vec2& size,
 flecs::entity* ECS::CreateText(const std::string& inText, const glm::vec3& position, const glm::vec4& color)
 {
 	s_IDIncrementor++;
-	std::string   entityName = std::format("Text: {}", s_IDIncrementor);
+	std::string entityName   = std::format("Text: {}", s_IDIncrementor);
 	flecs::entity textEntity = Instance()->CreateEntity();
-	textEntity.set([&position, &color, &inText, &entityName](node::Text& text, node::Transform& transform, node::Tag& tag) {
-		transform.SetPosition(position);
-		text.SetColor(color);
-		text.SetText(inText);
-		tag.SetName(entityName.c_str());
-	});
+	textEntity.set(
+	    [&position, &color, &inText, &entityName](node::Text& text, node::Transform& transform, node::Tag& tag)
+	    {
+		    transform.SetPosition(position);
+		    text.SetColor(color);
+		    text.SetText(inText);
+		    tag.SetName(entityName.c_str());
+	    });
 	textEntity.set_name(entityName.c_str());
 	return textEntity.get_ref<flecs::entity>().get();
 }
 
 void ECS::GetNodeInspectorFunction(const flecs::entity& entity)
 {
-	if (entity.has<node::Transform>()) { entity.get_ref<node::Transform>()->Inspector(); }
-	if (entity.has<node::Quad>()) { entity.get_ref<node::Quad>()->Inspector(); }
-	if (entity.has<node::Text>()) { entity.get_ref<node::Text>()->Inspector(); }
+	if (entity.has<node::Transform>())
+	{
+		entity.get_ref<node::Transform>()->Inspector();
+	}
+	if (entity.has<node::Quad>())
+	{
+		entity.get_ref<node::Quad>()->Inspector();
+	}
+	if (entity.has<node::Text>())
+	{
+		entity.get_ref<node::Text>()->Inspector();
+	}
 }
 
 void ECS::Init()

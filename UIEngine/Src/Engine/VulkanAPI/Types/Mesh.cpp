@@ -1,11 +1,11 @@
 #include "pch.h"
+
 #include "Mesh.h"
 
+#include "../DescriptorManager.h"
 #include "../Helpers/MeshHelper.h"
 #include "../VulkanInit.h"
 #include <iostream>
-#include "../DescriptorManager.h"
-
 
 namespace VulkanWrapper
 {
@@ -36,12 +36,18 @@ void Mesh::Initialize(VkContainer& api)
 
 void Mesh::AllocateBuffers(DeviceQueue& devices)
 {
-	for (auto& subMesh : m_subMeshes) { subMesh.CreateBuffers(devices); }
+	for (auto& subMesh : m_subMeshes)
+	{
+		subMesh.CreateBuffers(devices);
+	}
 }
 
 void Mesh::FreeBuffers()
 {
-	for (auto& subMesh : m_subMeshes) { subMesh.DestroyBuffers(); }
+	for (auto& subMesh : m_subMeshes)
+	{
+		subMesh.DestroyBuffers();
+	}
 
 	m_device.destroyBuffer(m_mvpBuffer.buffer);
 	m_device.freeMemory(m_mvpBuffer.memory);
@@ -56,7 +62,10 @@ void Mesh::AllocateDescriptors(VulkanWrapper::VkContainer& api)
 	CreateLightPropertiesBuffer(api.deviceQueue);
 
 	// Allocate the descriptor sets for each sub mesh
-	for (auto& subMesh : m_subMeshes) { subMesh.CreateDescriptorSets(); }
+	for (auto& subMesh : m_subMeshes)
+	{
+		subMesh.CreateDescriptorSets();
+	}
 }
 
 std::vector<std::shared_ptr<VulkanWrapper::DescriptorSetLayout>> Mesh::GetAllDescriptorSetLayouts()
@@ -75,7 +84,10 @@ void Mesh::UpdateBuffers(VulkanWrapper::VkContainer& api, const ModelViewProject
 	m_mvpBuffer.Update(m_device, &mvp, sizeof(ModelViewProjection));
 	m_lightPropertiesBuffer.Update(m_device, &properties, sizeof(LightProperties));
 
-	for (auto& subMesh : m_subMeshes) { subMesh.UpdateDescriptorSets(&m_mvpBuffer, &m_lightPropertiesBuffer); }
+	for (auto& subMesh : m_subMeshes)
+	{
+		subMesh.UpdateDescriptorSets(&m_mvpBuffer, &m_lightPropertiesBuffer);
+	}
 }
 
 void Mesh::BindForDrawing(VulkanWrapper::VkContainer& api, vk::CommandBuffer& commandBuffer, vk::PipelineLayout& pipelineLayout)
@@ -91,14 +103,16 @@ void Mesh::BindForDrawing(VulkanWrapper::VkContainer& api, vk::CommandBuffer& co
 VulkanWrapper::Buffer Mesh::CreateMVPBuffer(VulkanWrapper::DeviceQueue& devices)
 {
 	ModelViewProjection mvp;
-	m_mvpBuffer = devices.CreateBuffer(vk::BufferUsageFlagBits::eUniformBuffer, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent, &mvp, sizeof(ModelViewProjection));
+	m_mvpBuffer = devices.CreateBuffer(vk::BufferUsageFlagBits::eUniformBuffer, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent, &mvp,
+	                                   sizeof(ModelViewProjection));
 	return m_mvpBuffer;
 }
 
 VulkanWrapper::Buffer Mesh::CreateLightPropertiesBuffer(VulkanWrapper::DeviceQueue& devices)
 {
 	LightProperties lightProps;
-	m_lightPropertiesBuffer = devices.CreateBuffer(vk::BufferUsageFlagBits::eUniformBuffer, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent, &lightProps, sizeof(LightProperties));
+	m_lightPropertiesBuffer = devices.CreateBuffer(vk::BufferUsageFlagBits::eUniformBuffer,
+	                                               vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent, &lightProps, sizeof(LightProperties));
 	return m_lightPropertiesBuffer;
 }
 

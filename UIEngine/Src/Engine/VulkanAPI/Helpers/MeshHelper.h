@@ -42,5 +42,5 @@ private:
 	static void ProcessMesh(const aiScene* scene, aiMesh* mesh, std::vector<VulkanWrapper::SubMesh>& subMeshes);
 
 	static glm::vec2 ComputeTexCoords(glm::vec3 pos);
-	static void      CalculateTangents(VulkanWrapper::SubMesh& subMesh);
+	static void CalculateTangents(VulkanWrapper::SubMesh& subMesh);
 };

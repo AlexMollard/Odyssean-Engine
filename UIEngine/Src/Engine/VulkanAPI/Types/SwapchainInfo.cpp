@@ -1,8 +1,10 @@
 #include "pch.h"
+
 #include "SwapchainInfo.h"
 namespace VulkanWrapper
 {
-SwapchainInfo::SwapchainInfo(vk::SwapchainKHR swapchain, vk::Extent2D extent, vk::Format format, vk::ImageUsageFlags imageUsage, vk::SurfaceTransformFlagBitsKHR preTransform, vk::PresentModeKHR presentMode, std::vector<vk::Image> images)
+SwapchainInfo::SwapchainInfo(vk::SwapchainKHR swapchain, vk::Extent2D extent, vk::Format format, vk::ImageUsageFlags imageUsage, vk::SurfaceTransformFlagBitsKHR preTransform,
+                             vk::PresentModeKHR presentMode, std::vector<vk::Image> images)
 {
 	m_Swapchain    = swapchain;
 	m_Extent       = extent;

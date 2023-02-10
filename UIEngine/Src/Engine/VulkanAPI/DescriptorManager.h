@@ -37,10 +37,10 @@ public:
 private:
 	void createBaseDescriptorLayouts();
 
-	vk::Device            m_device;
+	vk::Device m_device;
 	DescriptorLayoutCache m_descriptorLayoutCache;
 
 	std::vector<vk::DescriptorSet> m_descriptorSets;
-	vk::DescriptorPool             m_descriptorPool;
+	vk::DescriptorPool m_descriptorPool;
 };
 } // namespace VulkanWrapper

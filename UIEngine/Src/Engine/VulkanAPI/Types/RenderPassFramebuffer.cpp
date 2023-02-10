@@ -1,4 +1,5 @@
 #include "pch.h"
+
 #include "RenderPassFramebuffer.h"
 namespace VulkanWrapper
 {
@@ -8,7 +9,8 @@ RenderPassFramebuffer::RenderPassFramebuffer(vk::RenderPass renderPass, std::vec
 	m_Framebuffers = framebuffers;
 }
 
-bool RenderPassFramebuffer::BeginRenderPass(vk::CommandBuffer commandBuffer, vk::SubpassContents subpassContents, uint32_t framebufferIndex, vk::Rect2D renderArea, std::vector<vk::ClearValue> clearValues)
+bool RenderPassFramebuffer::BeginRenderPass(vk::CommandBuffer commandBuffer, vk::SubpassContents subpassContents, uint32_t framebufferIndex, vk::Rect2D renderArea,
+                                            std::vector<vk::ClearValue> clearValues)
 {
 	vk::RenderPassBeginInfo renderPassBeginInfo;
 	renderPassBeginInfo.renderPass      = m_RenderPass;

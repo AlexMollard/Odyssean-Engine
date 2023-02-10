@@ -18,7 +18,7 @@ public:
 
 	bool operator==(const DescriptorSetLayout& other) const;
 
-	vk::DescriptorSetLayout                            GetLayout() const;
+	vk::DescriptorSetLayout GetLayout() const;
 	const std::vector<vk::DescriptorSetLayoutBinding>& GetBindings() const;
 
 	// Create descriptor sets
@@ -26,9 +26,9 @@ public:
 
 	// DEBUGGING
 	void Print() const;
-private:
 
-	vk::Device              m_device;
+private:
+	vk::Device m_device;
 	vk::DescriptorSetLayout m_layout;
 
 	std::vector<vk::DescriptorSetLayoutBinding> m_bindings;

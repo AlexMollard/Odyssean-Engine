@@ -1,15 +1,15 @@
 #pragma once
 // This is strictly for the vulkan API
 
-//glfw
+// glfw
 #include "GLFW/glfw3.h"
 #include "GLFW/glfw3native.h"
-#include <vulkan/vulkan.hpp>
 #include <vector>
+#include <vulkan/vulkan.hpp>
 class Window
 {
 public:
-	Window() = default;
+	Window()  = default;
 	~Window() = default;
 
 	void Initialize(const char* windowName, int width, int height);
@@ -28,14 +28,14 @@ public:
 	// Gets the required extensions for glfw
 	static std::vector<const char*> GetRequiredExtensions();
 
-	vk::SurfaceKHR                    m_Surface;
-	vk::SurfaceCapabilitiesKHR        m_SurfaceCapabilities;
-	vk::Extent2D                      m_SurfaceExtent;
-	vk::SurfaceFormatKHR              m_SurfaceFormat;
-	vk::PresentModeKHR                m_SurfacePresentMode;
-	size_t                            m_SurfaceImageCount;
+	vk::SurfaceKHR m_Surface;
+	vk::SurfaceCapabilitiesKHR m_SurfaceCapabilities;
+	vk::Extent2D m_SurfaceExtent;
+	vk::SurfaceFormatKHR m_SurfaceFormat;
+	vk::PresentModeKHR m_SurfacePresentMode;
+	size_t m_SurfaceImageCount;
 	std::vector<vk::SurfaceFormatKHR> m_SurfaceFormats;
-	std::vector<vk::PresentModeKHR>   m_SurfacePresentModes;
+	std::vector<vk::PresentModeKHR> m_SurfacePresentModes;
 
 private:
 	// Window
@@ -43,7 +43,7 @@ private:
 	int m_Height;
 
 	GLFWwindow* m_Window;
-	bool        m_close = false;
+	bool m_close = false;
 
 	// keys
 	bool m_Keys[GLFW_KEY_LAST] = { false };
@@ -63,14 +63,14 @@ private:
 	bool m_FramebufferResized = false;
 
 	// Timing stuff
-	float m_Dt = 0.0f;
-	double m_LastFrame = 0.0f;
+	float m_Dt            = 0.0f;
+	double m_LastFrame    = 0.0f;
 	double m_CurrentFrame = 0.0f;
 
 public:
 	bool GetMinimized() const;
 	int GetMouseState(bool mouseIndex) const;
 	double GetMouseWheel() const;
-	void  ResetMouseWheel();
+	void ResetMouseWheel();
 	float GetDt() const;
 };

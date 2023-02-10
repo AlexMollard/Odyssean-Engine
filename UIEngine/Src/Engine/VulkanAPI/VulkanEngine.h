@@ -17,7 +17,7 @@ public:
 
 	// Returns DT
 	float Update(SceneStateMachine& stateMachine);
-	void  Render(SceneStateMachine& stateMachine);
+	void Render(SceneStateMachine& stateMachine);
 
 	bool GetClose() const override;
 
@@ -25,11 +25,11 @@ public:
 
 private:
 	VulkanInit m_Init;
-	Renderer   m_Renderer{ Renderer::API::VULKAN };
+	Renderer m_Renderer{ Renderer::API::VULKAN };
 
 	Window* m_Window;
-	bool    m_close      = false;
-	bool    m_firstFrame = true;
+	bool m_close      = false;
+	bool m_firstFrame = true;
 
 	// Delta Time
 	float m_DT        = 0.0f;

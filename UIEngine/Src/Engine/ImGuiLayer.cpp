@@ -25,10 +25,10 @@ void ImGuiLayer::SetStyle()
 {
 	constexpr auto ColorFromBytes = [](uint8_t r, uint8_t g, uint8_t b) { return ImVec4((float)r / 255.0f, (float)g / 255.0f, (float)b / 255.0f, 1.0f); };
 
-	auto&   style  = ImGui::GetStyle();
+	auto& style    = ImGui::GetStyle();
 	ImVec4* colors = style.Colors;
 
-	const auto   bgColor          = ImVec4(0.1f, 0.1f, 0.1f, 0.75f);
+	const auto bgColor            = ImVec4(0.1f, 0.1f, 0.1f, 0.75f);
 	const ImVec4 lightBgColor     = ColorFromBytes(82, 82, 85);
 	const ImVec4 veryLightBgColor = ColorFromBytes(90, 90, 95);
 
@@ -114,47 +114,57 @@ void ImGuiLayer::ShowHierarchyWindow(bool* p_open) const
 
 	auto rootEntity = ECS::GetRootEntity();
 
-	static bool          showInspector  = false;
+	static bool showInspector           = false;
 	static flecs::entity selectedEntity = rootEntity;
 	if (rootEntity)
 	{
 		// Lambda function to recursively display the hierarchy
-		std::function<void(flecs::entity)> displayHierarchy = [&](flecs::entity entity) {
-			entity.children([&displayHierarchy](flecs::entity child) {
-				ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick;
-				if (child == selectedEntity) flags |= ImGuiTreeNodeFlags_Selected;
+		std::function<void(flecs::entity)> displayHierarchy = [&](flecs::entity entity)
+		{
+			entity.children(
+			    [&displayHierarchy](flecs::entity child)
+			    {
+				    ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick;
+				    if (child == selectedEntity)
+					    flags |= ImGuiTreeNodeFlags_Selected;
 
-				bool isLeaf = true;
+				    bool isLeaf = true;
 
-				// flecs doesn't have a way to check if an entity has children, so we have to iterate over them
-				child.children([&isLeaf](flecs::entity) {
-					isLeaf = false;
-					return false;
-				});
+				    // flecs doesn't have a way to check if an entity has children, so we have to iterate over them
+				    child.children(
+				        [&isLeaf](flecs::entity)
+				        {
+					        isLeaf = false;
+					        return false;
+				        });
 
-				if (isLeaf) flags |= ImGuiTreeNodeFlags_Leaf;
+				    if (isLeaf)
+					    flags |= ImGuiTreeNodeFlags_Leaf;
 
-				bool isOpen = ImGui::TreeNodeEx((void*)(uint64_t)child.id(), flags, child.name().c_str());
+				    bool isOpen = ImGui::TreeNodeEx((void*)(uint64_t)child.id(), flags, child.name().c_str());
 
-				if (ImGui::IsItemClicked()) selectedEntity = child;
+				    if (ImGui::IsItemClicked())
+					    selectedEntity = child;
 
-				if (isOpen)
-				{
-					displayHierarchy(child);
-					ImGui::TreePop();
-				}
-			});
+				    if (isOpen)
+				    {
+					    displayHierarchy(child);
+					    ImGui::TreePop();
+				    }
+			    });
 		};
 
 		displayHierarchy(rootEntity);
 	}
 
 	// If the selected entity is destroyed, set it to the root entity
-	if (!selectedEntity.is_alive()) selectedEntity = rootEntity;
+	if (!selectedEntity.is_alive())
+		selectedEntity = rootEntity;
 	ImGui::End();
 
 	// Show the inspector window if the selected entity is valid
-	if (selectedEntity.is_alive()) ShowInspectorWindow(&showInspector, selectedEntity);
+	if (selectedEntity.is_alive())
+		ShowInspectorWindow(&showInspector, selectedEntity);
 }
 
 void ImGuiLayer::ShowInspectorWindow(bool* p_open, flecs::entity entity) const
@@ -187,9 +197,9 @@ void ImGuiLayer::ShowProfilerWindow(bool* p_open) const
 	static float ms_per_frame[120]  = { 0 };
 	static float m_min              = -1.0f;
 	static float m_max              = FLT_MAX;
-	static int   ms_per_frame_idx   = 0;
+	static int ms_per_frame_idx     = 0;
 	static float ms_per_frame_accum = 0.0f;
-	static bool  m_paused           = false;
+	static bool m_paused            = false;
 
 	if (!m_paused)
 	{
@@ -207,13 +217,14 @@ void ImGuiLayer::ShowProfilerWindow(bool* p_open) const
 	ImGui::PlotLines("Frame Rate", ms_per_frame, IM_ARRAYSIZE(ms_per_frame), ms_per_frame_idx, nullptr, m_min, m_max, ImVec2(0, 80));
 	ImGui::PopItemWidth();
 
-	auto highAvgColor = ImVec4(0.1f, 1.0f, 0.1f, 1.0f);
-	auto lowAvgColor  = ImVec4(1.0f, 0.1f, 0.1f, 1.0f);
-	float  avgFrameRate = ms_per_frame_accum / IM_ARRAYSIZE(ms_per_frame);
+	auto highAvgColor  = ImVec4(0.1f, 1.0f, 0.1f, 1.0f);
+	auto lowAvgColor   = ImVec4(1.0f, 0.1f, 0.1f, 1.0f);
+	float avgFrameRate = ms_per_frame_accum / IM_ARRAYSIZE(ms_per_frame);
 
 	ImGui::Text("Average Frame Rate: ");
 	ImGui::SameLine();
-	ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(ImLerp(highAvgColor.x, lowAvgColor.x, avgFrameRate / 16.666f), ImLerp(highAvgColor.y, lowAvgColor.y, avgFrameRate / 16.666f), ImLerp(highAvgColor.z, lowAvgColor.z, avgFrameRate / 16.666f), 1.0f));
+	ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(ImLerp(highAvgColor.x, lowAvgColor.x, avgFrameRate / 16.666f), ImLerp(highAvgColor.y, lowAvgColor.y, avgFrameRate / 16.666f),
+	                                            ImLerp(highAvgColor.z, lowAvgColor.z, avgFrameRate / 16.666f), 1.0f));
 	ImGui::Text("%.3f ms/frame", avgFrameRate);
 	ImGui::PopStyleColor();
 	ImGui::SameLine();
@@ -238,7 +249,10 @@ void ImGuiLayer::ShowProfilerWindow(bool* p_open) const
 	// Button to pause or resume the profiler (Right aligned below the plots)
 	ImGui::SameLine(ImGui::GetWindowWidth() - 80);
 
-	if (ImGui::Button(m_paused ? "Resume" : "Pause")) { m_paused = !m_paused; }
+	if (ImGui::Button(m_paused ? "Resume" : "Pause"))
+	{
+		m_paused = !m_paused;
+	}
 
 	ImGui::PopStyleColor(2);
 
@@ -254,9 +268,10 @@ void ImGuiLayer::NewFrame(BS::thread_pool& pool)
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
 
-	auto dockspaceFn = [this]() {
-		ImGuiWindowFlags window_flags =
-			ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
+	auto dockspaceFn = [this]()
+	{
+		ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize |
+		                                ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
 
 		ImGui::SetNextWindowPos(ImGui::GetMainViewport()->WorkPos);
 		ImGui::SetNextWindowSize(ImGui::GetMainViewport()->WorkSize);
@@ -282,11 +297,14 @@ void ImGuiLayer::NewFrame(BS::thread_pool& pool)
 			}
 			ImGui::EndMainMenuBar();
 
-			if (showHierarchy) ShowHierarchyWindow(&showHierarchy);
+			if (showHierarchy)
+				ShowHierarchyWindow(&showHierarchy);
 
-			if (showProfiler) ShowProfilerWindow(&showProfiler);
+			if (showProfiler)
+				ShowProfilerWindow(&showProfiler);
 
-			if (showImGuiMetrics) ImGui::ShowMetricsWindow(&showImGuiMetrics);
+			if (showImGuiMetrics)
+				ImGui::ShowMetricsWindow(&showImGuiMetrics);
 		}
 	};
 	auto result = pool.submit(dockspaceFn);

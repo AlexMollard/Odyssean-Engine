@@ -1,10 +1,10 @@
 #include "pch.h"
+
 #include "SyncObjectContainer.h"
 
 #include "common.h"
 
-VulkanWrapper::SyncObjectContainer::~SyncObjectContainer()
-{}
+VulkanWrapper::SyncObjectContainer::~SyncObjectContainer() {}
 
 vk::Result VulkanWrapper::SyncObjectContainer::init(vk::Device* device, uint32_t framesInFlight)
 {
@@ -23,10 +23,16 @@ vk::Result VulkanWrapper::SyncObjectContainer::init(vk::Device* device, uint32_t
 
 	// Create the fences
 	m_InFlightFences.resize(m_FramesInFlight);
-	for (auto& fence : m_InFlightFences) { VK_CHECK_RESULT(m_Device->createFence(&fenceInfo, nullptr, &fence)); }
+	for (auto& fence : m_InFlightFences)
+	{
+		VK_CHECK_RESULT(m_Device->createFence(&fenceInfo, nullptr, &fence));
+	}
 
 	m_ImagesInFlight.resize(m_FramesInFlight);
-	for (auto& fence : m_ImagesInFlight) { VK_CHECK_RESULT(m_Device->createFence(&fenceInfo, nullptr, &fence)); }
+	for (auto& fence : m_ImagesInFlight)
+	{
+		VK_CHECK_RESULT(m_Device->createFence(&fenceInfo, nullptr, &fence));
+	}
 
 	return vk::Result::eSuccess;
 }
@@ -38,8 +44,14 @@ void VulkanWrapper::SyncObjectContainer::cleanup()
 	m_Device->destroySemaphore(m_RenderFinishedSemaphore);
 
 	// Destroy the fences
-	for (auto& fence : m_InFlightFences) { m_Device->destroyFence(fence); }
-	for (auto& fence : m_ImagesInFlight) { m_Device->destroyFence(fence); }
+	for (auto& fence : m_InFlightFences)
+	{
+		m_Device->destroyFence(fence);
+	}
+	for (auto& fence : m_ImagesInFlight)
+	{
+		m_Device->destroyFence(fence);
+	}
 
 	m_InFlightFences.clear();
 	m_ImagesInFlight.clear();

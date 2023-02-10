@@ -10,8 +10,8 @@
 #include "SyncObjectContainer.h"
 #include "Window.h"
 #include "common.h"
-#include <map>
 #include <Engine/Renderer.h>
+#include <map>
 
 namespace VulkanWrapper
 {
@@ -22,7 +22,7 @@ namespace VulkanWrapper
 {
 class VkContainer
 {
-	VkContainer(){};
+	VkContainer() = default;;
 	VkContainer(const VkContainer&)            = delete;
 	VkContainer& operator=(const VkContainer&) = delete;
 
@@ -37,7 +37,7 @@ public:
 
 	// Vulkan API
 	vk::InstanceCreateInfo instanceCreateInfo;
-	vk::Instance           vulkanInstance;
+	vk::Instance vulkanInstance;
 
 	// Extensions and Layers
 	std::vector<const char*> extensions;
@@ -48,9 +48,9 @@ public:
 
 	// Pipeline
 	vk::PipelineLayout pipelineLayout;
-	vk::Pipeline       graphicsPipeline;
+	vk::Pipeline graphicsPipeline;
 
-	std::map<std::string, vk::ShaderModule, std::less<>>        shaderModules;
+	std::map<std::string, vk::ShaderModule, std::less<>> shaderModules;
 	std::map<std::string, VulkanWrapper::Texture*, std::less<>> textureCache;
 
 	// Depth Buffer
@@ -59,21 +59,21 @@ public:
 	bool enableValidationLayers = true;
 
 	// UIEngine API
-	DeviceQueue           deviceQueue;
-	SwapchainInfo         swapchainInfo;
+	DeviceQueue deviceQueue;
+	SwapchainInfo swapchainInfo;
 	RenderPassFramebuffer renderPassFrameBuffers;
-	SyncObjectContainer   syncObjectContainer;
+	SyncObjectContainer syncObjectContainer;
 	Renderer::VulkanImpl* renderer;
 
 	vk::Device& device = deviceQueue.m_Device;
 
-	vk::CommandPool            commandPool;
+	vk::CommandPool commandPool;
 	std::vector<CommandBuffer> commandBuffers;
 	std::vector<CommandBuffer> commandBuffersNoDepth;
 
 	// Descriptor set stuff
 	std::shared_ptr<VulkanWrapper::DescriptorManager> descriptorManager = nullptr;
-	vk::DescriptorPool                                imguiDescriptorPool;
+	vk::DescriptorPool imguiDescriptorPool;
 
 	Window window;
 

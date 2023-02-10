@@ -10,7 +10,7 @@ struct VkContainer;
 class ImGuiVulkan
 {
 public:
-	static int  SetUpImgui(VulkanWrapper::VkContainer& vkContainer);
+	static int SetUpImgui(VulkanWrapper::VkContainer& vkContainer);
 	static void DestroyImgui(VulkanWrapper::VkContainer& vkContainer);
 
 	static void SetPlatformIO(VulkanWrapper::VkContainer& vkContainer);

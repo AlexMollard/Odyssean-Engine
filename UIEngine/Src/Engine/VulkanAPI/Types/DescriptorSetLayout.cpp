@@ -1,16 +1,19 @@
 #include "pch.h"
+
 #include "DescriptorSetLayout.h"
 
 #include <iostream>
 
-VulkanWrapper::DescriptorSetLayout::DescriptorSetLayout(vk::Device device, const std::vector<vk::DescriptorSetLayoutBinding>& bindings) : m_device(device), m_bindings(bindings)
+VulkanWrapper::DescriptorSetLayout::DescriptorSetLayout(vk::Device device, const std::vector<vk::DescriptorSetLayoutBinding>& bindings)
+    : m_device(device), m_bindings(bindings)
 {
 	vk::DescriptorSetLayoutCreateInfo createInfo = vk::DescriptorSetLayoutCreateInfo().setBindingCount(static_cast<uint32_t>(bindings.size())).setPBindings(bindings.data());
 
 	m_layout = device.createDescriptorSetLayout(createInfo);
 }
 
-VulkanWrapper::DescriptorSetLayout::DescriptorSetLayout(DescriptorSetLayout&& other) noexcept : m_device(other.m_device), m_layout(other.m_layout), m_bindings(std::move(other.m_bindings))
+VulkanWrapper::DescriptorSetLayout::DescriptorSetLayout(DescriptorSetLayout&& other) noexcept
+    : m_device(other.m_device), m_layout(other.m_layout), m_bindings(std::move(other.m_bindings))
 {
 	other.m_layout = nullptr;
 }
@@ -19,7 +22,10 @@ VulkanWrapper::DescriptorSetLayout& VulkanWrapper::DescriptorSetLayout::operator
 {
 	if (this != &other)
 	{
-		if (m_layout) { m_device.destroyDescriptorSetLayout(m_layout); }
+		if (m_layout)
+		{
+			m_device.destroyDescriptorSetLayout(m_layout);
+		}
 
 		m_device   = other.m_device;
 		m_layout   = other.m_layout;

@@ -20,7 +20,7 @@ public:
 
 	void Init(GLFWwindow* window);
 
-	bool                    IsMouseButtonPressed(Input::Mouse button) const;
+	bool IsMouseButtonPressed(Input::Mouse button) const;
 	std::pair<float, float> GetMousePosition() const;
 
 	void Update();
@@ -39,9 +39,9 @@ private:
 	void DebugMouseOutput() const;
 
 	GLFWwindow* m_Window{};
-	KeyState    m_CurrentKeyStates[GLFW_KEY_LAST]{};
-	KeyState    m_PreviousKeyStates[GLFW_KEY_LAST]{};
-	KeyState    m_KeyStates[GLFW_KEY_LAST]{};
+	KeyState m_CurrentKeyStates[GLFW_KEY_LAST]{};
+	KeyState m_PreviousKeyStates[GLFW_KEY_LAST]{};
+	KeyState m_KeyStates[GLFW_KEY_LAST]{};
 
 	InputManager();
 

@@ -34,12 +34,11 @@ void OpenGLEngine::Initialize(const char* windowName, int width, int height)
 	// Create Window
 	m_Window.Initialise(width, height, windowName);
 
-	//Audio audioManager = Audio();
+	// Audio audioManager = Audio();
 
 	// ImGui Setup
 	m_ImguiLayer.Init(m_Window.GetWindow());
 	ImGui_ImplOpenGL3_Init("#version 450");
-
 
 	m_close = false;
 

@@ -1,4 +1,5 @@
 #include "pch.h"
+
 #include "ImGuiVulkan.h"
 
 // Include the ImGui
@@ -18,19 +19,17 @@ int ImGuiVulkan::SetUpImgui(VulkanWrapper::VkContainer& vkContainer)
 	const int SET_COUNT = 100;
 
 	// Create Descriptor Pool
-	vk::DescriptorPoolSize poolSizes[] = {
-		{			 vk::DescriptorType::eSampler, SET_COUNT},
-		{vk::DescriptorType::eCombinedImageSampler, SET_COUNT},
-		{        vk::DescriptorType::eSampledImage, SET_COUNT},
-		{        vk::DescriptorType::eStorageImage, SET_COUNT},
-		{  vk::DescriptorType::eUniformTexelBuffer, SET_COUNT},
-		{  vk::DescriptorType::eStorageTexelBuffer, SET_COUNT},
-		{       vk::DescriptorType::eUniformBuffer, SET_COUNT},
-		{       vk::DescriptorType::eStorageBuffer, SET_COUNT},
-		{vk::DescriptorType::eUniformBufferDynamic, SET_COUNT},
-		{vk::DescriptorType::eStorageBufferDynamic, SET_COUNT},
-		{     vk::DescriptorType::eInputAttachment, SET_COUNT}
-	};
+	vk::DescriptorPoolSize poolSizes[] = { { vk::DescriptorType::eSampler, SET_COUNT },
+		                                   { vk::DescriptorType::eCombinedImageSampler, SET_COUNT },
+		                                   { vk::DescriptorType::eSampledImage, SET_COUNT },
+		                                   { vk::DescriptorType::eStorageImage, SET_COUNT },
+		                                   { vk::DescriptorType::eUniformTexelBuffer, SET_COUNT },
+		                                   { vk::DescriptorType::eStorageTexelBuffer, SET_COUNT },
+		                                   { vk::DescriptorType::eUniformBuffer, SET_COUNT },
+		                                   { vk::DescriptorType::eStorageBuffer, SET_COUNT },
+		                                   { vk::DescriptorType::eUniformBufferDynamic, SET_COUNT },
+		                                   { vk::DescriptorType::eStorageBufferDynamic, SET_COUNT },
+		                                   { vk::DescriptorType::eInputAttachment, SET_COUNT } };
 
 	vk::DescriptorPoolCreateInfo poolInfo = {};
 	poolInfo.poolSizeCount                = static_cast<uint32_t>(std::size(poolSizes));
@@ -54,7 +53,6 @@ int ImGuiVulkan::SetUpImgui(VulkanWrapper::VkContainer& vkContainer)
 		ImGuiStyle& style = ImGui::GetStyle();
 		ImGuiLayer::SetStyle();
 
-
 		if (ImGuiVulkan::UsingViewports)
 		{
 			io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
@@ -76,8 +74,12 @@ int ImGuiVulkan::SetUpImgui(VulkanWrapper::VkContainer& vkContainer)
 		initInfo.ImageCount                = vkContainer.swapchainInfo.m_ImageCount;
 
 		// vk result check function
-		initInfo.CheckVkResultFn = [](VkResult err) {
-			if (err != 0) { throw std::runtime_error("Vulkan error"); }
+		initInfo.CheckVkResultFn = [](VkResult err)
+		{
+			if (err != 0)
+			{
+				throw std::runtime_error("Vulkan error");
+			}
 		};
 
 		// Install handlers
@@ -118,56 +120,69 @@ void ImGuiVulkan::SetPlatformIO(VulkanWrapper::VkContainer& vkContainer)
 	auto& platformIO = ImGui::GetPlatformIO();
 
 	// platform create window
-	platformIO.Platform_CreateWindow = [](ImGuiViewport* vp) -> void {
-		//Using GLFW to create window
+	platformIO.Platform_CreateWindow = [](ImGuiViewport* vp) -> void
+	{
+		// Using GLFW to create window
 		GLFWwindow* window = glfwCreateWindow((int)vp->Size.x, (int)vp->Size.y, "", NULL, NULL);
 		vp->PlatformHandle = (void*)window;
 
 		struct ImGui_ImplGlfw_ViewportData
 		{
 			GLFWwindow* Window;
-			bool        WindowOwned;
-			int         IgnoreWindowPosEventFrame;
-			int         IgnoreWindowSizeEventFrame;
+			bool WindowOwned;
+			int IgnoreWindowPosEventFrame;
+			int IgnoreWindowSizeEventFrame;
 		};
 
 		vp->PlatformUserData = new ImGui_ImplGlfw_ViewportData{ window, true, -1, -1 };
 
 		// Setup GLFW callback
 		glfwSetWindowUserPointer(window, vp);
-		glfwSetWindowSizeCallback(window, [](GLFWwindow* window, int width, int height) {
-			ImGuiViewport* viewport         = (ImGuiViewport*)glfwGetWindowUserPointer(window);
-			viewport->PlatformRequestResize = true;
-		});
-		glfwSetWindowPosCallback(window, [](GLFWwindow* window, int x, int y) {
-			ImGuiViewport* viewport       = (ImGuiViewport*)glfwGetWindowUserPointer(window);
-			viewport->PlatformRequestMove = true;
-		});
+		glfwSetWindowSizeCallback(window,
+		                          [](GLFWwindow* window, int width, int height)
+		                          {
+			                          ImGuiViewport* viewport         = (ImGuiViewport*)glfwGetWindowUserPointer(window);
+			                          viewport->PlatformRequestResize = true;
+		                          });
+		glfwSetWindowPosCallback(window,
+		                         [](GLFWwindow* window, int x, int y)
+		                         {
+			                         ImGuiViewport* viewport       = (ImGuiViewport*)glfwGetWindowUserPointer(window);
+			                         viewport->PlatformRequestMove = true;
+		                         });
 
-		glfwSetWindowCloseCallback(window, [](GLFWwindow* window) {
-			ImGuiViewport* viewport        = (ImGuiViewport*)glfwGetWindowUserPointer(window);
-			viewport->PlatformRequestClose = true;
-		});
+		glfwSetWindowCloseCallback(window,
+		                           [](GLFWwindow* window)
+		                           {
+			                           ImGuiViewport* viewport        = (ImGuiViewport*)glfwGetWindowUserPointer(window);
+			                           viewport->PlatformRequestClose = true;
+		                           });
 
-		glfwSetMouseButtonCallback(window, [](GLFWwindow* window, int button, int action, int mods) {
-			ImGuiIO& io     = ImGui::GetIO();
-			io.MouseDown[0] = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) != 0;
-			io.MouseDown[1] = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) != 0;
-			io.MouseDown[2] = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_MIDDLE) != 0;
-		});
+		glfwSetMouseButtonCallback(window,
+		                           [](GLFWwindow* window, int button, int action, int mods)
+		                           {
+			                           ImGuiIO& io     = ImGui::GetIO();
+			                           io.MouseDown[0] = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) != 0;
+			                           io.MouseDown[1] = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) != 0;
+			                           io.MouseDown[2] = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_MIDDLE) != 0;
+		                           });
 
-		glfwSetScrollCallback(window, [](GLFWwindow* window, double xoffset, double yoffset) {
-			ImGuiIO& io = ImGui::GetIO();
-			io.MouseWheelH += (float)xoffset;
-			io.MouseWheel += (float)yoffset;
-		});
+		glfwSetScrollCallback(window,
+		                      [](GLFWwindow* window, double xoffset, double yoffset)
+		                      {
+			                      ImGuiIO& io = ImGui::GetIO();
+			                      io.MouseWheelH += (float)xoffset;
+			                      io.MouseWheel += (float)yoffset;
+		                      });
 	};
 
 	// vkCreate function
-	platformIO.Platform_CreateVkSurface = [](ImGuiViewport* vp, ImU64 vk_inst, const void* vk_allocators, ImU64* out_vk_surface) -> int {
+	platformIO.Platform_CreateVkSurface = [](ImGuiViewport* vp, ImU64 vk_inst, const void* vk_allocators, ImU64* out_vk_surface) -> int
+	{
 		// Create GLFW surface
 		VkSurfaceKHR surface;
-		if (glfwCreateWindowSurface((VkInstance)vk_inst, (GLFWwindow*)vp->PlatformHandle, (const VkAllocationCallbacks*)vk_allocators, &surface) != VK_SUCCESS) return 1;
+		if (glfwCreateWindowSurface((VkInstance)vk_inst, (GLFWwindow*)vp->PlatformHandle, (const VkAllocationCallbacks*)vk_allocators, &surface) != VK_SUCCESS)
+			return 1;
 
 		*out_vk_surface = (ImU64)surface;
 
@@ -175,17 +190,19 @@ void ImGuiVulkan::SetPlatformIO(VulkanWrapper::VkContainer& vkContainer)
 	};
 
 	// platform destroy window
-	platformIO.Platform_DestroyWindow = [](ImGuiViewport* vp) -> void {
+	platformIO.Platform_DestroyWindow = [](ImGuiViewport* vp) -> void
+	{
 		struct ImGui_ImplGlfw_ViewportData
 		{
 			GLFWwindow* Window;
-			bool        WindowOwned;
-			int         IgnoreWindowPosEventFrame;
-			int         IgnoreWindowSizeEventFrame;
+			bool WindowOwned;
+			int IgnoreWindowPosEventFrame;
+			int IgnoreWindowSizeEventFrame;
 		};
 
 		auto* data = (ImGui_ImplGlfw_ViewportData*)vp->PlatformUserData;
-		if (data && data->WindowOwned) glfwDestroyWindow(data->Window);
+		if (data && data->WindowOwned)
+			glfwDestroyWindow(data->Window);
 		delete data;
 		vp->PlatformUserData = vp->PlatformHandle = nullptr;
 	};
@@ -197,7 +214,8 @@ void ImGuiVulkan::SetPlatformIO(VulkanWrapper::VkContainer& vkContainer)
 	platformIO.Platform_SetWindowPos = [](ImGuiViewport* vp, ImVec2 pos) -> void { glfwSetWindowPos((GLFWwindow*)vp->PlatformHandle, (int)pos.x, (int)pos.y); };
 
 	// platform get window pos
-	platformIO.Platform_GetWindowPos = [](ImGuiViewport* vp) -> ImVec2 {
+	platformIO.Platform_GetWindowPos = [](ImGuiViewport* vp) -> ImVec2
+	{
 		int x, y;
 		glfwGetWindowPos((GLFWwindow*)vp->PlatformHandle, &x, &y);
 		return { (float)x, (float)y };
@@ -207,7 +225,8 @@ void ImGuiVulkan::SetPlatformIO(VulkanWrapper::VkContainer& vkContainer)
 	platformIO.Platform_SetWindowSize = [](ImGuiViewport* vp, ImVec2 size) -> void { glfwSetWindowSize((GLFWwindow*)vp->PlatformHandle, (int)size.x, (int)size.y); };
 
 	// platform get window size
-	platformIO.Platform_GetWindowSize = [](ImGuiViewport* vp) -> ImVec2 {
+	platformIO.Platform_GetWindowSize = [](ImGuiViewport* vp) -> ImVec2
+	{
 		int w, h;
 		glfwGetWindowSize((GLFWwindow*)vp->PlatformHandle, &w, &h);
 		return { (float)w, (float)h };
@@ -220,14 +239,16 @@ void ImGuiVulkan::SetPlatformIO(VulkanWrapper::VkContainer& vkContainer)
 	platformIO.Platform_GetWindowFocus = [](ImGuiViewport* vp) -> bool { return glfwGetWindowAttrib((GLFWwindow*)vp->PlatformHandle, GLFW_FOCUSED) != 0; };
 
 	// platform get window dpi scale
-	platformIO.Platform_GetWindowDpiScale = [](ImGuiViewport* vp) -> float {
+	platformIO.Platform_GetWindowDpiScale = [](ImGuiViewport* vp) -> float
+	{
 		float xscale, yscale;
 		glfwGetWindowContentScale((GLFWwindow*)vp->PlatformHandle, &xscale, &yscale);
 		return xscale;
 	};
 
 	// platform on window resize
-	platformIO.Platform_OnChangedViewport = [](ImGuiViewport* vp) -> void {
+	platformIO.Platform_OnChangedViewport = [](ImGuiViewport* vp) -> void
+	{
 		if (vp->PlatformWindowCreated)
 		{
 			// Update GLFW window size
@@ -239,7 +260,10 @@ void ImGuiVulkan::SetPlatformIO(VulkanWrapper::VkContainer& vkContainer)
 				glfwSetWindowAttrib((GLFWwindow*)vp->PlatformHandle, GLFW_DECORATED, GLFW_FALSE);
 				vp->Flags |= ImGuiViewportFlags_NoDecoration;
 			}
-			else { glfwSetWindowAttrib((GLFWwindow*)vp->PlatformHandle, GLFW_DECORATED, GLFW_TRUE); }
+			else
+			{
+				glfwSetWindowAttrib((GLFWwindow*)vp->PlatformHandle, GLFW_DECORATED, GLFW_TRUE);
+			}
 
 			glfwSetWindowSize((GLFWwindow*)vp->PlatformHandle, (int)vp->Size.x, (int)vp->Size.y);
 		}
@@ -256,7 +280,7 @@ void ImGuiVulkan::NewFrame(VulkanWrapper::VkContainer& vkContainer)
 	ImGui::NewFrame();
 
 	// Docking
-	static bool               dockspaceOpen  = true;
+	static bool dockspaceOpen                = true;
 	static ImGuiDockNodeFlags dockspaceFlags = ImGuiDockNodeFlags_None | ImGuiWindowFlags_NoBackground | ImGuiDockNodeFlags_PassthruCentralNode;
 
 	// We are using the ImGuiWindowFlags_NoDocking flag to make the parent window not dockable into,
@@ -271,7 +295,7 @@ void ImGuiVulkan::NewFrame(VulkanWrapper::VkContainer& vkContainer)
 	ImGui::SetNextWindowViewport(viewport->ID);
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
-	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, { 0.0f, 0.0f});
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, { 0.0f, 0.0f });
 
 	ImGui::Begin("MainDockSpace", &dockspaceOpen, windowFlags);
 	ImGui::PopStyleVar(3);
@@ -305,7 +329,8 @@ void ImGuiVulkan::Render(VulkanWrapper::VkContainer& vkContainer)
 {
 	ImGui::Render();
 
-	if (ImGuiVulkan::UsingViewports) ImGui::RenderPlatformWindowsDefault();
+	if (ImGuiVulkan::UsingViewports)
+		ImGui::RenderPlatformWindowsDefault();
 
 	ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), vkContainer.commandBuffers[vkContainer.swapchainInfo.getCurrentFrameIndex()].get());
 }

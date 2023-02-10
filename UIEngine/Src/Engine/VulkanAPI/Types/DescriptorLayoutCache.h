@@ -20,9 +20,12 @@ struct DescriptorSetLayoutBindingsHash
 			seed ^= (std::hash<uint32_t>{}(binding.descriptorCount) << 1);
 
 			uint32_t bitmask = 0;
-			if (binding.stageFlags & vk::ShaderStageFlagBits::eVertex) bitmask |= 1;
-			if (binding.stageFlags & vk::ShaderStageFlagBits::eFragment) bitmask |= 2;
-			if (binding.stageFlags & vk::ShaderStageFlagBits::eCompute) bitmask |= 4;
+			if (binding.stageFlags & vk::ShaderStageFlagBits::eVertex)
+				bitmask |= 1;
+			if (binding.stageFlags & vk::ShaderStageFlagBits::eFragment)
+				bitmask |= 2;
+			if (binding.stageFlags & vk::ShaderStageFlagBits::eCompute)
+				bitmask |= 4;
 			seed ^= (std::hash<uint32_t>{}(bitmask) << 1);
 		}
 		return seed;
@@ -50,7 +53,9 @@ public:
 private:
 	vk::Device m_device;
 
-	std::unordered_map<std::vector<vk::DescriptorSetLayoutBinding>, std::weak_ptr<VulkanWrapper::DescriptorSetLayout>, DescriptorSetLayoutBindingsHash, DescriptorSetLayoutBindingsEqual> m_layouts;
-	std::unordered_map<std::string, std::shared_ptr<VulkanWrapper::DescriptorSetLayout>>                                                                                                  m_namedLayouts;
+	std::unordered_map<std::vector<vk::DescriptorSetLayoutBinding>, std::weak_ptr<VulkanWrapper::DescriptorSetLayout>, DescriptorSetLayoutBindingsHash,
+	                   DescriptorSetLayoutBindingsEqual>
+	    m_layouts;
+	std::unordered_map<std::string, std::shared_ptr<VulkanWrapper::DescriptorSetLayout>> m_namedLayouts;
 };
 } // namespace VulkanWrapper

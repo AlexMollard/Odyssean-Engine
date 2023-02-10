@@ -10,7 +10,10 @@ void SceneStateMachine::AddScene(Scene* scene)
 	// Check if the scene is already in the state machine.
 	for (auto& s : scenes)
 	{
-		if (s == scene) { return; }
+		if (s == scene)
+		{
+			return;
+		}
 	}
 
 	scenes.push_back(scene);
@@ -36,11 +39,12 @@ void SceneStateMachine::RemoveScene(Scene* scene)
 // Set the current scene.
 void SceneStateMachine::SetCurrentScene(Scene* scene)
 {
-	if (currentScene != nullptr) currentScene->Exit();
+	if (currentScene != nullptr)
+		currentScene->Exit();
 
 	currentScene = scene;
 	currentScene->Enter();
-	//S_TRACE("");
+	// S_TRACE("");
 }
 
 // Get the current scene.
@@ -51,12 +55,14 @@ Scene* SceneStateMachine::GetCurrentScene() const
 
 void SceneStateMachine::Update(float deltaTime)
 {
-	if (currentScene) currentScene->Update(deltaTime);
+	if (currentScene)
+		currentScene->Update(deltaTime);
 }
 
 void SceneStateMachine::Render()
 {
-	if (currentScene) currentScene->Draw();
+	if (currentScene)
+		currentScene->Draw();
 }
 
 void SceneStateMachine::Destroy()

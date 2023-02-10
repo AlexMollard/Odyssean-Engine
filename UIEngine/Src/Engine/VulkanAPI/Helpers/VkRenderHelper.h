@@ -1,14 +1,14 @@
 #pragma once
-#include "glm/fwd.hpp"
-#include <vector>
 #include "../Types/Mesh.h"
 #include "Nodes/Camera.h"
+#include "glm/fwd.hpp"
+#include <vector>
 
 namespace VulkanWrapper
 {
 struct VkContainer;
 struct Mesh;
-}
+} // namespace VulkanWrapper
 
 class VkRenderHelper
 {

@@ -26,8 +26,8 @@ public:
 
 	// == QUEUE == //
 	vk::Queue GetQueue(QueueType queueType) const;
-	uint32_t  GetQueueIndex(QueueType queueType) const;
-	uint32_t  GetQueueFamilyIndex(QueueType queueType) const;
+	uint32_t GetQueueIndex(QueueType queueType) const;
+	uint32_t GetQueueFamilyIndex(QueueType queueType) const;
 
 	void SetQueue(QueueType queueType, vk::Queue queue);
 	void SetQueueIndex(QueueType queueType, uint32_t queueIndex);
@@ -40,8 +40,8 @@ public:
 		m_Device.waitIdle();
 	}
 
-	vk::Device               m_Device;
-	vk::PhysicalDevice       m_PhysicalDevice;
+	vk::Device m_Device;
+	vk::PhysicalDevice m_PhysicalDevice;
 	std::vector<const char*> m_DeviceExtensions;
 
 	vk::CommandBuffer BeginSingleTimeCommands(vk::CommandPool& commandPool);
@@ -65,7 +65,7 @@ private:
 	uint32_t m_TransferQueueFamilyIndex = UINT32_MAX;
 
 public:
-	void       Submit(vk::SubmitInfo submitInfo);
+	void Submit(vk::SubmitInfo submitInfo);
 	vk::Result Present(vk::SwapchainKHR& m_Swapchain, uint32_t imageIndex, vk::Semaphore& semaphore);
 };
 } // namespace VulkanWrapper

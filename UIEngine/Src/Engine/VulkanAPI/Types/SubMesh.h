@@ -1,15 +1,27 @@
 #pragma once
 #include "VulkanMaterial.h"
-#include <glm/glm.hpp>
 #include "common.h"
+#include <glm/glm.hpp>
 
-namespace vk { class PipelineLayout; }
+namespace vk
+{
+class PipelineLayout;
+}
 
-namespace VulkanWrapper { class CommandBuffer; }
+namespace VulkanWrapper
+{
+class CommandBuffer;
+}
 
-namespace vk { class DescriptorSet; }
+namespace vk
+{
+class DescriptorSet;
+}
 
-namespace VulkanWrapper { struct Buffer; }
+namespace VulkanWrapper
+{
+struct Buffer;
+}
 
 namespace VulkanWrapper
 {
@@ -24,7 +36,7 @@ struct Vertex
 
 	// Helper functions to get vertex attributes and binding descriptions
 	static std::vector<vk::VertexInputAttributeDescription> GetVertexAttributes();
-	static vk::VertexInputBindingDescription                GetBindingDescription();
+	static vk::VertexInputBindingDescription GetBindingDescription();
 };
 
 struct ModelViewProjection
@@ -36,7 +48,7 @@ struct LightProperties
 {
 	glm::vec3 lightColor;
 	glm::vec3 lightPos;
-	float     lightIntensity;
+	float lightIntensity;
 };
 
 class SubMesh
@@ -57,11 +69,11 @@ public:
 	void DestroyBuffers();
 
 	// Variables for vertices, indices, and textures
-	std::vector<Vertex>   m_vertices;
+	std::vector<Vertex> m_vertices;
 	std::vector<uint32_t> m_indices;
 	VulkanWrapper::Buffer m_vertexBuffer;
 	VulkanWrapper::Buffer m_indexBuffer;
-	VulkanMaterial              m_material;
+	VulkanMaterial m_material;
 
 	// vertex tangents and bitangents
 	std::vector<glm::vec3> m_tangents;

@@ -11,7 +11,7 @@ public:
 		return instance;
 	}
 
-	OpenGLWindow(const OpenGLWindow&) = delete;
+	OpenGLWindow(const OpenGLWindow&)            = delete;
 	OpenGLWindow& operator=(const OpenGLWindow&) = delete;
 
 	// Initialise
@@ -46,7 +46,7 @@ private:
 	GLFWwindow* window;
 
 	// DeltaTime
-	double last  = 0.0;
-	double now   = 0.0;
-	float  delta = 1.0f;
+	double last = 0.0;
+	double now  = 0.0;
+	float delta = 1.0f;
 };

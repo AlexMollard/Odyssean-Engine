@@ -54,16 +54,26 @@ void InputManager::Update()
 
 		if (m_CurrentKeyStates[i] == KeyState::KEY_PRESS)
 		{
-			if (m_PreviousKeyStates[i] == KeyState::KEY_RELEASE) { m_KeyStates[i] = KeyState::KEY_PRESS; }
-			else { m_KeyStates[i] = KeyState::KEY_HOLD; }
+			if (m_PreviousKeyStates[i] == KeyState::KEY_RELEASE)
+			{
+				m_KeyStates[i] = KeyState::KEY_PRESS;
+			}
+			else
+			{
+				m_KeyStates[i] = KeyState::KEY_HOLD;
+			}
 		}
-		else { m_KeyStates[i] = KeyState::KEY_RELEASE; }
+		else
+		{
+			m_KeyStates[i] = KeyState::KEY_RELEASE;
+		}
 
 		if (s_Debug && (state || static_cast<int>(m_PreviousKeyStates[i])))
 			std::cout << (char)i << ": " << (m_KeyStates[i] == KeyState::KEY_PRESS ? "Pressed" : m_KeyStates[i] == KeyState::KEY_HOLD ? "Held" : "Released") << std::endl;
 	}
 
-	if (s_Debug) DebugMouseOutput();
+	if (s_Debug)
+		DebugMouseOutput();
 }
 
 bool InputManager::IsKeyPressed(Input::Keyboard key) const

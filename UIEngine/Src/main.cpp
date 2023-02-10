@@ -1,4 +1,5 @@
 #include "pch.h"
+
 #include "Scenes/VulkanScene.h"
 #include <crtdbg.h>
 
@@ -7,7 +8,7 @@
 
 int main()
 {
-	//Turn on debugging for memory leaks. This is automatically turned off when the build is Release.
+	// Turn on debugging for memory leaks. This is automatically turned off when the build is Release.
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
 	GraphicsAPI graphicsAPI = GraphicsAPI::Vulkan;
@@ -25,7 +26,8 @@ int main()
 	while (!engine.GetClose())
 	{
 		// If dt is -float max then don't continue
-		if (engine.Update() == -FLT_MAX) break;
+		if (engine.Update() == -FLT_MAX)
+			break;
 
 		engine.Render();
 	}

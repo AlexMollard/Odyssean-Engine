@@ -2,10 +2,10 @@
 
 #include "SubMesh.h"
 
+#include "CommandBuffer.h"
 #include "DeviceQueue.h"
 #include "VkContainer.h"
 #include <iostream>
-#include "CommandBuffer.h"
 
 std::vector<vk::VertexInputAttributeDescription> VulkanWrapper::Vertex::GetVertexAttributes()
 {
@@ -137,7 +137,7 @@ void VulkanWrapper::SubMesh::CreateDescriptorSets()
 	m_descriptorSets = api.descriptorManager->allocateDescriptorSets(layouts, 1);
 
 	// Material
-	std::vector<vk::WriteDescriptorSet>         writeDescriptorSets;
+	std::vector<vk::WriteDescriptorSet> writeDescriptorSets;
 	std::vector<const vk::DescriptorImageInfo*> descriptorImageInfos = m_material.GetDescriptorData(api);
 
 	writeDescriptorSets.reserve(descriptorImageInfos.size());

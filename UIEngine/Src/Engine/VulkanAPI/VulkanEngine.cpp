@@ -6,7 +6,6 @@
 
 namespace VulkanWrapper
 {
-
 Engine::~Engine()
 {
 	ImGuiVulkan::DestroyImgui(m_Init.GetAPI());
@@ -58,7 +57,10 @@ float Engine::Update(SceneStateMachine& stateMachine)
 void Engine::Render(SceneStateMachine& stateMachine)
 {
 	// First we check if the window is minimized
-	if (m_Window->GetMinimized()) { return; }
+	if (m_Window->GetMinimized())
+	{
+		return;
+	}
 
 	// Render state machine
 	stateMachine.Render();

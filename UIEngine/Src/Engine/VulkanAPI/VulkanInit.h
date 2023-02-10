@@ -26,7 +26,7 @@ public:
 private:
 	vk::DebugUtilsMessengerCreateInfoEXT m_DebugMessengerCreateInfo;
 	std::vector<vk::ExtensionProperties> m_SupportedExtensions;
-	std::vector<vk::LayerProperties>     m_SupportedLayers;
+	std::vector<vk::LayerProperties> m_SupportedLayers;
 
 	void CreateExtensions();
 	void GetRequiredExtensions(vk::InstanceCreateInfo& createInfo);

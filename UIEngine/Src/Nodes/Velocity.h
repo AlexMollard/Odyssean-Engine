@@ -16,8 +16,7 @@ public:
 	// Default constructor
 	Velocity() = default;
 
-	Velocity(float x, float y, float z) : x(x), y(y)
-	{}
+	Velocity(float x, float y, float z) : x(x), y(y) {}
 
 	glm::vec2 GetVelocity() const
 	{

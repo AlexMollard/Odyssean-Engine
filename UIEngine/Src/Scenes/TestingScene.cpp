@@ -8,8 +8,8 @@
 
 void TestingScene::Enter()
 {
-	int   width      = 1920;
-	int   height     = 1080;
+	int width        = 1920;
+	int height       = 1080;
 	float quadWidth  = 25.0f;
 	float quadHeight = 25.0f;
 	// So the quads anchor point is {0.5, 0.5} ^_^
@@ -25,7 +25,7 @@ void TestingScene::Enter()
 	// Circle the center quad around the screen
 	float x      = 0.0f;
 	float y      = 0.0f;
-	int   total  = 100;
+	int total    = 100;
 	float radius = 400.0f;
 
 	for (int i = 0; i < total; i++)
@@ -59,7 +59,6 @@ void TestingScene::Draw()
 	auto const& world = ECS::GetWorldStatic();
 
 	flecs::filter<node::Quad, node::Transform> f = world.filter<node::Quad, node::Transform>();
-	f.each([](node::Quad const& q, node::Transform const& t) {
-		Renderer2D::DrawQuad(t.GetPosition(), q.GetSize() * t.GetScale(), q.GetColor(), q.GetAnchorPoint(), t.GetRotation(), 0);
-	});
+	f.each([](node::Quad const& q, node::Transform const& t)
+	       { Renderer2D::DrawQuad(t.GetPosition(), q.GetSize() * t.GetScale(), q.GetColor(), q.GetAnchorPoint(), t.GetRotation(), 0); });
 }

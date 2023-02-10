@@ -15,8 +15,7 @@ public:
 	Transform() = default;
 
 	// Constructor
-	Transform(const glm::vec3& position, float rotation, const glm::vec3& scale) : m_Position(position), m_Rotation(rotation), m_Scale(scale)
-	{}
+	Transform(const glm::vec3& position, float rotation, const glm::vec3& scale) : m_Position(position), m_Rotation(rotation), m_Scale(scale) {}
 
 	// Destructor
 	~Transform() = default;
@@ -61,7 +60,7 @@ public:
 	}
 
 	glm::vec2 m_Position = glm::vec3(0.0f);
-	float     m_Rotation = 0.0f;
+	float m_Rotation     = 0.0f;
 	glm::vec2 m_Scale    = glm::vec3(1.0f);
 };
 } // namespace node

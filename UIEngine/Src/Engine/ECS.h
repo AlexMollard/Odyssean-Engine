@@ -1,5 +1,6 @@
 #pragma once
 #include "pch.h"
+
 #include "BS_thread_pool.hpp"
 #include "Nodes.h"
 #include "flecs.h"
@@ -12,7 +13,10 @@ public:
 	// Create the singleton instance
 	static ECS* Instance()
 	{
-		if (s_Instance == nullptr) { s_Instance = _NEW ECS(); }
+		if (s_Instance == nullptr)
+		{
+			s_Instance = _NEW ECS();
+		}
 		return s_Instance;
 	}
 

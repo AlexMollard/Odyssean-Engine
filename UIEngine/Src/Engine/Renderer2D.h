@@ -29,11 +29,11 @@ public:
 	static void Flush();
 
 private:
-	glm::vec3     currentColor   = glm::vec3(-404);
-	ShaderOpenGL* currentShader  = nullptr;
-	Texture*      currentTexture = nullptr;
+	glm::vec3 currentColor      = glm::vec3(-404);
+	ShaderOpenGL* currentShader = nullptr;
+	Texture* currentTexture     = nullptr;
 
-	std::vector<Texture*>      texturePool;
+	std::vector<Texture*> texturePool;
 	std::vector<ShaderOpenGL*> shaderPool;
 
 	ShaderOpenGL* m_BasicShader;

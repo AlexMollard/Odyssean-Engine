@@ -1,15 +1,16 @@
 #include "pch.h"
+
 #include "Renderer_old.h"
 
 #include "../ImGuiVulkan.h"
 #include "Mesh.h"
+#include "Renderer_old.h"
 #include <iostream>
 #include <vulkan/vulkan.hpp>
-#include "Renderer_old.h"
 
 VulkanWrapper::Renderer_old::~Renderer_old()
 {
-	//Destroy();
+	// Destroy();
 }
 
 void VulkanWrapper::Renderer_old::Init(VulkanWrapper::VkContainer* api)
@@ -34,7 +35,7 @@ void VulkanWrapper::Renderer_old::Init(VulkanWrapper::VkContainer* api)
 	m_DescriptorManager      = std::make_shared<DescriptorManager>(api->device);
 	m_API->descriptorManager = m_DescriptorManager;
 
-	m_Mesh = new VulkanWrapper::Mesh(api->device, api->deviceQueue.m_PhysicalDevice, m_DescriptorManager.get());
+	m_Mesh = _NEW VulkanWrapper::Mesh(api->device, api->deviceQueue.m_PhysicalDevice, m_DescriptorManager.get());
 	m_Mesh->LoadModel(*api, "../Resources/Meshes/knot.obj");
 
 	// Create the graphics pipeline
@@ -95,7 +96,10 @@ void VulkanWrapper::Renderer_old::BeginFrame()
 		// Recreate the swapchain and all the dependent resources
 		recreateSwapChain();
 	}
-	else { VK_CHECK_RESULT(result); }
+	else
+	{
+		VK_CHECK_RESULT(result);
+	}
 
 	// Set the current frame
 	m_API->syncObjectContainer.setCurrentFrame(m_API->swapchainInfo.getCurrentFrameIndex());
@@ -108,14 +112,14 @@ void VulkanWrapper::Renderer_old::BeginFrame()
 	proj = glm::perspective(glm::radians(60.0f), m_API->swapchainInfo.m_Extent.width / (float)m_API->swapchainInfo.m_Extent.height, 0.1f, 100.0f);
 
 	// create time variable once
-	static auto startTime   = std::chrono::high_resolution_clock::now();
-	const auto  currentTime = std::chrono::high_resolution_clock::now();
-	const float time        = std::chrono::duration<float>(currentTime - startTime).count();
+	static auto startTime  = std::chrono::high_resolution_clock::now();
+	const auto currentTime = std::chrono::high_resolution_clock::now();
+	const float time       = std::chrono::duration<float>(currentTime - startTime).count();
 
 	LightProperties light{};
-	float           r    = glm::sin(time * 2.0f) * 0.5f + 0.5f;
-	float           g    = glm::sin(time * 0.7f) * 0.5f + 0.5f;
-	float           b    = glm::sin(time * 1.3f) * 0.5f + 0.5f;
+	float r              = glm::sin(time * 2.0f) * 0.5f + 0.5f;
+	float g              = glm::sin(time * 0.7f) * 0.5f + 0.5f;
+	float b              = glm::sin(time * 1.3f) * 0.5f + 0.5f;
 	light.lightColor     = glm::vec3(r, g, b);
 	light.lightIntensity = 0.75f;
 
@@ -137,7 +141,8 @@ void VulkanWrapper::Renderer_old::BeginFrame()
 
 	light.lightPos = glm::vec3(lightModel[3][0], lightModel[3][1], lightModel[3][2]);
 
-	auto renderFunc = [&]() {
+	auto renderFunc = [&]()
+	{
 		// Bind the graphics pipeline
 		m_API->commandBuffers[m_API->swapchainInfo.getCurrentFrameIndex()].BindPipeline(vk::PipelineBindPoint::eGraphics, m_API->graphicsPipeline);
 
@@ -146,8 +151,9 @@ void VulkanWrapper::Renderer_old::BeginFrame()
 		ImGuiVulkan::Render(*m_API);
 	};
 
-	m_API->commandBuffers[m_API->swapchainInfo.getCurrentFrameIndex()].DoRenderPass(m_API->renderPassFrameBuffers.m_RenderPass, m_API->renderPassFrameBuffers.m_Framebuffers[m_API->swapchainInfo.getCurrentFrameIndex()], m_API->swapchainInfo.m_Extent,
-																					renderFunc);
+	m_API->commandBuffers[m_API->swapchainInfo.getCurrentFrameIndex()].DoRenderPass(m_API->renderPassFrameBuffers.m_RenderPass,
+	                                                                                m_API->renderPassFrameBuffers.m_Framebuffers[m_API->swapchainInfo.getCurrentFrameIndex()],
+	                                                                                m_API->swapchainInfo.m_Extent, renderFunc);
 }
 
 void VulkanWrapper::Renderer_old::EndFrame()
@@ -169,17 +175,20 @@ void VulkanWrapper::Renderer_old::EndFrame()
 	VK_CHECK_RESULT(m_API->syncObjectContainer.waitForFences());
 
 	// Present the image
-	vk::Result result = m_API->deviceQueue.Present(m_API->swapchainInfo.m_Swapchain, m_API->syncObjectContainer.getCurrentFrame(), m_API->syncObjectContainer.getRenderFinishedSemaphore());
+	vk::Result result =
+	    m_API->deviceQueue.Present(m_API->swapchainInfo.m_Swapchain, m_API->syncObjectContainer.getCurrentFrame(), m_API->syncObjectContainer.getRenderFinishedSemaphore());
 	if (result == vk::Result::eErrorOutOfDateKHR)
 	{
 		// Recreate the swapchain and all the dependent resources
 		recreateSwapChain();
 	}
-	else { VK_CHECK_RESULT(result); }
+	else
+	{
+		VK_CHECK_RESULT(result);
+	}
 }
 
-void VulkanWrapper::Renderer_old::RenderUI()
-{}
+void VulkanWrapper::Renderer_old::RenderUI() {}
 
 void VulkanWrapper::Renderer_old::UpdateCamera()
 {
@@ -191,13 +200,28 @@ void VulkanWrapper::Renderer_old::UpdateCamera()
 	float cameraSpeed = m_CameraSpeed * deltaTime;
 
 	// If shift is pressed, increase the camera speed
-	if (glfwGetKey(m_Window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) { cameraSpeed *= 5.0f; }
+	if (glfwGetKey(m_Window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+	{
+		cameraSpeed *= 5.0f;
+	}
 
 	// Temp Camera controls (WASD + Mouse)
-	if (glfwGetKey(m_Window, GLFW_KEY_W) == GLFW_PRESS) { m_CameraPos += m_CameraFront * cameraSpeed; }
-	if (glfwGetKey(m_Window, GLFW_KEY_S) == GLFW_PRESS) { m_CameraPos -= m_CameraFront * cameraSpeed; }
-	if (glfwGetKey(m_Window, GLFW_KEY_A) == GLFW_PRESS) { m_CameraPos -= glm::normalize(glm::cross(m_CameraFront, m_CameraUp)) * cameraSpeed; }
-	if (glfwGetKey(m_Window, GLFW_KEY_D) == GLFW_PRESS) { m_CameraPos += glm::normalize(glm::cross(m_CameraFront, m_CameraUp)) * cameraSpeed; }
+	if (glfwGetKey(m_Window, GLFW_KEY_W) == GLFW_PRESS)
+	{
+		m_CameraPos += m_CameraFront * cameraSpeed;
+	}
+	if (glfwGetKey(m_Window, GLFW_KEY_S) == GLFW_PRESS)
+	{
+		m_CameraPos -= m_CameraFront * cameraSpeed;
+	}
+	if (glfwGetKey(m_Window, GLFW_KEY_A) == GLFW_PRESS)
+	{
+		m_CameraPos -= glm::normalize(glm::cross(m_CameraFront, m_CameraUp)) * cameraSpeed;
+	}
+	if (glfwGetKey(m_Window, GLFW_KEY_D) == GLFW_PRESS)
+	{
+		m_CameraPos += glm::normalize(glm::cross(m_CameraFront, m_CameraUp)) * cameraSpeed;
+	}
 
 	// Mouse only update if the right mouse button is pressed
 	if (glfwGetMouseButton(m_Window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
@@ -226,11 +250,16 @@ void VulkanWrapper::Renderer_old::UpdateCamera()
 		m_Yaw += xoffset;
 		m_Pitch += yoffset;
 	}
-	else { m_FirstMouse = true; }
+	else
+	{
+		m_FirstMouse = true;
+	}
 
 	// make sure that when pitch is out of bounds, screen doesn't get flipped
-	if (m_Pitch > 89.0f) m_Pitch = 89.0f;
-	if (m_Pitch < -89.0f) m_Pitch = -89.0f;
+	if (m_Pitch > 89.0f)
+		m_Pitch = 89.0f;
+	if (m_Pitch < -89.0f)
+		m_Pitch = -89.0f;
 
 	// Update the camera vectors
 	glm::vec3 front;

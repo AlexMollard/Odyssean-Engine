@@ -2,10 +2,10 @@
 
 #include "VkRenderHelper.h"
 
-#include "Nodes/Camera.h"
-#include <Engine/VulkanAPI/ImGuiVulkan.h>
 #include "../Types/Mesh.h"
 #include "../Types/VkContainer.h"
+#include "Nodes/Camera.h"
+#include <Engine/VulkanAPI/ImGuiVulkan.h>
 
 VkRenderHelper::VkRenderHelper()
 {
@@ -65,7 +65,10 @@ void VkRenderHelper::BeginFrame()
 		// Recreate the swapchain and all the dependent resources
 		recreateSwapChain();
 	}
-	else { VK_CHECK_RESULT(result); }
+	else
+	{
+		VK_CHECK_RESULT(result);
+	}
 
 	// Set the current frame
 	m_API.syncObjectContainer.setCurrentFrame(m_API.swapchainInfo.getCurrentFrameIndex());
@@ -73,7 +76,8 @@ void VkRenderHelper::BeginFrame()
 	// We begin the command buffer
 	m_API.commandBuffers[m_API.swapchainInfo.getCurrentFrameIndex()].Begin();
 
-	auto renderFunc = [this, &m_API]() {
+	auto renderFunc = [this, &m_API]()
+	{
 		// Bind the graphics pipeline
 		m_API.commandBuffers[m_API.swapchainInfo.getCurrentFrameIndex()].BindPipeline(vk::PipelineBindPoint::eGraphics, m_API.graphicsPipeline);
 
@@ -82,8 +86,9 @@ void VkRenderHelper::BeginFrame()
 		ImGuiVulkan::Render(m_API);
 	};
 
-	m_API.commandBuffers[m_API.swapchainInfo.getCurrentFrameIndex()].DoRenderPass(
-		m_API.renderPassFrameBuffers.m_RenderPass, m_API.renderPassFrameBuffers.m_Framebuffers[m_API.swapchainInfo.getCurrentFrameIndex()], m_API.swapchainInfo.m_Extent, renderFunc);
+	m_API.commandBuffers[m_API.swapchainInfo.getCurrentFrameIndex()].DoRenderPass(m_API.renderPassFrameBuffers.m_RenderPass,
+	                                                                              m_API.renderPassFrameBuffers.m_Framebuffers[m_API.swapchainInfo.getCurrentFrameIndex()],
+	                                                                              m_API.swapchainInfo.m_Extent, renderFunc);
 }
 
 void VkRenderHelper::EndFrame()
@@ -104,7 +109,8 @@ void VkRenderHelper::EndFrame()
 	VK_CHECK_RESULT(m_API.syncObjectContainer.waitForFences());
 
 	// Present the image
-	vk::Result result = m_API.deviceQueue.Present(m_API.swapchainInfo.m_Swapchain, m_API.syncObjectContainer.getCurrentFrame(), m_API.syncObjectContainer.getRenderFinishedSemaphore());
+	vk::Result result =
+	    m_API.deviceQueue.Present(m_API.swapchainInfo.m_Swapchain, m_API.syncObjectContainer.getCurrentFrame(), m_API.syncObjectContainer.getRenderFinishedSemaphore());
 	if (result == vk::Result::eErrorOutOfDateKHR)
 	{
 		// Recreate the swapchain and all the dependent resources
@@ -131,7 +137,7 @@ void VkRenderHelper::clearMeshes()
 
 void VkRenderHelper::UpdateDescriptorSets(VulkanWrapper::Mesh& mesh, const glm::mat4& model)
 {
-	VulkanWrapper::VkContainer& m_API      = VulkanWrapper::VkContainer::instance();
+	VulkanWrapper::VkContainer& m_API = VulkanWrapper::VkContainer::instance();
 
 	auto const& projection = m_Camera->getProjectionMatrix();
 	auto const& view       = m_Camera->getViewMatrix();

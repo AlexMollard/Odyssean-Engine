@@ -27,5 +27,5 @@ private:
 
 	std::shared_ptr<ShaderOpenGL> m_litShader  = nullptr;
 	std::shared_ptr<ShaderOpenGL> m_textShader = nullptr;
-	std::shared_ptr<Renderer2D>   m_Renderer   = nullptr;
+	std::shared_ptr<Renderer2D> m_Renderer     = nullptr;
 };

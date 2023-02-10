@@ -50,11 +50,11 @@ public:
 	}
 
 private:
-	vk::Device*            m_Device = nullptr;
-	uint32_t               m_FramesInFlight;
-	uint32_t               m_CurrentFrame;
-	vk::Semaphore          m_ImageAvailableSemaphore;
-	vk::Semaphore          m_RenderFinishedSemaphore;
+	vk::Device* m_Device = nullptr;
+	uint32_t m_FramesInFlight;
+	uint32_t m_CurrentFrame;
+	vk::Semaphore m_ImageAvailableSemaphore;
+	vk::Semaphore m_RenderFinishedSemaphore;
 	std::vector<vk::Fence> m_InFlightFences;
 	std::vector<vk::Fence> m_ImagesInFlight;
 };

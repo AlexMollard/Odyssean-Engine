@@ -2,9 +2,10 @@
 
 #include "Engine.h"
 
+#include "InputManager.h"
+
 #include "Engine/OpenGlAPI/OpenGLEngine.h"
 #include "Engine/VulkanAPI/VulkanEngine.h"
-#include "InputManager.h"
 
 namespace UIEngine
 {
@@ -53,7 +54,8 @@ float Engine::Update()
 
 		m_close = engine->GetClose();
 
-		if (m_close) return -FLT_MAX;
+		if (m_close)
+			return -FLT_MAX;
 
 		return engine->Update(m_sceneStateMachine);
 	}
@@ -64,7 +66,8 @@ float Engine::Update()
 
 		m_close = engine->GetClose();
 
-		if (m_close) return -FLT_MAX;
+		if (m_close)
+			return -FLT_MAX;
 
 		return engine->Update(m_sceneStateMachine);
 	}
@@ -90,5 +93,4 @@ SceneStateMachine& Engine::GetSceneStateMachine()
 {
 	return m_sceneStateMachine;
 }
-
 } // namespace UIEngine

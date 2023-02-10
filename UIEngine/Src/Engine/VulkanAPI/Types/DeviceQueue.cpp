@@ -1,4 +1,5 @@
 #include "pch.h"
+
 #include "DeviceQueue.h"
 
 #include "common.h"
@@ -152,7 +153,7 @@ VulkanWrapper::Buffer DeviceQueue::CreateBuffer(vk::BufferUsageFlags usage, vk::
 
 	// Allocate memory for the buffer
 	vk::MemoryRequirements memRequirements = m_Device.getBufferMemoryRequirements(buffer.buffer);
-	uint32_t               memoryTypeIndex = 0;
+	uint32_t memoryTypeIndex               = 0;
 	VK_CHECK_RESULT(FindMemoryType(memRequirements.memoryTypeBits, properties, memoryTypeIndex));
 
 	vk::MemoryAllocateInfo allocInfo = {};
@@ -196,7 +197,10 @@ vk::Result DeviceQueue::CopyBuffer(vk::CommandPool& commandPool, vk::Queue queue
 	beginInfo.flags                      = vk::CommandBufferUsageFlagBits::eOneTimeSubmit;
 	commandBuffer.begin(beginInfo);
 
-	if (!commandBuffer) { VK_CHECK_RESULT(vk::Result::eErrorInitializationFailed); }
+	if (!commandBuffer)
+	{
+		VK_CHECK_RESULT(vk::Result::eErrorInitializationFailed);
+	}
 
 	vk::BufferCopy copyRegion = {};
 	copyRegion.size           = size;

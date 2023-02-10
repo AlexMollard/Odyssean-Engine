@@ -2,10 +2,10 @@
 
 #include "VkContainer.h"
 
+#include "../../Renderer.h"
 #include "Mesh.h"
 #include <fstream>
 #include <iostream>
-#include "../../Renderer.h"
 
 vk::SwapchainKHR& VulkanWrapper::VkContainer::Swapchain()
 {
@@ -19,7 +19,8 @@ VulkanWrapper::CommandBuffer& VulkanWrapper::VkContainer::CreateCommandBuffer()
 
 vk::ShaderModule VulkanWrapper::VkContainer::CreateShaderModule(const char* shaderFile)
 {
-	if (shaderModules.find(shaderFile) != shaderModules.end()) return shaderModules[shaderFile];
+	if (shaderModules.find(shaderFile) != shaderModules.end())
+		return shaderModules[shaderFile];
 
 	// Read shader code from file
 	auto shaderCode = ReadFile(shaderFile);
@@ -80,7 +81,8 @@ void VulkanWrapper::VkContainer::CreateSwapChain()
 	swapchainCreateInfo.setOldSwapchain(nullptr);
 
 	// Get the queue family indices
-	std::vector<uint32_t> queueFamilyIndices = { deviceQueue.GetQueueFamilyIndex(VulkanWrapper::QueueType::GRAPHICS), deviceQueue.GetQueueFamilyIndex(VulkanWrapper::QueueType::PRESENT) };
+	std::vector<uint32_t> queueFamilyIndices = { deviceQueue.GetQueueFamilyIndex(VulkanWrapper::QueueType::GRAPHICS),
+		                                         deviceQueue.GetQueueFamilyIndex(VulkanWrapper::QueueType::PRESENT) };
 
 	// Check if the graphics and present queue family indices are the same
 	if (queueFamilyIndices[0] != queueFamilyIndices[1])
@@ -131,25 +133,25 @@ void VulkanWrapper::VkContainer::CreateRenderPasses()
 
 	// Color attachment
 	attachmentDescriptions[0] = vk::AttachmentDescription(vk::AttachmentDescriptionFlags(),
-														  swapchainInfo.m_Format,
-														  vk::SampleCountFlagBits::e1,
-														  vk::AttachmentLoadOp::eClear,
-														  vk::AttachmentStoreOp::eStore,
-														  vk::AttachmentLoadOp::eDontCare,
-														  vk::AttachmentStoreOp::eDontCare,
-														  vk::ImageLayout::eUndefined,
-														  vk::ImageLayout::ePresentSrcKHR);
+	                                                      swapchainInfo.m_Format,
+	                                                      vk::SampleCountFlagBits::e1,
+	                                                      vk::AttachmentLoadOp::eClear,
+	                                                      vk::AttachmentStoreOp::eStore,
+	                                                      vk::AttachmentLoadOp::eDontCare,
+	                                                      vk::AttachmentStoreOp::eDontCare,
+	                                                      vk::ImageLayout::eUndefined,
+	                                                      vk::ImageLayout::ePresentSrcKHR);
 
 	// Depth attachment
 	attachmentDescriptions[1] = vk::AttachmentDescription(vk::AttachmentDescriptionFlags(),
-														  vk::Format::eD16Unorm,
-														  vk::SampleCountFlagBits::e1,
-														  vk::AttachmentLoadOp::eClear,
-														  vk::AttachmentStoreOp::eDontCare,
-														  vk::AttachmentLoadOp::eDontCare,
-														  vk::AttachmentStoreOp::eDontCare,
-														  vk::ImageLayout::eUndefined,
-														  vk::ImageLayout::eDepthStencilAttachmentOptimal);
+	                                                      vk::Format::eD16Unorm,
+	                                                      vk::SampleCountFlagBits::e1,
+	                                                      vk::AttachmentLoadOp::eClear,
+	                                                      vk::AttachmentStoreOp::eDontCare,
+	                                                      vk::AttachmentLoadOp::eDontCare,
+	                                                      vk::AttachmentStoreOp::eDontCare,
+	                                                      vk::ImageLayout::eUndefined,
+	                                                      vk::ImageLayout::eDepthStencilAttachmentOptimal);
 
 	// Attachment references
 	vk::AttachmentReference colorReference(0, vk::ImageLayout::eColorAttachmentOptimal);
@@ -162,19 +164,19 @@ void VulkanWrapper::VkContainer::CreateRenderPasses()
 	vk::RenderPass renderPass           = deviceQueue.m_Device.createRenderPass(vk::RenderPassCreateInfo(vk::RenderPassCreateFlags(), attachmentDescriptions, subpass));
 	renderPassFrameBuffers.m_RenderPass = renderPass;
 
-	//Create the no depth render pass
+	// Create the no depth render pass
 	std::array<vk::AttachmentDescription, 1> attachmentDescriptions2;
 
 	// Color attachment
 	attachmentDescriptions2[0] = vk::AttachmentDescription(vk::AttachmentDescriptionFlags(),
-														   swapchainInfo.m_Format,
-														   vk::SampleCountFlagBits::e1,
-														   vk::AttachmentLoadOp::eClear,
-														   vk::AttachmentStoreOp::eStore,
-														   vk::AttachmentLoadOp::eDontCare,
-														   vk::AttachmentStoreOp::eDontCare,
-														   vk::ImageLayout::eUndefined,
-														   vk::ImageLayout::ePresentSrcKHR);
+	                                                       swapchainInfo.m_Format,
+	                                                       vk::SampleCountFlagBits::e1,
+	                                                       vk::AttachmentLoadOp::eClear,
+	                                                       vk::AttachmentStoreOp::eStore,
+	                                                       vk::AttachmentLoadOp::eDontCare,
+	                                                       vk::AttachmentStoreOp::eDontCare,
+	                                                       vk::ImageLayout::eUndefined,
+	                                                       vk::ImageLayout::ePresentSrcKHR);
 
 	// Attachment references
 	vk::AttachmentReference colorReference2(0, vk::ImageLayout::eColorAttachmentOptimal);
@@ -183,7 +185,7 @@ void VulkanWrapper::VkContainer::CreateRenderPasses()
 	vk::SubpassDescription subpass2(vk::SubpassDescriptionFlags(), vk::PipelineBindPoint::eGraphics, 0, nullptr, 1, &colorReference2, nullptr, nullptr);
 
 	// Create the render pass
-	vk::RenderPass renderPass2                 = deviceQueue.m_Device.createRenderPass(vk::RenderPassCreateInfo(vk::RenderPassCreateFlags(), attachmentDescriptions2, subpass2));
+	vk::RenderPass renderPass2 = deviceQueue.m_Device.createRenderPass(vk::RenderPassCreateInfo(vk::RenderPassCreateFlags(), attachmentDescriptions2, subpass2));
 	renderPassFrameBuffers.m_RenderPassNoDepth = renderPass2;
 }
 
@@ -232,7 +234,8 @@ void VulkanWrapper::VkContainer::CreateCommandBuffers()
 	commandBuffersNoDepth.emplace_back(deviceQueue.m_Device, commandPool);
 }
 
-void VulkanWrapper::VkContainer::CreateGraphicsPipeline(const char* vertShader, const char* fragShader, std::vector<std::shared_ptr<VulkanWrapper::DescriptorSetLayout>> descriptorSetLayouts)
+void VulkanWrapper::VkContainer::CreateGraphicsPipeline(
+    const char* vertShader, const char* fragShader, std::vector<std::shared_ptr<VulkanWrapper::DescriptorSetLayout>> descriptorSetLayouts)
 {
 	// Get the descriptor set layouts from the sub meshes
 	try
@@ -246,7 +249,8 @@ void VulkanWrapper::VkContainer::CreateGraphicsPipeline(const char* vertShader, 
 		layoutInfo.pSetLayouts    = layouts.data();
 
 		pipelineLayout = device.createPipelineLayout(layoutInfo);
-		if (pipelineLayout == vk::PipelineLayout()) throw std::runtime_error("Failed to create pipeline layout.");
+		if (pipelineLayout == vk::PipelineLayout())
+			throw std::runtime_error("Failed to create pipeline layout.");
 	}
 	catch (const std::exception& e)
 	{
@@ -292,8 +296,8 @@ void VulkanWrapper::VkContainer::CreateGraphicsPipeline(const char* vertShader, 
 
 	// Color blending
 	vk::PipelineColorBlendAttachmentState colorBlendAttachment = {};
-	colorBlendAttachment.colorWriteMask                        = vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA;
-	colorBlendAttachment.blendEnable                           = VK_FALSE;
+	colorBlendAttachment.colorWriteMask = vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA;
+	colorBlendAttachment.blendEnable    = VK_FALSE;
 
 	vk::PipelineColorBlendStateCreateInfo colorBlending = {};
 	colorBlending.logicOpEnable                         = VK_FALSE;
@@ -309,7 +313,7 @@ void VulkanWrapper::VkContainer::CreateGraphicsPipeline(const char* vertShader, 
 
 	// Viewport and scissor
 	vk::Viewport viewport = {};
-	vk::Rect2D   scissor  = {};
+	vk::Rect2D scissor    = {};
 	SetupViewportAndScissor(viewport, scissor);
 
 	// Input assembly
@@ -367,9 +371,12 @@ std::vector<char> VulkanWrapper::VkContainer::ReadFile(const char* fileDir)
 {
 	std::ifstream file(fileDir, std::ios::ate | std::ios::binary);
 
-	if (!file.is_open()) { throw std::runtime_error("Failed to open file!"); }
+	if (!file.is_open())
+	{
+		throw std::runtime_error("Failed to open file!");
+	}
 
-	size_t            fileSize = (size_t)file.tellg();
+	size_t fileSize = (size_t)file.tellg();
 	std::vector<char> buffer(fileSize);
 
 	file.seekg(0);
@@ -444,10 +451,16 @@ VulkanWrapper::VkContainer::~VkContainer()
 	deviceQueue.m_Device.destroy(pipelineLayout);
 
 	// Shader modules
-	for (auto shaderModule : shaderModules) { deviceQueue.m_Device.destroyShaderModule(shaderModule.second); }
+	for (auto shaderModule : shaderModules)
+	{
+		deviceQueue.m_Device.destroyShaderModule(shaderModule.second);
+	}
 
 	// Command buffers
-	for (auto commandBuffer : commandBuffers) { deviceQueue.m_Device.freeCommandBuffers(commandPool, commandBuffer.get()); }
+	for (auto commandBuffer : commandBuffers)
+	{
+		deviceQueue.m_Device.freeCommandBuffers(commandPool, commandBuffer.get());
+	}
 
 	// Command pool
 	deviceQueue.m_Device.destroy(commandPool);
@@ -457,13 +470,19 @@ VulkanWrapper::VkContainer::~VkContainer()
 	deviceQueue.m_Device.destroy(renderPassFrameBuffers.m_RenderPassNoDepth);
 
 	// Frame buffers
-	for (auto framebuffer : renderPassFrameBuffers.m_Framebuffers) { deviceQueue.m_Device.destroy(framebuffer); }
+	for (auto framebuffer : renderPassFrameBuffers.m_Framebuffers)
+	{
+		deviceQueue.m_Device.destroy(framebuffer);
+	}
 
 	// Depth image
 	depthTexture.destroy(deviceQueue.m_Device);
 
 	// Image views
-	for (auto imageView : swapchainInfo.m_ImageViews) { deviceQueue.m_Device.destroy(imageView); }
+	for (auto imageView : swapchainInfo.m_ImageViews)
+	{
+		deviceQueue.m_Device.destroy(imageView);
+	}
 
 	// Swapchain
 	deviceQueue.m_Device.destroy(swapchainInfo.m_Swapchain);
