@@ -32,5 +32,7 @@ private:
 	vk::DescriptorSetLayout m_layout;
 
 	std::vector<vk::DescriptorSetLayoutBinding> m_bindings;
+
+	size_t m_minAlignment = 0;
 };
 } // namespace VulkanWrapper

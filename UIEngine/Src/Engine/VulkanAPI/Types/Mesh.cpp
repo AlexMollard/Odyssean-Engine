@@ -5,6 +5,7 @@
 #include "../DescriptorManager.h"
 #include "../Helpers/MeshHelper.h"
 #include "../VulkanInit.h"
+#include "common.h"
 #include <iostream>
 
 namespace VulkanWrapper
@@ -51,15 +52,24 @@ void Mesh::FreeBuffers()
 
 	m_device.destroyBuffer(m_mvpBuffer.buffer);
 	m_device.freeMemory(m_mvpBuffer.memory);
-	m_device.destroyBuffer(m_lightPropertiesBuffer.buffer);
-	m_device.freeMemory(m_lightPropertiesBuffer.memory);
+
+	m_device.destroyBuffer(m_pointLightBuffer.buffer);
+	m_device.freeMemory(m_pointLightBuffer.memory);
+
+	m_device.destroyBuffer(m_directionalLightBuffer.buffer);
+	m_device.freeMemory(m_directionalLightBuffer.memory);
+
+	m_device.destroyBuffer(m_spotLightBuffer.buffer);
+	m_device.freeMemory(m_spotLightBuffer.memory);
 }
 
 void Mesh::AllocateDescriptors(VulkanWrapper::VkContainer& api)
 {
 	// Create the mvp and light buffers
 	CreateMVPBuffer(api.deviceQueue);
-	CreateLightPropertiesBuffer(api.deviceQueue);
+	CreatePointLightBuffer(api.deviceQueue);
+	CreateDirectionalLightBuffer(api.deviceQueue);
+	CreateSpotLightBuffer(api.deviceQueue);
 
 	// Allocate the descriptor sets for each sub mesh
 	for (auto& subMesh : m_subMeshes)
@@ -73,24 +83,28 @@ std::vector<std::shared_ptr<VulkanWrapper::DescriptorSetLayout>> Mesh::GetAllDes
 	std::vector<std::shared_ptr<VulkanWrapper::DescriptorSetLayout>> layouts;
 
 	layouts.push_back(m_descriptorManager->getLayout("MVPLayout"));
-	layouts.push_back(m_descriptorManager->getLayout("LightsLayout"));
+	layouts.push_back(m_descriptorManager->getLayout("AllLightsLayout"));
 	layouts.push_back(m_descriptorManager->getLayout("PBRMaterialLayout"));
 
 	return layouts;
 }
 
-void Mesh::UpdateBuffers(VulkanWrapper::VkContainer& api, const ModelViewProjection& mvp, const LightProperties& properties)
+void Mesh::UpdateBuffers(const ModelViewProjection& mvp, std::vector<std::reference_wrapper<PointLight>> pointLights,
+                         std::vector<std::reference_wrapper<DirectionalLight>> directionalLights, std::vector<std::reference_wrapper<SpotLight>> spotLights)
 {
-	m_mvpBuffer.Update(m_device, &mvp, sizeof(ModelViewProjection));
-	m_lightPropertiesBuffer.Update(m_device, &properties, sizeof(LightProperties));
+	m_mvpBuffer.Update(m_device, &mvp, vk::DeviceSize(sizeof(ModelViewProjection)));
+
+	m_pointLightBuffer.Update(m_device, pointLights.data(), vk::DeviceSize(sizeof(PointLight) * MAX_POINT_LIGHTS));
+
+	// The other lights are not implemented yet (Directional and Spot)
 
 	for (auto& subMesh : m_subMeshes)
 	{
-		subMesh.UpdateDescriptorSets(&m_mvpBuffer, &m_lightPropertiesBuffer);
+		subMesh.UpdateDescriptorSets(m_descriptorManager, &m_mvpBuffer, &m_pointLightBuffer, &m_directionalLightBuffer, &m_spotLightBuffer);
 	}
 }
 
-void Mesh::BindForDrawing(VulkanWrapper::VkContainer& api, vk::CommandBuffer& commandBuffer, vk::PipelineLayout& pipelineLayout)
+void Mesh::BindForDrawing(vk::CommandBuffer& commandBuffer, vk::PipelineLayout& pipelineLayout)
 {
 	// Draw all sub meshes
 	for (auto& submesh : m_subMeshes)
@@ -102,18 +116,48 @@ void Mesh::BindForDrawing(VulkanWrapper::VkContainer& api, vk::CommandBuffer& co
 
 VulkanWrapper::Buffer Mesh::CreateMVPBuffer(VulkanWrapper::DeviceQueue& devices)
 {
-	ModelViewProjection mvp;
-	m_mvpBuffer = devices.CreateBuffer(vk::BufferUsageFlagBits::eUniformBuffer, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent, &mvp,
-	                                   sizeof(ModelViewProjection));
+	vk::DeviceSize bufferSize = m_descriptorManager->GetMinUniformBufferSize(sizeof(ModelViewProjection));
+
+	m_mvpBuffer = devices.CreateBuffer(vk::BufferUsageFlagBits::eUniformBuffer, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent, nullptr,
+	                                   bufferSize);
+
 	return m_mvpBuffer;
 }
 
-VulkanWrapper::Buffer Mesh::CreateLightPropertiesBuffer(VulkanWrapper::DeviceQueue& devices)
+VulkanWrapper::Buffer Mesh::CreatePointLightBuffer(VulkanWrapper::DeviceQueue& devices)
 {
-	LightProperties lightProps;
-	m_lightPropertiesBuffer = devices.CreateBuffer(vk::BufferUsageFlagBits::eUniformBuffer,
-	                                               vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent, &lightProps, sizeof(LightProperties));
-	return m_lightPropertiesBuffer;
+	size_t lightSize = m_descriptorManager->GetMinUniformBufferSize(sizeof(PointLight));
+
+	vk::DeviceSize bufferSize = lightSize * MAX_POINT_LIGHTS;
+
+	m_pointLightBuffer = devices.CreateBuffer(vk::BufferUsageFlagBits::eUniformBuffer, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent,
+	                                          nullptr, bufferSize);
+
+	return m_pointLightBuffer;
+}
+
+VulkanWrapper::Buffer Mesh::CreateDirectionalLightBuffer(VulkanWrapper::DeviceQueue& devices)
+{
+	size_t lightSize = m_descriptorManager->GetMinUniformBufferSize(sizeof(DirectionalLight));
+
+	vk::DeviceSize bufferSize = lightSize * MAX_DIRECTIONAL_LIGHTS;
+
+	m_directionalLightBuffer = devices.CreateBuffer(vk::BufferUsageFlagBits::eUniformBuffer,
+	                                                vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent, nullptr, bufferSize);
+
+	return m_directionalLightBuffer;
+}
+
+VulkanWrapper::Buffer Mesh::CreateSpotLightBuffer(VulkanWrapper::DeviceQueue& devices)
+{
+	size_t lightSize = m_descriptorManager->GetMinUniformBufferSize(sizeof(SpotLight));
+
+	vk::DeviceSize bufferSize = lightSize * MAX_SPOT_LIGHTS;
+
+	m_spotLightBuffer = devices.CreateBuffer(vk::BufferUsageFlagBits::eUniformBuffer, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent,
+	                                         nullptr, bufferSize);
+
+	return m_spotLightBuffer;
 }
 
 void Mesh::SetSubMeshes(const std::vector<VulkanWrapper::SubMesh>& subMeshes)

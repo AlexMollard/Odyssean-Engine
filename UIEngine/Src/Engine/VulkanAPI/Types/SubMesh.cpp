@@ -1,10 +1,12 @@
-#include "pch.h"
+#include "../../../pch.h"
 
 #include "SubMesh.h"
 
+#include "../DescriptorManager.h"
 #include "CommandBuffer.h"
 #include "DeviceQueue.h"
 #include "VkContainer.h"
+#include "common.h"
 #include <iostream>
 
 std::vector<vk::VertexInputAttributeDescription> VulkanWrapper::Vertex::GetVertexAttributes()
@@ -124,11 +126,14 @@ void VulkanWrapper::SubMesh::CreateDescriptorSets()
 	std::vector<std::shared_ptr<VulkanWrapper::DescriptorSetLayout>> layouts;
 
 	auto MVPLayout      = api.descriptorManager->getLayout("MVPLayout");
-	auto LightsLayout   = api.descriptorManager->getLayout("LightsLayout");
+	auto AllLightLayout = api.descriptorManager->getLayout("AllLightsLayout");
 	auto MaterialLayout = api.descriptorManager->getLayout("PBRMaterialLayout");
 
+	// Vertex Shader
 	layouts.push_back(MVPLayout);
-	layouts.push_back(LightsLayout);
+
+	// Fragment Shader
+	layouts.push_back(AllLightLayout);
 	layouts.push_back(MaterialLayout);
 
 	m_material = VulkanMaterial::CreateDebugMaterial(api);
@@ -159,8 +164,15 @@ void VulkanWrapper::SubMesh::CreateDescriptorSets()
 	api.device.updateDescriptorSets(writeDescriptorSets, nullptr);
 }
 
-void VulkanWrapper::SubMesh::UpdateDescriptorSets(VulkanWrapper::Buffer* mvpBuffer, VulkanWrapper::Buffer* lightsBuffer)
+void VulkanWrapper::SubMesh::UpdateDescriptorSets(VulkanWrapper::DescriptorManager* descriptorManager, VulkanWrapper::Buffer* mvpBuffer,
+                                                  VulkanWrapper::Buffer* pointLightsBuffer, VulkanWrapper::Buffer* directionalLightsBuffer,
+                                                  VulkanWrapper::Buffer* spotLightsBuffer)
 {
+	S_WARN(mvpBuffer || mvpBuffer->buffer, "Error: MVP buffer is not valid.")
+	S_WARN(pointLightsBuffer || pointLightsBuffer->buffer, "Error: Point lights buffer is not valid.")
+	S_WARN(directionalLightsBuffer || directionalLightsBuffer->buffer, "Error: Directional lights buffer is not valid.")
+	S_WARN(spotLightsBuffer || spotLightsBuffer->buffer, "Error: Spot lights buffer is not valid.")
+
 	// Update descriptor sets
 	std::vector<vk::WriteDescriptorSet> writeDescriptorSets;
 
@@ -168,8 +180,25 @@ void VulkanWrapper::SubMesh::UpdateDescriptorSets(VulkanWrapper::Buffer* mvpBuff
 	vk::DescriptorBufferInfo mvpBufferInfo;
 	mvpBufferInfo.buffer = mvpBuffer->buffer;
 	mvpBufferInfo.offset = 0;
-	mvpBufferInfo.range  = sizeof(ModelViewProjection);
+	mvpBufferInfo.range  = mvpBuffer->bufferSize;
 
+	// Lights
+	vk::DescriptorBufferInfo pointLightsBufferInfo;
+	pointLightsBufferInfo.buffer = pointLightsBuffer->buffer;
+	pointLightsBufferInfo.offset = 0;
+	pointLightsBufferInfo.range  = pointLightsBuffer->bufferSize;
+
+	vk::DescriptorBufferInfo directionalLightsBufferInfo;
+	directionalLightsBufferInfo.buffer = directionalLightsBuffer->buffer;
+	directionalLightsBufferInfo.offset = 0;
+	directionalLightsBufferInfo.range  = directionalLightsBuffer->bufferSize;
+
+	vk::DescriptorBufferInfo spotLightsBufferInfo;
+	spotLightsBufferInfo.buffer = spotLightsBuffer->buffer;
+	spotLightsBufferInfo.offset = 0;
+	spotLightsBufferInfo.range  = spotLightsBuffer->bufferSize;
+
+	// MVP
 	vk::WriteDescriptorSet mvpWriteDescriptorSet;
 	mvpWriteDescriptorSet.dstSet          = m_descriptorSets[0];
 	mvpWriteDescriptorSet.dstBinding      = 0;
@@ -178,23 +207,35 @@ void VulkanWrapper::SubMesh::UpdateDescriptorSets(VulkanWrapper::Buffer* mvpBuff
 	mvpWriteDescriptorSet.descriptorCount = 1;
 	mvpWriteDescriptorSet.pBufferInfo     = &mvpBufferInfo;
 
-	writeDescriptorSets.push_back(mvpWriteDescriptorSet);
-
 	// Lights
-	vk::DescriptorBufferInfo lightsBufferInfo;
-	lightsBufferInfo.buffer = lightsBuffer->buffer;
-	lightsBufferInfo.offset = 0;
-	lightsBufferInfo.range  = sizeof(LightProperties);
+	vk::WriteDescriptorSet pointLightsWriteDescriptorSet;
+	pointLightsWriteDescriptorSet.dstSet          = m_descriptorSets[1];
+	pointLightsWriteDescriptorSet.dstBinding      = 0;
+	pointLightsWriteDescriptorSet.dstArrayElement = 0;
+	pointLightsWriteDescriptorSet.descriptorType  = vk::DescriptorType::eUniformBuffer;
+	pointLightsWriteDescriptorSet.descriptorCount = 1;
+	pointLightsWriteDescriptorSet.pBufferInfo     = &pointLightsBufferInfo;
 
-	vk::WriteDescriptorSet lightsWriteDescriptorSet;
-	lightsWriteDescriptorSet.dstSet          = m_descriptorSets[1];
-	lightsWriteDescriptorSet.dstBinding      = 0;
-	lightsWriteDescriptorSet.dstArrayElement = 0;
-	lightsWriteDescriptorSet.descriptorType  = vk::DescriptorType::eUniformBuffer;
-	lightsWriteDescriptorSet.descriptorCount = 1;
-	lightsWriteDescriptorSet.pBufferInfo     = &lightsBufferInfo;
+	vk::WriteDescriptorSet directionalLightsWriteDescriptorSet;
+	directionalLightsWriteDescriptorSet.dstSet          = m_descriptorSets[1];
+	directionalLightsWriteDescriptorSet.dstBinding      = 1;
+	directionalLightsWriteDescriptorSet.dstArrayElement = 0;
+	directionalLightsWriteDescriptorSet.descriptorType  = vk::DescriptorType::eUniformBuffer;
+	directionalLightsWriteDescriptorSet.descriptorCount = 1;
+	directionalLightsWriteDescriptorSet.pBufferInfo     = &directionalLightsBufferInfo;
 
-	writeDescriptorSets.push_back(lightsWriteDescriptorSet);
+	vk::WriteDescriptorSet spotLightsWriteDescriptorSet;
+	spotLightsWriteDescriptorSet.dstSet          = m_descriptorSets[1];
+	spotLightsWriteDescriptorSet.dstBinding      = 2;
+	spotLightsWriteDescriptorSet.dstArrayElement = 0;
+	spotLightsWriteDescriptorSet.descriptorType  = vk::DescriptorType::eUniformBuffer;
+	spotLightsWriteDescriptorSet.descriptorCount = 1;
+	spotLightsWriteDescriptorSet.pBufferInfo     = &spotLightsBufferInfo;
+
+	writeDescriptorSets.push_back(mvpWriteDescriptorSet);
+	writeDescriptorSets.push_back(pointLightsWriteDescriptorSet);
+	//writeDescriptorSets.push_back(directionalLightsWriteDescriptorSet);
+	//writeDescriptorSets.push_back(spotLightsWriteDescriptorSet);
 
 	VulkanWrapper::VkContainer::instance().device.updateDescriptorSets(writeDescriptorSets, nullptr);
 }

@@ -43,6 +43,11 @@ public:
 		void Draw() const override;
 
 		void AddMesh(const VulkanWrapper::Mesh& mesh, const glm::mat4& model) const;
+
+		void AddDirLight(const DirectionalLight& light) const;
+		void AddPointLight(const PointLight& light) const;
+		void AddSpotLight(const SpotLight& light) const;
+
 		void SetCamera(node::Camera& camera);
 
 	private:

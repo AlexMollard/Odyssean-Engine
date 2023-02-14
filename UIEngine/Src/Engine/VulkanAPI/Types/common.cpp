@@ -4,6 +4,8 @@
 
 #include "DeviceQueue.h"
 
+//#include "VkContainer.h"
+
 #ifndef STBIWDEF
 #define STBIWDEF extern
 #endif
@@ -84,7 +86,8 @@ void VulkanWrapper::Texture::Create(VulkanWrapper::VkContainer& api, vk::Queue q
 		VK_CHECK_RESULT(vk::Result::eErrorInitializationFailed);
 
 	// Create staging buffer
-	VulkanWrapper::Buffer stagingBuffer = api.deviceQueue.CreateBuffer(vk::BufferUsageFlagBits::eTransferSrc, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent, data,
+	VulkanWrapper::Buffer stagingBuffer =
+	    api.deviceQueue.CreateBuffer(vk::BufferUsageFlagBits::eTransferSrc, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent, data,
 	                                 static_cast<vk::DeviceSize>(width) * height * 4);
 
 	// Copy staging buffer to image
@@ -185,16 +188,39 @@ const vk::DescriptorImageInfo& Texture::GetDescriptorImageInfo() const
 	return descriptorImageInfo;
 }
 
-vk::MappedMemoryRange Buffer::Update(vk::Device& device, const void* data, size_t size)
+vk::MappedMemoryRange Buffer::Update(vk::Device& device, const void* data, vk::DeviceSize size)
 {
+	if (!data || size == 0)
+	{
+		return {};
+	}
+
+	size_t minBufferOffsetAlignment = VulkanWrapper::VkContainer::instance().descriptorManager->GetMinUniformBufferOffsetAlignment();
+	vk::DeviceSize alignedSize      = size;
+	if (minBufferOffsetAlignment > 0)
+	{
+		alignedSize = (size + minBufferOffsetAlignment - 1) & ~(minBufferOffsetAlignment - 1);
+		assert(alignedSize >= size);
+	}
+
 	void* mapped;
-	vkMapMemory(device, memory, 0, size, 0, &mapped);
+	vk::Result result = device.mapMemory(memory, 0, size, vk::MemoryMapFlags(), &mapped);
+	if (result != vk::Result::eSuccess)
+	{
+		throw std::runtime_error("Failed to map memory!");
+	}
+
 	memcpy(mapped, data, size);
-	vkUnmapMemory(device, memory);
+
+	device.unmapMemory(memory);
 
 	vk::MappedMemoryRange range = {};
 	range.memory                = memory;
-	range.size                  = VK_WHOLE_SIZE; // Change here
+	range.offset                = 0;
+	range.size                  = size;
+
+	bufferSize = size;
+	alignment  = minBufferOffsetAlignment;
 
 	return range;
 }

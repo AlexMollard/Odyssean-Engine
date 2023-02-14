@@ -4,6 +4,9 @@
 
 #include <iostream>
 
+#include "Engine/VulkanAPI/Types/VkContainer.h"
+
+
 VulkanWrapper::DescriptorManager::DescriptorManager(vk::Device device) : m_device(device), m_descriptorLayoutCache(device)
 {
 	// create descriptor pool
@@ -18,6 +21,8 @@ VulkanWrapper::DescriptorManager::DescriptorManager(vk::Device device) : m_devic
 	m_descriptorPool = m_device.createDescriptorPool(poolInfo);
 
 	createBaseDescriptorLayouts();
+
+	setMinUniformBufferOffsetAlignment();
 }
 
 std::shared_ptr<VulkanWrapper::DescriptorSetLayout> VulkanWrapper::DescriptorManager::createDescriptorSetLayout(std::vector<VulkanWrapper::BindingData> bindings)
@@ -92,11 +97,15 @@ void VulkanWrapper::DescriptorManager::createBaseDescriptorLayouts()
 	// Create the layout and add it to both the hash map and string map
 	m_descriptorLayoutCache.addDescriptorSetLayout("MVPLayout", createDescriptorSetLayout(mvpBindings));
 
-	// LIGHTS
-	std::vector<BindingData> lightsBindings = { { 0, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eFragment } };
+	// ALL LIGHTS
+	std::vector<BindingData> allLightsBindings = {
+		{ 0, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eFragment }, // spotLights
+		//{ 1, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eFragment }, // pointLights
+		//{ 2, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eFragment }, // directionalLights
+	};
 
 	// Create the layout and add it to both the hash map and string map
-	m_descriptorLayoutCache.addDescriptorSetLayout("LightsLayout", createDescriptorSetLayout(lightsBindings));
+	m_descriptorLayoutCache.addDescriptorSetLayout("AllLightsLayout", createDescriptorSetLayout(allLightsBindings));
 
 	// MATERIAL
 	std::vector<BindingData> materialBindings = {
@@ -162,4 +171,27 @@ void VulkanWrapper::DescriptorManager::DebugLayouts(std::vector<std::shared_ptr<
 		descriptorSetLayout->Print();
 		std::cout << std::endl;
 	}
+}
+
+size_t VulkanWrapper::DescriptorManager::GetMinUniformBufferSize(size_t size)
+{
+	// Find the smallest size that is a multiple of the minimum required alignment
+	size_t minUboAlignment = m_minUniformBufferOffsetAlignment;
+	size_t alignedSize     = size;
+	if (minUboAlignment > 0)
+	{
+		alignedSize = (alignedSize + minUboAlignment - 1) & ~(minUboAlignment - 1);
+	}
+	return alignedSize;
+}
+
+size_t VulkanWrapper::DescriptorManager::setMinUniformBufferOffsetAlignment()
+{
+	m_minUniformBufferOffsetAlignment = VkContainer::instance().deviceQueue.m_PhysicalDevice.getProperties().limits.minUniformBufferOffsetAlignment;
+
+	return m_minUniformBufferOffsetAlignment;
+}
+size_t VulkanWrapper::DescriptorManager::GetMinUniformBufferOffsetAlignment()
+{
+	return m_minUniformBufferOffsetAlignment;
 }

@@ -23,15 +23,25 @@ void VulkanScene::Enter()
 	m_KnotMesh = std::make_shared<VulkanWrapper::Mesh>(m_API.device, m_API.deviceQueue.m_PhysicalDevice, m_DescriptorManager.get());
 	m_KnotMesh->LoadModel(m_API, "../Resources/Meshes/knot.obj");
 
+	// Create the Cube mesh
+	m_CubeMesh = std::make_shared<VulkanWrapper::Mesh>(m_API.device, m_API.deviceQueue.m_PhysicalDevice, m_DescriptorManager.get());
+	m_CubeMesh->LoadModel(m_API, "../Resources/Meshes/cube.obj");
+
 	// Create the graphics pipeline
 	m_API.CreateGraphicsPipeline("../Resources/Shaders/compiled/vulkan_vert.spv", "../Resources/Shaders/compiled/vulkan_frag.spv", m_KnotMesh->GetAllDescriptorSetLayouts());
 
 	m_Renderer.SetCamera(m_Camera);
+
+	m_PointLight.color = glm::vec3(0.2f, 1.0f, 0.3f);
+	m_PointLight.position   = glm::vec3(0.0f, 0.0f, 0.0f);
+	m_PointLight.intensity = 1.0f;
+	m_Renderer.AddPointLight(m_PointLight);
 }
 
 void VulkanScene::Exit()
 {
 	m_KnotMesh->Destroy();
+	m_CubeMesh->Destroy();
 }
 
 void VulkanScene::Update(float deltaTime)
@@ -78,4 +88,8 @@ void VulkanScene::Draw()
 	glm::mat4 model = glm::mat4(1.0f);
 	model           = glm::scale(model, glm::vec3(0.2f));
 	m_Renderer.AddMesh(*m_KnotMesh, model);
+
+	model = glm::mat4(1.0f);
+	model = glm::translate(model, glm::vec3(0.0f, 0.0f, -2.0f));
+	m_Renderer.AddMesh(*m_CubeMesh, model);
 }

@@ -6,6 +6,7 @@
 #include "../Types/VkContainer.h"
 #include "Nodes/Camera.h"
 #include <Engine/VulkanAPI/ImGuiVulkan.h>
+#include <vector>
 
 VkRenderHelper::VkRenderHelper()
 {
@@ -125,6 +126,16 @@ void VkRenderHelper::AddMesh(const VulkanWrapper::Mesh& mesh, const glm::mat4& m
 	m_Meshes.emplace_back(mesh, model);
 }
 
+void VkRenderHelper::AddLight(LIGHT_TYPE type, void* light)
+{
+	m_Lights.push_back(std::tuple(type, light));
+}
+
+void VkRenderHelper::ClearLights()
+{
+	m_Lights.clear();
+}
+
 void VkRenderHelper::SetCamera(node::Camera* camera)
 {
 	m_Camera = camera;
@@ -135,7 +146,8 @@ void VkRenderHelper::clearMeshes()
 	m_Meshes.clear();
 }
 
-void VkRenderHelper::UpdateDescriptorSets(VulkanWrapper::Mesh& mesh, const glm::mat4& model)
+void VkRenderHelper::UpdateDescriptorSets(VulkanWrapper::Mesh& mesh, const glm::mat4& model, std::vector<std::reference_wrapper<PointLight>> pointLights,
+                                          std::vector<std::reference_wrapper<DirectionalLight>> directionalLights, std::vector<std::reference_wrapper<SpotLight>> spotLights)
 {
 	VulkanWrapper::VkContainer& m_API = VulkanWrapper::VkContainer::instance();
 
@@ -144,30 +156,58 @@ void VkRenderHelper::UpdateDescriptorSets(VulkanWrapper::Mesh& mesh, const glm::
 
 	VulkanWrapper::ModelViewProjection ubo = { projection * view * model };
 
-	// Will need to eventually add support for more then one light
-	VulkanWrapper::LightProperties light{};
-
-	float r = 0.8f;
-	float g = 1.0f;
-	float b = 0.8f;
-
-	light.lightColor     = glm::vec3(r, g, b);
-	light.lightIntensity = 0.75f;
-
-	mesh.UpdateBuffers(m_API, ubo, light);
+	mesh.UpdateBuffers(ubo, pointLights, directionalLights, spotLights);
 }
 
 void VkRenderHelper::RenderMeshes()
 {
 	VulkanWrapper::VkContainer& m_API = VulkanWrapper::VkContainer::instance();
 
+	// Create the 3 vectors for the lights
+	std::vector<std::reference_wrapper<PointLight>> pointLights;
+	std::vector<std::reference_wrapper<DirectionalLight>> directionalLights;
+	std::vector<std::reference_wrapper<SpotLight>> spotLights;
+
+	// Fill the vectors with the lights (LIGHT_TYPE, void*)
+	for (auto& [type, light] : m_Lights)
+	{
+		switch (type)
+		{
+		case LIGHT_TYPE::POINT:
+			pointLights.emplace_back(*static_cast<PointLight*>(light));
+			break;
+		case LIGHT_TYPE::DIRECTIONAL:
+			directionalLights.emplace_back(*static_cast<DirectionalLight*>(light));
+			break;
+		case LIGHT_TYPE::SPOT:
+			spotLights.emplace_back(*static_cast<SpotLight*>(light));
+			break;
+		}
+	}
+
+	// Fill all the remaining slots with default lights
+	for (int i = pointLights.size(); i < MAX_POINT_LIGHTS; i++)
+	{
+		pointLights.emplace_back(m_DefaultPointLight);
+	}
+
+	for (int i = directionalLights.size(); i < MAX_DIRECTIONAL_LIGHTS; i++)
+	{
+		directionalLights.emplace_back(m_DefaultDirectionalLight);
+	}
+
+	for (int i = spotLights.size(); i < MAX_SPOT_LIGHTS; i++)
+	{
+		spotLights.emplace_back(m_DefaultSpotLight);
+	}
+
 	// This function will render all the meshes and update the descriptor sets for each mesh if needed
 	for (auto& [mesh, modelMatrix] : m_Meshes)
 	{
 		// Update the descriptor sets
-		UpdateDescriptorSets(mesh, modelMatrix);
+		UpdateDescriptorSets(mesh, modelMatrix, pointLights, directionalLights, spotLights);
 
 		// Binds descriptor sets, vertex buffer and index buffer then Draw the mesh
-		mesh.BindForDrawing(m_API, m_API.commandBuffers[m_API.swapchainInfo.getCurrentFrameIndex()].get(), m_API.pipelineLayout);
+		mesh.BindForDrawing(m_API.commandBuffers[m_API.swapchainInfo.getCurrentFrameIndex()].get(), m_API.pipelineLayout);
 	}
 }

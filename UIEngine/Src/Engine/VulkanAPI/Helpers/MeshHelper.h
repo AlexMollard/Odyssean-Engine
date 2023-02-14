@@ -32,15 +32,11 @@ public:
 	static void CreateMesh(VulkanWrapper::VkContainer& api, const std::vector<VulkanWrapper::SubMesh>& subMeshes, VulkanWrapper::Mesh& mesh);
 
 	// Helper function to destroy a mesh
-	static void DestroyMesh(vk::Device& device, VulkanWrapper::Mesh& mesh);
+	static void DestroyMesh(VulkanWrapper::Mesh& mesh);
 
 private:
-	// Helper function to process a node in a scene
-	static void ProcessNode(const aiScene* scene, aiNode* node, std::vector<VulkanWrapper::SubMesh>& subMeshes);
-
 	// Helper function to process a mesh in a scene
-	static void ProcessMesh(const aiScene* scene, aiMesh* mesh, std::vector<VulkanWrapper::SubMesh>& subMeshes);
+	static bool ProcessMesh(const aiMesh* mesh, VulkanWrapper::SubMesh& subMesh);
 
 	static glm::vec2 ComputeTexCoords(glm::vec3 pos);
-	static void CalculateTangents(VulkanWrapper::SubMesh& subMesh);
 };

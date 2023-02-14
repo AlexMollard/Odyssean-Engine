@@ -19,7 +19,11 @@ int VulkanWrapper::VulkanMaterial::GetTextureCount()
 void VulkanWrapper::VulkanMaterial::ProcessMaterial(aiMaterial* material, SubMesh& subMesh)
 {
 	aiString name;
-	material->Get(AI_MATKEY_NAME, name);
+	if (material->Get(AI_MATKEY_NAME, name) != AI_SUCCESS)
+	{
+		S_WARN(false, "Error retrieving material name from aiMaterial");
+		//return;
+	}
 	subMesh.m_material.m_Name = name.C_Str();
 
 	// loop all the aiTextureType and get the texture path
@@ -32,6 +36,7 @@ void VulkanWrapper::VulkanMaterial::ProcessMaterial(aiMaterial* material, SubMes
 		}
 	}
 }
+
 
 std::string& VulkanWrapper::VulkanMaterial::operator[](int index)
 {

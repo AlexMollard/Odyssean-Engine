@@ -42,8 +42,10 @@ struct Mesh
 	// Helper function to bind buffers and descriptor sets for
 	std::vector<std::shared_ptr<VulkanWrapper::DescriptorSetLayout>> GetAllDescriptorSetLayouts();
 
-	void UpdateBuffers(VulkanWrapper::VkContainer& api, const ModelViewProjection& mvp, const LightProperties& properties);
-	void BindForDrawing(VulkanWrapper::VkContainer& api, vk::CommandBuffer& commandBuffer, vk::PipelineLayout& pipelineLayout);
+	void UpdateBuffers(const ModelViewProjection& mvp, std::vector<std::reference_wrapper<PointLight>> pointLights,
+	                   std::vector<std::reference_wrapper<DirectionalLight>> directionalLights, std::vector<std::reference_wrapper<SpotLight>> spotLights);
+
+	void BindForDrawing(vk::CommandBuffer& commandBuffer, vk::PipelineLayout& pipelineLayout);
 	void SetSubMeshes(const std::vector<VulkanWrapper::SubMesh>& subMeshes);
 
 	std::string m_directory;
@@ -56,7 +58,9 @@ private:
 
 	// MVP and light properties buffer and descriptor set
 	VulkanWrapper::Buffer m_mvpBuffer;
-	VulkanWrapper::Buffer m_lightPropertiesBuffer;
+	VulkanWrapper::Buffer m_pointLightBuffer;
+	VulkanWrapper::Buffer m_directionalLightBuffer;
+	VulkanWrapper::Buffer m_spotLightBuffer;
 
 	DescriptorManager* m_descriptorManager;
 
@@ -65,6 +69,8 @@ private:
 
 	// Buffer creation
 	VulkanWrapper::Buffer CreateMVPBuffer(VulkanWrapper::DeviceQueue& devices);
-	VulkanWrapper::Buffer CreateLightPropertiesBuffer(VulkanWrapper::DeviceQueue& devices);
+	VulkanWrapper::Buffer CreatePointLightBuffer(VulkanWrapper::DeviceQueue& devices);
+	VulkanWrapper::Buffer CreateDirectionalLightBuffer(VulkanWrapper::DeviceQueue& devices);
+	VulkanWrapper::Buffer CreateSpotLightBuffer(VulkanWrapper::DeviceQueue& devices);
 };
 } // namespace VulkanWrapper

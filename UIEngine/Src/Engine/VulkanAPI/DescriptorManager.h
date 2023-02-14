@@ -12,6 +12,9 @@ public:
 	DescriptorManager(vk::Device device);
 	~DescriptorManager() = default;
 
+	size_t GetMinUniformBufferSize(size_t size);
+	size_t GetMinUniformBufferOffsetAlignment();
+
 	// Function to create a descriptor set layout
 	std::shared_ptr<VulkanWrapper::DescriptorSetLayout> createDescriptorSetLayout(std::vector<VulkanWrapper::BindingData> bindings);
 
@@ -36,11 +39,14 @@ public:
 
 private:
 	void createBaseDescriptorLayouts();
+	size_t setMinUniformBufferOffsetAlignment();
 
 	vk::Device m_device;
 	DescriptorLayoutCache m_descriptorLayoutCache;
 
 	std::vector<vk::DescriptorSet> m_descriptorSets;
 	vk::DescriptorPool m_descriptorPool;
+
+	size_t m_minUniformBufferOffsetAlignment;
 };
 } // namespace VulkanWrapper

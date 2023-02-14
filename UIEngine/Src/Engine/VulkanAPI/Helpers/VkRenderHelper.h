@@ -1,6 +1,7 @@
 #pragma once
 #include "../Types/Mesh.h"
 #include "Nodes/Camera.h"
+#include "../Types/common.h"
 #include "glm/fwd.hpp"
 #include <vector>
 
@@ -26,17 +27,31 @@ public:
 
 	void AddMesh(const VulkanWrapper::Mesh& mesh, const glm::mat4& model);
 
+	// Lights
+	void AddLight(LIGHT_TYPE type, void* light);
+	void ClearLights();
+
+	// Camera
 	void SetCamera(node::Camera* camera);
 
 private:
 	void clearMeshes();
 
-	void UpdateDescriptorSets(VulkanWrapper::Mesh& mesh, const glm::mat4& model);
+	void UpdateDescriptorSets(VulkanWrapper::Mesh& mesh, const glm::mat4& model, std::vector<std::reference_wrapper<PointLight>> pointLights,
+	                          std::vector<std::reference_wrapper<DirectionalLight>> directionalLights, std::vector<std::reference_wrapper<SpotLight>> spotLights);
 	void RenderMeshes();
 
 	void recreateSwapChain();
 
+	// Meshes
 	std::vector<std::tuple<VulkanWrapper::Mesh, glm::mat4>> m_Meshes;
 
+	// Lights
+	std::vector<std::tuple<LIGHT_TYPE, void*>> m_Lights;
+	PointLight m_DefaultPointLight{};
+	DirectionalLight m_DefaultDirectionalLight{};
+	SpotLight m_DefaultSpotLight{};
+
+	// Camera
 	node::Camera* m_Camera = nullptr;
 };

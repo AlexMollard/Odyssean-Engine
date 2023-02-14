@@ -165,7 +165,6 @@ xcopy /y "C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\co
     <ClInclude Include="Src\Engine\VulkanAPI\Helpers\DescriptorHelper.h" />
     <ClInclude Include="Src\Engine\VulkanAPI\Types\Material.h" />
     <ClInclude Include="Src\Engine\VulkanAPI\Types\VulkanMaterial.h" />
-    <ClInclude Include="Src\Engine\VulkanAPI\Types\Renderer_old.h" />
     <ClInclude Include="Src\Engine\VulkanAPI\Types\Mesh.h" />
     <ClInclude Include="Src\Engine\VulkanAPI\Types\VkContainer.h" />
     <ClInclude Include="Src\Engine\VulkanAPI\Types\CommandBuffer.h" />
@@ -220,7 +219,6 @@ xcopy /y "C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\co
     <ClCompile Include="Src\Engine\VulkanAPI\Types\common.cpp" />
     <ClCompile Include="Src\Engine\VulkanAPI\Types\VkContainer.cpp" />
     <ClCompile Include="Src\Engine\VulkanAPI\Types\VulkanMaterial.cpp" />
-    <ClCompile Include="Src\Engine\VulkanAPI\Types\Renderer_old.cpp" />
     <ClCompile Include="Src\Engine\VulkanAPI\Types\Mesh.cpp" />
     <ClCompile Include="Src\Engine\VulkanAPI\Types\CommandBuffer.cpp" />
     <ClCompile Include="Src\Engine\VulkanAPI\Types\RenderPassFramebuffer.cpp" />

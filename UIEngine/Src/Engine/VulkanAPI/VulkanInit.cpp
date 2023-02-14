@@ -322,6 +322,14 @@ void VulkanInit::InitDevice()
 
 	// Set the device queue
 	m_API.deviceQueue = deviceQueue;
+
+	// Display to the user there graphics cards optimal variables
+	std::cout << "Optimal tiling alignment: " << m_API.deviceQueue.m_PhysicalDevice.getProperties().limits.optimalBufferCopyOffsetAlignment << std::endl;
+	std::cout << "Optimal tiling granularity: " << m_API.deviceQueue.m_PhysicalDevice.getProperties().limits.optimalBufferCopyRowPitchAlignment << std::endl;
+	// Best uniform buffer alignment
+	std::cout << "Best uniform buffer alignment: " << m_API.deviceQueue.m_PhysicalDevice.getProperties().limits.minUniformBufferOffsetAlignment << std::endl;
+	// Best storage buffer alignment
+	std::cout << "Best storage buffer alignment: " << m_API.deviceQueue.m_PhysicalDevice.getProperties().limits.minStorageBufferOffsetAlignment << std::endl;
 }
 
 void VulkanInit::InitSurface()
