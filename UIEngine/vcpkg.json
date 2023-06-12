@@ -2,6 +2,8 @@
   "name": "ui-engine",
   "version-string": "1.0.0",
   "dependencies": [
+    "vulkan",
+    "vulkan-headers",
     "glfw3",
     "glew",
     "glm",

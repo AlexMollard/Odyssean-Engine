@@ -48,28 +48,25 @@ float Engine::Update()
 {
 	InputManager::GetInstance().Update();
 
+	auto close = [this]<typename T>(T* engine)
+	{
+		if (engine->GetClose())
+			return -FLT_MAX;
+		return engine->Update(m_sceneStateMachine);
+	};
+
 	if (m_graphicsAPI == GraphicsAPI::OpenGL)
 	{
 		auto engine = static_cast<OpenGLEngine*>(m_engine);
-
-		m_close = engine->GetClose();
-
-		if (m_close)
-			return -FLT_MAX;
-
-		return engine->Update(m_sceneStateMachine);
+		m_close     = close(engine);
+		return m_close;
 	}
 
 	if (m_graphicsAPI == GraphicsAPI::Vulkan)
 	{
 		auto engine = static_cast<VulkanWrapper::Engine*>(m_engine);
-
-		m_close = engine->GetClose();
-
-		if (m_close)
-			return -FLT_MAX;
-
-		return engine->Update(m_sceneStateMachine);
+		m_close     = close(engine);
+		return m_close;
 	}
 
 	return -FLT_MAX;
