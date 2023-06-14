@@ -1,15 +1,16 @@
 #include "pch.h"
 
+#include "Engine/MemPlumber/memplumber.h"
+
 #include "Scenes/VulkanScene.h"
-#include <crtdbg.h>
 
 #include "Engine/Engine.h"
 #include "Engine/SceneStateMachine.h"
 
 int main()
 {
-	// Turn on debugging for memory leaks. This is automatically turned off when the build is Release.
-	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+	// start collecting mem allocations info
+	MemPlumber::start();
 
 	GraphicsAPI graphicsAPI = GraphicsAPI::Vulkan;
 
@@ -33,4 +34,17 @@ int main()
 	}
 
 	scene.Exit();
+
+	// run memory leak test in verbose mode
+	size_t memLeakCount;
+	uint64_t memLeakSize;
+	MemPlumber::memLeakCheck(memLeakCount, memLeakSize, true);
+
+	// print memory leak results
+	printf("Number of leaked objects: %d\nTotal amount of memory leaked: %d[bytes]\n", (int)memLeakCount, (int)memLeakSize);
+
+	MemPlumber::staticMemCheck(memLeakCount, memLeakSize, true);
+
+	// print memory leak results
+	printf("Number of leaked static objects: %d\nTotal amount of memory leaked: %d[bytes]\n", (int)memLeakCount, (int)memLeakSize);
 }

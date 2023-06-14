@@ -239,7 +239,7 @@ void Renderer2D::Init(node::Camera* camera, ShaderOpenGL* basicShader, ShaderOpe
 
 	glUniform1iv(loc, maxTextures, samplers);
 
-	data.quadBuffer = _NEW Vertex[maxVertexCount];
+	data.quadBuffer = new Vertex[maxVertexCount];
 	BeginBatch();
 
 	glCreateVertexArrays(1, &data.quadVA);

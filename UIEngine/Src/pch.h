@@ -15,9 +15,3 @@
 #include <glm/ext.hpp>
 #include <glm/glm.hpp>
 #include <glm/gtx/quaternion.hpp>
-
-#ifdef _DEBUG
-#define _NEW new (_NORMAL_BLOCK, __FILE__, __LINE__)
-#else
-#define _NEW new
-#endif

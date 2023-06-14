@@ -14,7 +14,7 @@ void Engine::Init(const char* windowName, int width, int height, GraphicsAPI gra
 	m_graphicsAPI = graphicsAPI;
 	if (graphicsAPI == GraphicsAPI::OpenGL)
 	{
-		auto engine = _NEW OpenGLEngine;
+		auto engine = new OpenGLEngine;
 		engine->Initialize(windowName, width, height);
 		m_engine = engine;
 		m_close  = false;
@@ -22,7 +22,7 @@ void Engine::Init(const char* windowName, int width, int height, GraphicsAPI gra
 	}
 	else if (graphicsAPI == GraphicsAPI::Vulkan)
 	{
-		auto engine = _NEW VulkanWrapper::Engine;
+		auto engine = new VulkanWrapper::Engine;
 		engine->Initialize(windowName, width, height);
 		m_engine = engine;
 		m_close  = false;

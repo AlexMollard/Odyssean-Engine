@@ -160,7 +160,7 @@ VulkanWrapper::Texture* VulkanWrapper::Texture::Load(VulkanWrapper::VkContainer&
 		throw std::runtime_error("Failed to load texture image!");
 	}
 
-	auto texture = _NEW Texture();
+	auto texture = new Texture();
 	texture->Create(api, queue, pixels, width, height);
 
 	stbi_image_free(pixels);
@@ -235,7 +235,7 @@ void Texture::CreateDebugMetalnessTexture(const char* dir)
 	int width    = 1;
 	int height   = 1;
 	int channels = 4;
-	auto* data   = _NEW unsigned char[width * height * channels];
+	auto* data   = new unsigned char[width * height * channels];
 	memset(data, 255, width * height * channels);
 
 	stbi_write_jpg(dir, width, height, channels, data, 100);
@@ -253,7 +253,7 @@ void Texture::CreateDebugRoughnessTexture(const char* dir)
 	int width    = 1;
 	int height   = 1;
 	int channels = 4;
-	auto* data   = _NEW unsigned char[width * height * channels];
+	auto* data   = new unsigned char[width * height * channels];
 	memset(data, 128, width * height * channels);
 
 	stbi_write_jpg(dir, width, height, channels, data, 100);
@@ -271,7 +271,7 @@ void Texture::CreateDebugAmbientTexture(const char* dir)
 	int width    = 1;
 	int height   = 1;
 	int channels = 4;
-	auto* data   = _NEW unsigned char[width * height * channels];
+	auto* data   = new unsigned char[width * height * channels];
 	memset(data, 0, width * height * channels);
 
 	stbi_write_jpg(dir, width, height, channels, data, 100);
