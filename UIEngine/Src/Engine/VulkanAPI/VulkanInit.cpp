@@ -290,6 +290,31 @@ void VulkanInit::InitDevice()
 
 	// Set the device features
 	auto deviceFeatures = vk::PhysicalDeviceFeatures();
+
+	// Check for tessellation and geometry shader support
+	bool isTessellationShaderSupported = false;
+	bool isGeometryShaderSupported     = false;
+	const auto& availableExtensions    = m_API.deviceQueue.m_PhysicalDevice.enumerateDeviceExtensionProperties();
+
+	for (const auto& extension : availableExtensions)
+	{
+		if (strcmp(extension.extensionName, "VK_EXT_tessellation_shader") == 0)
+			isTessellationShaderSupported = true;
+		else if (strcmp(extension.extensionName, "VK_EXT_geometry_shader") == 0)
+			isGeometryShaderSupported = true;
+
+		// Break out of loop early if both extensions are supported
+		if (isTessellationShaderSupported && isGeometryShaderSupported)
+			break;
+	}
+
+	// Enable the corresponding features if supported
+	if (isTessellationShaderSupported)
+		deviceFeatures.tessellationShader = VK_TRUE;
+
+	if (isGeometryShaderSupported)
+		deviceFeatures.geometryShader = VK_TRUE;
+
 	deviceCreateInfo.setPEnabledFeatures(&deviceFeatures);
 
 	// Set the device extensions
@@ -309,7 +334,6 @@ void VulkanInit::InitDevice()
 
 	// Create the device
 	m_API.deviceQueue.m_Device = m_API.deviceQueue.m_PhysicalDevice.createDevice(deviceCreateInfo);
-
 	// Get the queues
 	deviceQueue.SetQueue(VulkanWrapper::QueueType::GRAPHICS, m_API.deviceQueue.m_Device.getQueue(deviceQueue.GetQueueFamilyIndex(VulkanWrapper::QueueType::GRAPHICS), 0));
 	deviceQueue.SetQueue(VulkanWrapper::QueueType::PRESENT, m_API.deviceQueue.m_Device.getQueue(deviceQueue.GetQueueFamilyIndex(VulkanWrapper::QueueType::PRESENT), 0));

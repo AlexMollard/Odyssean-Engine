@@ -55,6 +55,7 @@ private:
 	uint32_t m_CurrentFrame;
 	vk::Semaphore m_ImageAvailableSemaphore;
 	vk::Semaphore m_RenderFinishedSemaphore;
+	vk::PipelineStageFlags waitDstStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput;
 	std::vector<vk::Fence> m_InFlightFences;
 	std::vector<vk::Fence> m_ImagesInFlight;
 };

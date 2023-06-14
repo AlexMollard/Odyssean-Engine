@@ -34,6 +34,8 @@ vk::Result VulkanWrapper::SyncObjectContainer::init(vk::Device* device, uint32_t
 		VK_CHECK_RESULT(m_Device->createFence(&fenceInfo, nullptr, &fence));
 	}
 
+	waitDstStageMask &= ~vk::PipelineStageFlagBits::eHost;
+
 	return vk::Result::eSuccess;
 }
 
@@ -92,6 +94,7 @@ vk::SubmitInfo VulkanWrapper::SyncObjectContainer::getSubmitInfo(const vk::Comma
 	vk::SubmitInfo submitInfo = {};
 	submitInfo.setWaitSemaphoreCount(1);
 	submitInfo.setPWaitSemaphores(&m_ImageAvailableSemaphore);
+	submitInfo.setPWaitDstStageMask(&waitDstStageMask);
 	submitInfo.setCommandBufferCount(1);
 	submitInfo.setPCommandBuffers(&commandBuffer);
 	submitInfo.setSignalSemaphoreCount(1);

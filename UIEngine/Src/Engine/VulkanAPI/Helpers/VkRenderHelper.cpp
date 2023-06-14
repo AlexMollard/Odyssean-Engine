@@ -110,8 +110,7 @@ void VkRenderHelper::EndFrame()
 	VK_CHECK_RESULT(m_API.syncObjectContainer.waitForFences());
 
 	// Present the image
-	vk::Result result =
-	    m_API.deviceQueue.Present(m_API.swapchainInfo.m_Swapchain, m_API.syncObjectContainer.getCurrentFrame(), m_API.syncObjectContainer.getRenderFinishedSemaphore());
+	vk::Result result = m_API.deviceQueue.Present(m_API.swapchainInfo.m_Swapchain, m_API.syncObjectContainer.getCurrentFrame(), m_API.syncObjectContainer.getRenderFinishedSemaphore());
 	if (result == vk::Result::eErrorOutOfDateKHR)
 	{
 		// Recreate the swapchain and all the dependent resources
