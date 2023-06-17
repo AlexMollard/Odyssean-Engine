@@ -110,14 +110,15 @@ void VkRenderHelper::EndFrame()
 	VK_CHECK_RESULT(m_API.syncObjectContainer.waitForFences());
 
 	// Present the image
-	vk::Result result = m_API.deviceQueue.Present(m_API.swapchainInfo.m_Swapchain, m_API.syncObjectContainer.getCurrentFrame(), m_API.syncObjectContainer.getRenderFinishedSemaphore());
+	vk::Result result =
+	    m_API.deviceQueue.Present(m_API.swapchainInfo.m_Swapchain, m_API.syncObjectContainer.getCurrentFrame(), m_API.syncObjectContainer.getRenderFinishedSemaphore());
 	if (result == vk::Result::eErrorOutOfDateKHR)
 	{
 		// Recreate the swapchain and all the dependent resources
 		recreateSwapChain();
 	}
 
-	clearMeshes();
+	ClearMeshes();
 }
 
 void VkRenderHelper::AddMesh(const VulkanWrapper::Mesh& mesh, const glm::mat4& model)
@@ -140,7 +141,7 @@ void VkRenderHelper::SetCamera(node::Camera* camera)
 	m_Camera = camera;
 }
 
-void VkRenderHelper::clearMeshes()
+void VkRenderHelper::ClearMeshes()
 {
 	m_Meshes.clear();
 }
@@ -172,15 +173,9 @@ void VkRenderHelper::RenderMeshes()
 	{
 		switch (type)
 		{
-		case LIGHT_TYPE::POINT:
-			pointLights.emplace_back(*static_cast<PointLight*>(light));
-			break;
-		case LIGHT_TYPE::DIRECTIONAL:
-			directionalLights.emplace_back(*static_cast<DirectionalLight*>(light));
-			break;
-		case LIGHT_TYPE::SPOT:
-			spotLights.emplace_back(*static_cast<SpotLight*>(light));
-			break;
+		case LIGHT_TYPE::POINT: pointLights.emplace_back(*static_cast<PointLight*>(light)); break;
+		case LIGHT_TYPE::DIRECTIONAL: directionalLights.emplace_back(*static_cast<DirectionalLight*>(light)); break;
+		case LIGHT_TYPE::SPOT: spotLights.emplace_back(*static_cast<SpotLight*>(light)); break;
 		}
 	}
 

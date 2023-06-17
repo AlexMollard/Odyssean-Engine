@@ -1,8 +1,8 @@
 #include "Renderer.h"
 
-#include "../Types/VkContainer.h"
 #include "VulkanAPI/Helpers/VkRenderHelper.h"
 
+#include "Engine/VulkanAPI/Types/VkContainer.h"
 #include "Engine/VulkanAPI/Types/common.h"
 
 void Renderer::OpenGLImpl::Draw() const
@@ -14,9 +14,11 @@ void Renderer::OpenGLImpl::Draw() const
 	// Unbind the buffers and shaders
 }
 
+void Renderer::OpenGLImpl::CleanUp() const {}
+
 void Renderer::VulkanImpl::InitRenderer()
 {
-	m_RenderHelper = std::make_unique<VkRenderHelper>();
+	m_RenderHelper = new VkRenderHelper;
 }
 
 void Renderer::VulkanImpl::Draw() const
@@ -55,6 +57,13 @@ void Renderer::VulkanImpl::SetCamera(node::Camera& camera)
 	m_RenderHelper->SetCamera(&camera);
 }
 
+void Renderer::VulkanImpl::CleanUp() const
+{
+	m_RenderHelper->ClearMeshes();
+	m_RenderHelper->ClearLights();
+	delete m_RenderHelper;
+}
+
 void Renderer::DirectXImpl::Draw() const
 {
 	// Load the current model, view, and projection matrices into the shader constants
@@ -64,3 +73,5 @@ void Renderer::DirectXImpl::Draw() const
 	// Unbind the buffers and shaders
 	S_ASSERT(false, "DirectX is not yet supported")
 }
+
+void Renderer::DirectXImpl::CleanUp() const {}

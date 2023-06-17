@@ -34,8 +34,8 @@ public:
 	// Camera
 	void SetCamera(node::Camera* camera);
 
+	void ClearMeshes();
 private:
-	void clearMeshes();
 
 	void UpdateDescriptorSets(VulkanWrapper::Mesh& mesh, const glm::mat4& model, std::vector<std::reference_wrapper<PointLight>> pointLights,
 	                          std::vector<std::reference_wrapper<DirectionalLight>> directionalLights, std::vector<std::reference_wrapper<SpotLight>> spotLights);

@@ -15,6 +15,10 @@ Engine::~Engine()
 		texture.second->destroy(m_Init.GetAPI().device);
 		delete texture.second;
 	}
+
+	auto const& impl_ptr = m_Renderer.GetImpl();
+	auto vulkan_impl_ptr = dynamic_cast<Renderer::VulkanImpl*>(impl_ptr.get());
+	vulkan_impl_ptr->CleanUp();
 }
 
 void Engine::Initialize(const char* windowName, int width, int height)

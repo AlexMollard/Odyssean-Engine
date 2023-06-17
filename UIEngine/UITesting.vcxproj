@@ -54,6 +54,7 @@
     <CopyLocalDebugSymbols>false</CopyLocalDebugSymbols>
     <EnableMicrosoftCodeAnalysis>true</EnableMicrosoftCodeAnalysis>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <CopyCppRuntimeToOutputDir>false</CopyCppRuntimeToOutputDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <AllProjectIncludesArePublic>true</AllProjectIncludesArePublic>
@@ -78,7 +79,7 @@
     <ClCompile>
       <WarningLevel>Level1</WarningLevel>
       <SDLCheck>false</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;_CRTDBG_MAP_ALLOC;STB_IMAGE_STATIC;VK_LAYER_ENABLE_OBJECT_TRACKER;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;STB_IMAGE_STATIC;VK_LAYER_ENABLE_OBJECT_TRACKER;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
@@ -90,7 +91,7 @@
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <Optimization>Disabled</Optimization>
-      <InlineFunctionExpansion>Default</InlineFunctionExpansion>
+      <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
       <IntrinsicFunctions>
       </IntrinsicFunctions>
       <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
@@ -106,6 +107,7 @@
       </StringPooling>
       <ShowIncludes>
       </ShowIncludes>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -156,8 +158,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Src\Engine\InputManager.h" />
-    <ClInclude Include="Src\Engine\MemPlumber\memplumber-internals.h" />
-    <ClInclude Include="Src\Engine\MemPlumber\memplumber.h" />
     <ClInclude Include="Src\Engine\Renderer.h" />
     <ClInclude Include="Src\Engine\VulkanAPI\Types\DescriptorSetLayout.h" />
     <ClInclude Include="Src\Engine\VulkanAPI\Types\DescriptorLayoutCache.h" />
@@ -212,7 +212,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Src\Engine\InputManager.cpp" />
-    <ClCompile Include="Src\Engine\MemPlumber\memplumber.cpp" />
     <ClCompile Include="Src\Engine\Renderer.cpp" />
     <ClCompile Include="Src\Engine\VulkanAPI\Types\DescriptorSetLayout.cpp" />
     <ClCompile Include="Src\Engine\VulkanAPI\Types\DescriptorLayoutCache.cpp" />

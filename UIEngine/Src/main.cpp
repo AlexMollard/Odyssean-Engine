@@ -1,7 +1,5 @@
 #include "pch.h"
 
-#include "Engine/MemPlumber/memplumber.h"
-
 #include "Scenes/VulkanScene.h"
 
 #include "Engine/Engine.h"
@@ -9,9 +7,6 @@
 
 int main()
 {
-	// start collecting mem allocations info
-	MemPlumber::start();
-
 	GraphicsAPI graphicsAPI = GraphicsAPI::Vulkan;
 
 	auto engine = UIEngine::Engine();
@@ -34,17 +29,4 @@ int main()
 	}
 
 	scene.Exit();
-
-	// run memory leak test in verbose mode
-	size_t memLeakCount;
-	uint64_t memLeakSize;
-	MemPlumber::memLeakCheck(memLeakCount, memLeakSize, true);
-
-	// print memory leak results
-	printf("Number of leaked objects: %d\nTotal amount of memory leaked: %d[bytes]\n", (int)memLeakCount, (int)memLeakSize);
-
-	MemPlumber::staticMemCheck(memLeakCount, memLeakSize, true);
-
-	// print memory leak results
-	printf("Number of leaked static objects: %d\nTotal amount of memory leaked: %d[bytes]\n", (int)memLeakCount, (int)memLeakSize);
 }

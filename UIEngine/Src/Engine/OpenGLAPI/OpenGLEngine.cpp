@@ -103,8 +103,8 @@ void OpenGLEngine::Render(SceneStateMachine& stateMachine)
 	// Render fbo to imgui
 	// Render the fbo to imgui
 	ImGui::Begin("Render Texture");
-	int tabWidth  = ImGui::GetContentRegionAvail().x;
-	int tabHeight = ImGui::GetContentRegionAvail().y;
+	int tabWidth  = static_cast<int>(ImGui::GetContentRegionAvail().x);
+	int tabHeight = static_cast<int>(ImGui::GetContentRegionAvail().y);
 	ImGui::Image((void*)(intptr_t)m_fbo, ImVec2(tabWidth, tabHeight));
 	ImGui::End();
 

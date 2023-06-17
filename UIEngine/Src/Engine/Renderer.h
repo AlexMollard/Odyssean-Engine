@@ -1,5 +1,5 @@
 #pragma once
-#include "../Helpers/VkRenderHelper.h"
+#include "Engine/VulkanAPI/Helpers/VkRenderHelper.h"
 #include "glm/fwd.hpp"
 #include <Engine/ErrorHandling.h>
 #include <memory>
@@ -28,16 +28,20 @@ public:
 	struct Impl
 	{
 		virtual void Draw() const = 0;
+		virtual void CleanUp() const = 0;
 	};
 
 	struct OpenGLImpl : public Impl
 	{
 		void Draw() const override;
+		void CleanUp() const override;
 	};
 
 	struct VulkanImpl : public Impl
 	{
 		// Creates the m_RenderHelper
+		virtual ~VulkanImpl() = default;
+
 		void InitRenderer();
 
 		void Draw() const override;
@@ -50,13 +54,15 @@ public:
 
 		void SetCamera(node::Camera& camera);
 
+		void CleanUp() const override;
 	private:
-		std::unique_ptr<VkRenderHelper> m_RenderHelper = nullptr;
+		VkRenderHelper* m_RenderHelper = nullptr;
 	};
 
 	struct DirectXImpl : public Impl
 	{
 		void Draw() const override;
+		void CleanUp() const override;
 	};
 
 	// Renderer class starts here
