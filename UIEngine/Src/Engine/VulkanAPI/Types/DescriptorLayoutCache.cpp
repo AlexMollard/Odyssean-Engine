@@ -13,19 +13,19 @@ std::shared_ptr<VulkanWrapper::DescriptorSetLayout> VulkanWrapper::DescriptorLay
 		layoutBindings.push_back(binding.createDescriptorSetLayoutBinding());
 	}
 
-	std::sort(layoutBindings.begin(), layoutBindings.end(),
-	          [](const vk::DescriptorSetLayoutBinding& a, const vk::DescriptorSetLayoutBinding& b)
-	          {
-		          if (a.binding != b.binding)
-		          {
-			          return a.binding < b.binding;
-		          }
-		          if (a.descriptorType != b.descriptorType)
-		          {
-			          return a.descriptorType < b.descriptorType;
-		          }
-		          return a.descriptorCount < b.descriptorCount;
-	          });
+	//std::sort(layoutBindings.begin(), layoutBindings.end(),
+	//          [](const vk::DescriptorSetLayoutBinding& a, const vk::DescriptorSetLayoutBinding& b)
+	//          {
+	//	          if (a.binding != b.binding)
+	//	          {
+	//		          return a.binding < b.binding;
+	//	          }
+	//	          if (a.descriptorType != b.descriptorType)
+	//	          {
+	//		          return a.descriptorType < b.descriptorType;
+	//	          }
+	//	          return a.descriptorCount < b.descriptorCount;
+	//          });
 
 	auto iter = m_layouts.find(layoutBindings);
 	if (iter != m_layouts.end())

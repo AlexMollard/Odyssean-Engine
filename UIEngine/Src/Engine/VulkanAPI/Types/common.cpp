@@ -204,23 +204,23 @@ vk::MappedMemoryRange Buffer::Update(vk::Device& device, const void* data, vk::D
 	}
 
 	void* mapped;
-	vk::Result result = device.mapMemory(memory, 0, size, vk::MemoryMapFlags(), &mapped);
+	vk::Result result = device.mapMemory(memory, 0, alignedSize, vk::MemoryMapFlags(), &mapped);
 	if (result != vk::Result::eSuccess)
 	{
 		throw std::runtime_error("Failed to map memory!");
 	}
 
-	memcpy(mapped, data, size);
-
-	device.unmapMemory(memory);
+	memcpy(mapped, data, alignedSize);
 
 	vk::MappedMemoryRange range = {};
 	range.memory                = memory;
 	range.offset                = 0;
-	range.size                  = size;
+	range.size                  = alignedSize;
 
-	bufferSize = size;
+	bufferSize = alignedSize;
 	alignment  = minBufferOffsetAlignment;
+	
+	device.unmapMemory(memory);
 
 	return range;
 }

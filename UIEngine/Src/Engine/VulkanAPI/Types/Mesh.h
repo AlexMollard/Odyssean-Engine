@@ -42,8 +42,9 @@ struct Mesh
 	// Helper function to bind buffers and descriptor sets for
 	std::vector<std::shared_ptr<VulkanWrapper::DescriptorSetLayout>> GetAllDescriptorSetLayouts();
 
-	void UpdateBuffers(const ModelViewProjection& mvp, std::vector<std::reference_wrapper<PointLight>> pointLights,
-	                   std::vector<std::reference_wrapper<DirectionalLight>> directionalLights, std::vector<std::reference_wrapper<SpotLight>> spotLights);
+	void UpdateBuffers(const ModelViewProjection& mvp, const std::vector<std::reference_wrapper<const PointLight>>& pointLights,
+	                   const std::vector<std::reference_wrapper<const DirectionalLight>>& directionalLights,
+	                   const std::vector<std::reference_wrapper<const SpotLight>>& spotLights);
 
 	void BindForDrawing(vk::CommandBuffer& commandBuffer, vk::PipelineLayout& pipelineLayout);
 	void SetSubMeshes(const std::vector<VulkanWrapper::SubMesh>& subMeshes);

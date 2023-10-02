@@ -81,6 +81,12 @@ void VulkanScene::Update(float deltaTime)
 	}
 
 	m_prevMousePos = mousePos;
+	
+	// Make the point light move in a circle
+	static float m_PointLightAngle = 0.0f;
+	m_PointLight.position.x = 5.0f * cos(m_PointLightAngle);
+	m_PointLight.position.z = 5.0f * sin(m_PointLightAngle);
+	m_PointLightAngle += deltaTime * 0.1f;
 }
 
 void VulkanScene::Draw()
@@ -90,6 +96,6 @@ void VulkanScene::Draw()
 	m_Renderer.AddMesh(*m_KnotMesh, model);
 
 	model = glm::mat4(1.0f);
-	model = glm::translate(model, glm::vec3(0.0f, 0.0f, -2.0f));
+	model = glm::translate(model, m_PointLight.position);
 	m_Renderer.AddMesh(*m_CubeMesh, model);
 }

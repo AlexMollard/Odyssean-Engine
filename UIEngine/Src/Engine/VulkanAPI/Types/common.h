@@ -9,18 +9,19 @@ enum class LIGHT_TYPE
 	SPOT
 };
 
-const int MAX_POINT_LIGHTS       = 4;
-const int MAX_DIRECTIONAL_LIGHTS = 4;
-const int MAX_SPOT_LIGHTS        = 4;
+constexpr int MAX_POINT_LIGHTS       = 4;
+constexpr int MAX_DIRECTIONAL_LIGHTS = 4;
+constexpr int MAX_SPOT_LIGHTS        = 4;
 
-// The lights must align to a total of 64 bytes
+// The lights must align to a total of 32 bytes (color + position + intensity = 12 + 12 + 4 = 28 bytes) so we add 4 bytes of padding
 struct PointLight
 {
-	alignas(16) glm::vec3 color;
-	alignas(16) glm::vec3 position;
-	alignas(4) float intensity;
+	glm::vec3 color    = glm::vec3(0.0f, 0.0f, 1.0f);
+	glm::vec3 position = glm::vec3(0.0f);
+	float intensity    = 1.0f;
 
-	PointLight() : color(glm::vec3(4444.0f)), position(glm::vec3(4444.0f)), intensity(0.0f) {}
+	PointLight() = default;
+	PointLight(const glm::vec3& color, const glm::vec3& position, float intensity) noexcept : color(color), position(position), intensity(intensity) {}
 };
 
 struct DirectionalLight

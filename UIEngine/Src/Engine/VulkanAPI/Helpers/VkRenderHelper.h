@@ -37,11 +37,11 @@ public:
 	void ClearMeshes();
 private:
 
-	void UpdateDescriptorSets(VulkanWrapper::Mesh& mesh, const glm::mat4& model, std::vector<std::reference_wrapper<PointLight>> pointLights,
-	                          std::vector<std::reference_wrapper<DirectionalLight>> directionalLights, std::vector<std::reference_wrapper<SpotLight>> spotLights);
+	void UpdateDescriptorSets(VulkanWrapper::Mesh& mesh, const glm::mat4& model, const std::vector<std::reference_wrapper<const PointLight>>& pointLights,
+	                          const std::vector<std::reference_wrapper<const DirectionalLight>>& directionalLights, const std::vector<std::reference_wrapper<const SpotLight>>& spotLights);
 	void RenderMeshes();
 
-	void recreateSwapChain();
+	void recreateSwapChain() const;
 
 	// Meshes
 	std::vector<std::tuple<VulkanWrapper::Mesh, glm::mat4>> m_Meshes;

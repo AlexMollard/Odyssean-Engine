@@ -89,14 +89,15 @@ std::vector<std::shared_ptr<VulkanWrapper::DescriptorSetLayout>> Mesh::GetAllDes
 	return layouts;
 }
 
-void Mesh::UpdateBuffers(const ModelViewProjection& mvp, std::vector<std::reference_wrapper<PointLight>> pointLights,
-                         std::vector<std::reference_wrapper<DirectionalLight>> directionalLights, std::vector<std::reference_wrapper<SpotLight>> spotLights)
+void Mesh::UpdateBuffers(const ModelViewProjection& mvp, const std::vector<std::reference_wrapper<const PointLight>>& pointLights,
+                         const std::vector<std::reference_wrapper<const DirectionalLight>>& directionalLights,
+                         const std::vector<std::reference_wrapper<const SpotLight>>& spotLights)
 {
-	m_mvpBuffer.Update(m_device, &mvp, vk::DeviceSize(sizeof(ModelViewProjection)));
+	m_mvpBuffer.Update(m_device, &mvp, vk::DeviceSize{sizeof(ModelViewProjection)});
 
-	m_pointLightBuffer.Update(m_device, pointLights.data(), vk::DeviceSize(sizeof(PointLight) * MAX_POINT_LIGHTS));
+	m_pointLightBuffer.Update(m_device, &pointLights.data()->get(), vk::DeviceSize{ sizeof(PointLight) * MAX_POINT_LIGHTS });
 
-	// The other lights are not implemented yet (Directional and Spot)
+	//! The other lights are not implemented yet (Directional and Spot)
 
 	for (auto& subMesh : m_subMeshes)
 	{
@@ -116,7 +117,7 @@ void Mesh::BindForDrawing(vk::CommandBuffer& commandBuffer, vk::PipelineLayout& 
 
 VulkanWrapper::Buffer Mesh::CreateMVPBuffer(VulkanWrapper::DeviceQueue& devices)
 {
-	vk::DeviceSize bufferSize = m_descriptorManager->GetMinUniformBufferSize(sizeof(ModelViewProjection));
+	vk::DeviceSize const bufferSize = m_descriptorManager->GetMinUniformBufferSize(sizeof(ModelViewProjection));
 
 	m_mvpBuffer = devices.CreateBuffer(vk::BufferUsageFlagBits::eUniformBuffer, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent, nullptr,
 	                                   bufferSize);
@@ -126,9 +127,9 @@ VulkanWrapper::Buffer Mesh::CreateMVPBuffer(VulkanWrapper::DeviceQueue& devices)
 
 VulkanWrapper::Buffer Mesh::CreatePointLightBuffer(VulkanWrapper::DeviceQueue& devices)
 {
-	size_t lightSize = m_descriptorManager->GetMinUniformBufferSize(sizeof(PointLight));
+	size_t const lightSize = m_descriptorManager->GetMinUniformBufferSize(sizeof(PointLight));
 
-	vk::DeviceSize bufferSize = lightSize * MAX_POINT_LIGHTS;
+	vk::DeviceSize const bufferSize = lightSize * MAX_POINT_LIGHTS;
 
 	m_pointLightBuffer = devices.CreateBuffer(vk::BufferUsageFlagBits::eUniformBuffer, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent,
 	                                          nullptr, bufferSize);
@@ -138,9 +139,9 @@ VulkanWrapper::Buffer Mesh::CreatePointLightBuffer(VulkanWrapper::DeviceQueue& d
 
 VulkanWrapper::Buffer Mesh::CreateDirectionalLightBuffer(VulkanWrapper::DeviceQueue& devices)
 {
-	size_t lightSize = m_descriptorManager->GetMinUniformBufferSize(sizeof(DirectionalLight));
+	size_t const lightSize = m_descriptorManager->GetMinUniformBufferSize(sizeof(DirectionalLight));
 
-	vk::DeviceSize bufferSize = lightSize * MAX_DIRECTIONAL_LIGHTS;
+	vk::DeviceSize const bufferSize = lightSize * MAX_DIRECTIONAL_LIGHTS;
 
 	m_directionalLightBuffer = devices.CreateBuffer(vk::BufferUsageFlagBits::eUniformBuffer,
 	                                                vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent, nullptr, bufferSize);
@@ -150,9 +151,9 @@ VulkanWrapper::Buffer Mesh::CreateDirectionalLightBuffer(VulkanWrapper::DeviceQu
 
 VulkanWrapper::Buffer Mesh::CreateSpotLightBuffer(VulkanWrapper::DeviceQueue& devices)
 {
-	size_t lightSize = m_descriptorManager->GetMinUniformBufferSize(sizeof(SpotLight));
+	size_t const lightSize = m_descriptorManager->GetMinUniformBufferSize(sizeof(SpotLight));
 
-	vk::DeviceSize bufferSize = lightSize * MAX_SPOT_LIGHTS;
+	vk::DeviceSize const bufferSize = lightSize * MAX_SPOT_LIGHTS;
 
 	m_spotLightBuffer = devices.CreateBuffer(vk::BufferUsageFlagBits::eUniformBuffer, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent,
 	                                         nullptr, bufferSize);
