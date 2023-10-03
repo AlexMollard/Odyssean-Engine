@@ -131,7 +131,7 @@ VulkanWrapper::Buffer Mesh::CreatePointLightBuffer(VulkanWrapper::DeviceQueue& d
 
 	vk::DeviceSize const bufferSize = lightSize * MAX_POINT_LIGHTS;
 
-	m_pointLightBuffer = devices.CreateBuffer(vk::BufferUsageFlagBits::eUniformBuffer, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent,
+	m_pointLightBuffer = devices.CreateBuffer(vk::BufferUsageFlagBits::eStorageBuffer, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent,
 	                                          nullptr, bufferSize);
 
 	return m_pointLightBuffer;

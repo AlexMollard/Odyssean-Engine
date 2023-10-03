@@ -1,7 +1,6 @@
-#include "../../../pch.h"
-
 #include "SubMesh.h"
 
+#include "../../../pch.h"
 #include "../DescriptorManager.h"
 #include "CommandBuffer.h"
 #include "DeviceQueue.h"
@@ -188,15 +187,15 @@ void VulkanWrapper::SubMesh::UpdateDescriptorSets(VulkanWrapper::DescriptorManag
 	pointLightsBufferInfo.offset = 0;
 	pointLightsBufferInfo.range  = pointLightsBuffer->bufferSize;
 
-	vk::DescriptorBufferInfo directionalLightsBufferInfo;
-	directionalLightsBufferInfo.buffer = directionalLightsBuffer->buffer;
-	directionalLightsBufferInfo.offset = 0;
-	directionalLightsBufferInfo.range  = directionalLightsBuffer->bufferSize;
+	//vk::DescriptorBufferInfo directionalLightsBufferInfo;
+	//directionalLightsBufferInfo.buffer = directionalLightsBuffer->buffer;
+	//directionalLightsBufferInfo.offset = 0;
+	//directionalLightsBufferInfo.range  = directionalLightsBuffer->bufferSize;
 
-	vk::DescriptorBufferInfo spotLightsBufferInfo;
-	spotLightsBufferInfo.buffer = spotLightsBuffer->buffer;
-	spotLightsBufferInfo.offset = 0;
-	spotLightsBufferInfo.range  = spotLightsBuffer->bufferSize;
+	//vk::DescriptorBufferInfo spotLightsBufferInfo;
+	//spotLightsBufferInfo.buffer = spotLightsBuffer->buffer;
+	//spotLightsBufferInfo.offset = 0;
+	//spotLightsBufferInfo.range  = spotLightsBuffer->bufferSize;
 
 	// MVP
 	vk::WriteDescriptorSet mvpWriteDescriptorSet;
@@ -212,30 +211,30 @@ void VulkanWrapper::SubMesh::UpdateDescriptorSets(VulkanWrapper::DescriptorManag
 	pointLightsWriteDescriptorSet.dstSet          = m_descriptorSets[1];
 	pointLightsWriteDescriptorSet.dstBinding      = 0;
 	pointLightsWriteDescriptorSet.dstArrayElement = 0;
-	pointLightsWriteDescriptorSet.descriptorType  = vk::DescriptorType::eUniformBuffer;
+	pointLightsWriteDescriptorSet.descriptorType  = vk::DescriptorType::eStorageBuffer;
 	pointLightsWriteDescriptorSet.descriptorCount = 1;
 	pointLightsWriteDescriptorSet.pBufferInfo     = &pointLightsBufferInfo;
 
-	vk::WriteDescriptorSet directionalLightsWriteDescriptorSet;
-	directionalLightsWriteDescriptorSet.dstSet          = m_descriptorSets[1];
-	directionalLightsWriteDescriptorSet.dstBinding      = 1;
-	directionalLightsWriteDescriptorSet.dstArrayElement = 0;
-	directionalLightsWriteDescriptorSet.descriptorType  = vk::DescriptorType::eUniformBuffer;
-	directionalLightsWriteDescriptorSet.descriptorCount = 1;
-	directionalLightsWriteDescriptorSet.pBufferInfo     = &directionalLightsBufferInfo;
+	//vk::WriteDescriptorSet directionalLightsWriteDescriptorSet;
+	//directionalLightsWriteDescriptorSet.dstSet          = m_descriptorSets[1];
+	//directionalLightsWriteDescriptorSet.dstBinding      = 1;
+	//directionalLightsWriteDescriptorSet.dstArrayElement = 0;
+	//directionalLightsWriteDescriptorSet.descriptorType  = vk::DescriptorType::eUniformBuffer;
+	//directionalLightsWriteDescriptorSet.descriptorCount = 1;
+	//directionalLightsWriteDescriptorSet.pBufferInfo     = &directionalLightsBufferInfo;
 
-	vk::WriteDescriptorSet spotLightsWriteDescriptorSet;
-	spotLightsWriteDescriptorSet.dstSet          = m_descriptorSets[1];
-	spotLightsWriteDescriptorSet.dstBinding      = 2;
-	spotLightsWriteDescriptorSet.dstArrayElement = 0;
-	spotLightsWriteDescriptorSet.descriptorType  = vk::DescriptorType::eUniformBuffer;
-	spotLightsWriteDescriptorSet.descriptorCount = 1;
-	spotLightsWriteDescriptorSet.pBufferInfo     = &spotLightsBufferInfo;
+	//vk::WriteDescriptorSet spotLightsWriteDescriptorSet;
+	//spotLightsWriteDescriptorSet.dstSet          = m_descriptorSets[1];
+	//spotLightsWriteDescriptorSet.dstBinding      = 2;
+	//spotLightsWriteDescriptorSet.dstArrayElement = 0;
+	//spotLightsWriteDescriptorSet.descriptorType  = vk::DescriptorType::eUniformBuffer;
+	//spotLightsWriteDescriptorSet.descriptorCount = 1;
+	//spotLightsWriteDescriptorSet.pBufferInfo     = &spotLightsBufferInfo;
 
 	writeDescriptorSets.push_back(mvpWriteDescriptorSet);
 	writeDescriptorSets.push_back(pointLightsWriteDescriptorSet);
-	//writeDescriptorSets.push_back(directionalLightsWriteDescriptorSet);
-	//writeDescriptorSets.push_back(spotLightsWriteDescriptorSet);
+	// writeDescriptorSets.push_back(directionalLightsWriteDescriptorSet);
+	// writeDescriptorSets.push_back(spotLightsWriteDescriptorSet);
 
 	VulkanWrapper::VkContainer::instance().device.updateDescriptorSets(writeDescriptorSets, nullptr);
 }

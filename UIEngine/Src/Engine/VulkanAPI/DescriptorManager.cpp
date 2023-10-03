@@ -99,7 +99,7 @@ void VulkanWrapper::DescriptorManager::createBaseDescriptorLayouts()
 
 	// ALL LIGHTS
 	std::vector<BindingData> allLightsBindings = {
-		{ 0, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eFragment }, // spotLights
+		{ 0, vk::DescriptorType::eStorageBuffer, 1, vk::ShaderStageFlagBits::eFragment }, // spotLights
 		//{ 1, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eFragment }, // pointLights
 		//{ 2, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eFragment }, // directionalLights
 	};
