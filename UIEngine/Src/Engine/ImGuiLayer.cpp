@@ -307,7 +307,7 @@ void ImGuiLayer::NewFrame(BS::thread_pool& pool)
 				ImGui::ShowMetricsWindow(&showImGuiMetrics);
 		}
 	};
-	auto result = pool.submit(dockspaceFn);
+	auto result = pool.submit_task(dockspaceFn);
 
 	result.get();
 }

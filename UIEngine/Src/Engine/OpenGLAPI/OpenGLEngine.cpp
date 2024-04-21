@@ -79,8 +79,8 @@ float OpenGLEngine::Update(SceneStateMachine& stateMachine)
 
 	auto StateMachineUpdateFn = [&]() { stateMachine.Update(dt); };
 
-	pool->submit(StateMachineUpdateFn);
-	pool->wait_for_tasks();
+	pool->submit_task(StateMachineUpdateFn);
+	pool->wait();
 
 	return dt;
 }

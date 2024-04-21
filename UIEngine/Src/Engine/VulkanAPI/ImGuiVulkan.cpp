@@ -94,11 +94,7 @@ int ImGuiVulkan::SetUpImgui(VulkanWrapper::VkContainer& vkContainer)
 			// Use any command queue
 			vk::CommandBuffer commandBuffer = vkContainer.deviceQueue.BeginSingleTimeCommands(vkContainer.commandPool);
 
-			ImGui_ImplVulkan_CreateFontsTexture(commandBuffer);
-
 			vkContainer.deviceQueue.EndSingleTimeCommands(vkContainer.commandPool, vkContainer.deviceQueue.GetQueue(VulkanWrapper::QueueType::GRAPHICS), commandBuffer);
-
-			ImGui_ImplVulkan_DestroyFontUploadObjects();
 		}
 	}
 
