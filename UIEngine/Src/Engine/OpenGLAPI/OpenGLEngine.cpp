@@ -12,8 +12,6 @@
 #include "Engine/SceneStateMachine.h"
 #include "Engine/Texture.h"
 
-static OpenGLWindow& m_Window = OpenGLWindow::Instance();
-
 OpenGLEngine::~OpenGLEngine()
 {
 	delete pool;
@@ -31,6 +29,8 @@ OpenGLEngine::~OpenGLEngine()
 
 void OpenGLEngine::Initialize(const char* windowName, int width, int height)
 {
+	static OpenGLWindow& m_Window = OpenGLWindow::Instance();
+
 	// Create Window
 	m_Window.Initialise(width, height, windowName);
 
@@ -61,6 +61,8 @@ void OpenGLEngine::Initialize(const char* windowName, int width, int height)
 
 float OpenGLEngine::Update(SceneStateMachine& stateMachine)
 {
+	static OpenGLWindow& m_Window = OpenGLWindow::Instance();
+
 	if (m_Window.Window_shouldClose())
 	{
 		m_close = true;
@@ -79,8 +81,7 @@ float OpenGLEngine::Update(SceneStateMachine& stateMachine)
 
 	auto StateMachineUpdateFn = [&]() { stateMachine.Update(dt); };
 
-	pool->submit_task(StateMachineUpdateFn);
-	pool->wait();
+	pool->submit_task(StateMachineUpdateFn).wait();
 
 	return dt;
 }
@@ -117,5 +118,5 @@ void OpenGLEngine::Render(SceneStateMachine& stateMachine)
 
 void* OpenGLEngine::GetWindow()
 {
-	return m_Window.GetWindow();
+	return OpenGLWindow::Instance().GetWindow();
 }

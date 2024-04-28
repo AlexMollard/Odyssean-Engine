@@ -1,6 +1,7 @@
 #include "pch.h"
 
 #include "DescriptorSetLayout.h"
+#include "Engine/ErrorHandling.h"
 
 #include <iostream>
 
@@ -52,16 +53,26 @@ vk::DescriptorSetLayout VulkanWrapper::DescriptorSetLayout::GetLayout() const
 	return m_layout;
 }
 
-std::vector<vk::DescriptorSet> VulkanWrapper::DescriptorSetLayout::CreateDescriptorSets(vk::DescriptorPool descriptorPool, uint32_t count)
+std::vector<vk::DescriptorSet> VulkanWrapper::DescriptorSetLayout::CreateDescriptorSets(vk::DescriptorPool descriptorPool, uint32_t descriptorSetCount)
 {
-	std::vector<vk::DescriptorSet> descriptorSets(count);
+	// Initialize a vector of descriptor sets with the specified count
+	std::vector<vk::DescriptorSet> descriptorSets(descriptorSetCount);
 
-	std::vector<vk::DescriptorSetLayout> layouts(count, m_layout);
+	// Create a vector of descriptor set layouts, all using the same layout
+	std::vector<vk::DescriptorSetLayout> layouts(descriptorSetCount, m_layout);
 
-	vk::DescriptorSetAllocateInfo allocateInfo = vk::DescriptorSetAllocateInfo().setDescriptorPool(descriptorPool).setDescriptorSetCount(count).setPSetLayouts(layouts.data());
+	// Construct the descriptor set allocation info
+	const vk::DescriptorSetAllocateInfo allocateInfo = vk::DescriptorSetAllocateInfo()
+		.setDescriptorPool(descriptorPool)
+		.setDescriptorSetCount(descriptorSetCount)
+		.setPSetLayouts(layouts.data());
 
-	m_device.allocateDescriptorSets(&allocateInfo, descriptorSets.data());
+	// Attempt to allocate descriptor sets
+	auto result = m_device.allocateDescriptorSets(&allocateInfo, descriptorSets.data());
+	// Throw an exception with a more descriptive error message
+	S_ASSERT(result == vk::Result::eSuccess, "Failed to allocate descriptor sets");
 
+	// Return the allocated descriptor sets
 	return descriptorSets;
 }
 

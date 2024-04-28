@@ -7,19 +7,19 @@
 #include <algorithm>
 #include <array>
 #include <iostream>
-#include <map>
+#include <unordered_map>
 
 #include "Engine/OpenGLAPI/ShaderOpenGL.h"
 
-static const size_t maxQuadCount   = 2000;
-static const size_t maxVertexCount = maxQuadCount * 4;
-static const size_t maxIndexCount  = maxQuadCount * 6;
-static const size_t maxTextures    = 31;
+static constexpr size_t maxQuadCount   = 2000;
+static constexpr size_t maxVertexCount = maxQuadCount * 4;
+static constexpr size_t maxIndexCount  = maxQuadCount * 6;
+static constexpr size_t maxTextures    = 31;
 
 static unsigned int m_TextVAO;
 static unsigned int m_TextVBO;
 
-static ShaderOpenGL* m_TextShader;
+static ShaderOpenGL* m_TextShader = nullptr;
 
 struct Vertex
 {
@@ -65,27 +65,29 @@ public:
 		return instance;
 	}
 
-	CharacterManager(CharacterManager const&) = delete;
-	void operator=(CharacterManager const&)   = delete;
+	CharacterManager(const CharacterManager&) = delete;
+	void operator=(const CharacterManager&)   = delete;
 
-	void AddCharacter(char c, Character character)
+	void AddCharacter(char c, const Character& character)
 	{
-		Characters.insert(std::pair<char, Character>(c, character));
+		m_characters.try_emplace(c, character);
 	}
 
-	Character GetCharacter(char c)
+	Character GetCharacter(char c) const
 	{
-		return Characters[c];
+		auto it = m_characters.find(c);
+		S_ASSERT(it != m_characters.end(), "Character not found in the map");
+		return it->second;
 	}
 
 private:
 	CharacterManager() = default;
-	std::map<char, Character> Characters{};
+	std::unordered_map<char, Character> m_characters;
 };
 
 static RendererData data;
 
-static glm::vec2 basicUVS[4] = { glm::vec2(0.0f, 0.0f), glm::vec2(1.0f, 0.0f), glm::vec2(1.0f, 1.0f), glm::vec2(0.0f, 1.0f) };
+static const std::array<glm::vec2, 4> basicUVS = { glm::vec2(0.0f, 0.0f), glm::vec2(1.0f, 0.0f), glm::vec2(1.0f, 1.0f), glm::vec2(0.0f, 1.0f) };
 
 Renderer2D::~Renderer2D()
 {
@@ -106,8 +108,8 @@ Renderer2D::~Renderer2D()
 void Renderer2D::Draw()
 {
 	ShaderOpenGL::Use(*m_BasicShader);
-	float width  = OpenGLWindow::Instance().m_Width;
-	float height = OpenGLWindow::Instance().m_Height;
+	const float width  = OpenGLWindow::Instance().m_Width;
+	const float height = OpenGLWindow::Instance().m_Height;
 
 	// Setup the projection matrix to be orthographic with 0 being bottom left
 	glm::mat4 proj = glm::ortho(0.0f, width, 0.0f, height, -100.0f, 100.0f);
@@ -142,7 +144,7 @@ void Renderer2D::Draw()
 	BeginBatch();
 }
 
-void Renderer2D::DrawQuad(glm::vec2 position, glm::vec2 size, glm::vec4 color, glm::vec2 anchorPoint, float rotation, const unsigned int texId)
+void Renderer2D::DrawQuad(glm::vec2 inPosition, glm::vec2 size, glm::vec4 color, glm::vec2 anchorPoint, float rotation, const unsigned int texId)
 {
 	if (data.indexCount >= maxIndexCount)
 	{
@@ -152,28 +154,37 @@ void Renderer2D::DrawQuad(glm::vec2 position, glm::vec2 size, glm::vec4 color, g
 	}
 
 	// Calculate the anchor point (Origin of the quad, 0,0 is bottom left)
-	glm::vec2 anchor = glm::vec2(position.x + (size.x * anchorPoint.x), position.y + (size.y * anchorPoint.y));
+	const auto anchor = glm::vec2(inPosition.x + (size.x * anchorPoint.x), inPosition.y + (size.y * anchorPoint.y));
 
 	// Calculate the positions of the quad (anticlockwise)
-	glm::vec3 positions[4] = { glm::vec3(anchor.x - (size.x / 2), anchor.y - (size.y / 2), 0.0f), glm::vec3(anchor.x + (size.x / 2), anchor.y - (size.y / 2), 0.0f),
-		                       glm::vec3(anchor.x + (size.x / 2), anchor.y + (size.y / 2), 0.0f), glm::vec3(anchor.x - (size.x / 2), anchor.y + (size.y / 2), 0.0f) };
+	std::array<glm::vec3, 4> positions = { glm::vec3(anchor.x - (size.x / 2), anchor.y - (size.y / 2), 0.0f),
+		                                   glm::vec3(anchor.x + (size.x / 2), anchor.y - (size.y / 2), 0.0f),
+		                                   glm::vec3(anchor.x + (size.x / 2), anchor.y + (size.y / 2), 0.0f),
+		                                   glm::vec3(anchor.x - (size.x / 2), anchor.y + (size.y / 2), 0.0f) };
 
-	// Rotate the quad, glm dosent have a rotate function for vec3 so we have to do it manually
-	for (int i = 0; i < 4; i++)
-	{
-		positions[i] = glm::vec3((positions[i].x - anchor.x) * cos(rotation) - (positions[i].y - anchor.y) * sin(rotation) + anchor.x,
-		                         (positions[i].x - anchor.x) * sin(rotation) + (positions[i].y - anchor.y) * cos(rotation) + anchor.y,
-		                         positions[i].z);
-	}
+	// Assuming rotation is in degrees
+	const float rotationInRadians = glm::radians(rotation);
 
-	// Add the quad to the batch
-	for (int i = 0; i < 4; i++)
+	// Use GLM's rotate function for vector rotation
+	const glm::mat4 rotationMatrix = glm::rotate(glm::mat4(1.0f), rotationInRadians, glm::vec3(0.0f, 0.0f, 1.0f));
+
+	int i = 0;
+	for (glm::vec3 position : positions)
 	{
-		data.quadBufferPtr->position  = positions[i];
+		// Apply rotation to each position
+		position = glm::vec3(rotationMatrix * glm::vec4(position, 1.0f));
+
+		// Adjust position based on anchor point
+		position.x += anchor.x;
+		position.y += anchor.y;
+
+		// Add the quad to the batch
+		data.quadBufferPtr->position  = position;
 		data.quadBufferPtr->color     = color;
 		data.quadBufferPtr->texCoords = basicUVS[i];
 		data.quadBufferPtr->texIndex  = (float)texId;
 		data.quadBufferPtr++;
+		i++;
 	}
 
 	data.indexCount += 6;

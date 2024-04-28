@@ -7,7 +7,7 @@
 
 int main()
 {
-	GraphicsAPI graphicsAPI = GraphicsAPI::OpenGL;
+	GraphicsAPI graphicsAPI = GraphicsAPI::Vulkan;
 
 	auto engine = UIEngine::Engine();
 	engine.Init("UIEngine", 1920, 1080, graphicsAPI);
