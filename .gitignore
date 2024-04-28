@@ -412,3 +412,8 @@ FodyWeavers.xsd
 
 JSON/
 *.ini
+
+# debug textures
+debug_ambient.png
+debug_metalness.jpg
+debug_roughness.jpg
