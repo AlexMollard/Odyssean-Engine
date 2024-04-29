@@ -206,7 +206,7 @@ void VulkanInit::InitInstance()
 	appInfo.setApplicationVersion(VK_MAKE_VERSION(1, 0, 0));
 	appInfo.setPEngineName("UIEngine");
 	appInfo.setEngineVersion(VK_MAKE_VERSION(1, 0, 0));
-	appInfo.setApiVersion(VK_API_VERSION_1_0);
+	appInfo.setApiVersion(VK_API_VERSION_1_3);
 	m_API.instanceCreateInfo.setPApplicationInfo(&appInfo);
 
 	// We add the following line to all the create info structs that we pass to Vulkan

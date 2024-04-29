@@ -35,12 +35,13 @@ int ImGuiVulkan::SetUpImgui(VulkanWrapper::VkContainer& vkContainer)
 	poolInfo.poolSizeCount                = static_cast<uint32_t>(std::size(poolSizes));
 	poolInfo.pPoolSizes                   = poolSizes;
 	poolInfo.maxSets                      = SET_COUNT * static_cast<uint32_t>(std::size(poolSizes));
+	poolInfo.flags                        = vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet;
 
 	vk::DescriptorPool descriptor_pool = device.createDescriptorPool(poolInfo);
 
 	vkContainer.imguiDescriptorPool = descriptor_pool;
 
-	// Set up imgui with docking
+	// Set up ImGui with docking
 	{
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
