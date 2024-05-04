@@ -37,11 +37,11 @@ Makefile
 *.cmake
 build/
 .idea/
-UIEngine/cmake-build-debug/
+Odyssean-Engine/cmake-build-debug/
 
 #vcpkg
 vcpkg/
-UIEngine/vcpkg_installed
+Odyssean-Engine/vcpkg_installed
 Game/vcpkg_installed
 
 
