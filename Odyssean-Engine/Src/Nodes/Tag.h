@@ -36,13 +36,6 @@ public:
 	}
 
 	// Inspector
-	void Inspector() override
-	{
-		if (!ImGui::CollapsingHeader("Tag"))
-		{
-			ImGui::InputText("Name", m_Name, 256);
-			ImGui::DragInt("ID", (int*)&m_ID);
-		}
-	}
+	void Inspector() override;
 };
 } // namespace node

@@ -49,15 +49,7 @@ public:
 	}
 
 	// Inspector
-	void Inspector() override
-	{
-		if (!ImGui::CollapsingHeader("Transform"))
-		{
-			ImGui::DragFloat2("Position", &m_Position.x);
-			ImGui::DragFloat("Rotation", &m_Rotation, 0.01f);
-			ImGui::DragFloat2("Scale", &m_Scale.x);
-		}
-	}
+	void Inspector() override;
 
 	glm::vec2 m_Position = glm::vec3(0.0f);
 	float m_Rotation     = 0.0f;

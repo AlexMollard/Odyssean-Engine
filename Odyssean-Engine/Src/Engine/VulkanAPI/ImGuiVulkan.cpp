@@ -2,6 +2,9 @@
 
 #include "ImGuiVulkan.h"
 
+#include "GLFW/glfw3.h"
+#include "GLFW/glfw3native.h"
+
 // Include the ImGui
 #define GLFW_INCLUDE_NONE
 #define GLFW_INCLUDE_VULKAN

@@ -1,11 +1,11 @@
 #pragma once
 // This is strictly for the vulkan API
 
-// glfw
-#include "GLFW/glfw3.h"
-#include "GLFW/glfw3native.h"
 #include <vector>
 #include <vulkan/vulkan.hpp>
+
+class GLFWwindow;
+
 class Window
 {
 public:
@@ -46,10 +46,10 @@ private:
 	bool m_close = false;
 
 	// keys
-	bool m_Keys[GLFW_KEY_LAST] = { false };
+	bool m_Keys[348] = { false };
 
 	// mouse buttons
-	bool m_MouseButtons[GLFW_MOUSE_BUTTON_LAST] = { false };
+	bool m_MouseButtons[7] = { false };
 
 	// mouse
 	double m_MouseX = true;

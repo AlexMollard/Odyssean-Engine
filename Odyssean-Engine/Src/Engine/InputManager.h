@@ -3,6 +3,8 @@
 #include <iostream>
 #include <unordered_set>
 
+struct GLFWwindow;
+
 const static bool s_Debug = false;
 
 enum class KeyState
@@ -39,9 +41,9 @@ private:
 	void DebugMouseOutput() const;
 
 	GLFWwindow* m_Window{};
-	KeyState m_CurrentKeyStates[GLFW_KEY_LAST]{};
-	KeyState m_PreviousKeyStates[GLFW_KEY_LAST]{};
-	KeyState m_KeyStates[GLFW_KEY_LAST]{};
+	KeyState m_CurrentKeyStates[348]{};
+	KeyState m_PreviousKeyStates[348]{};
+	KeyState m_KeyStates[348]{};
 
 	InputManager();
 

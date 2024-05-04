@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include "Scenes/VulkanScene.h"
 
 #include "Engine/Engine.h"
@@ -10,7 +8,7 @@ int main()
 	GraphicsAPI graphicsAPI = GraphicsAPI::Vulkan;
 
 	auto engine = UIEngine::Engine();
-	engine.Init("UIEngine", 1920, 1080, graphicsAPI);
+	engine.Init("Odyssean-Engine", 1920, 1080, graphicsAPI);
 
 	auto& sceneStateMachine = engine.GetSceneStateMachine();
 

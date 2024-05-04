@@ -49,15 +49,7 @@ public:
 	}
 
 	// Inspector
-	void Inspector() override
-	{
-		if (!ImGui::CollapsingHeader("Quad"))
-		{
-			ImGui::ColorEdit4("Color", &m_Color[0]);
-			ImGui::DragFloat2("Size", &m_Size[0]);
-			ImGui::DragFloat2("Anchor Point", &m_AnchorPoint[0], 0.001f);
-		}
-	}
+	void Inspector() override;
 
 	glm::vec2 m_Size = glm::vec2(10.0f);
 	glm::vec4 m_Color;

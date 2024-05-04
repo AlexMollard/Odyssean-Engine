@@ -1,7 +1,6 @@
 #pragma once
 #include "Nodes/Camera.h"
 #include "Nodes/Quad.h"
-#include <freetype/freetype.h>
 #include <glm/glm.hpp>
 #include <string>
 #include <vector>

@@ -24,13 +24,6 @@ public:
 	}
 
 	// Inspector
-	void Inspector() override
-	{
-		if (!ImGui::CollapsingHeader("Velocity"))
-		{
-			ImGui::DragFloat("X", &x);
-			ImGui::DragFloat("Y", &y);
-		}
-	}
+	void Inspector() override;
 };
 } // namespace node

@@ -1,7 +1,6 @@
 #pragma once
 
 #include "glm/glm.hpp"
-#include <GL/glew.h>
 
 #include "Engine/Resource.h"
 
@@ -21,7 +20,7 @@ public:
 
 	unsigned int CompileShader(unsigned int type, const std::string& source);
 
-	void CheckCompileErrors(GLuint shader, std::string type);
+	void CheckCompileErrors(unsigned int shader, std::string type);
 
 	unsigned int GetID() const;
 

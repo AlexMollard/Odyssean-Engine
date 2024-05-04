@@ -1,6 +1,7 @@
 #include "pch.h"
 
 #include "VulkanMaterial.h"
+#include "assimp/material.h"
 
 #include "DeviceQueue.h"
 #include "SubMesh.h"
@@ -43,12 +44,7 @@ std::string& VulkanWrapper::VulkanMaterial::operator[](int index)
 	return m_Textures[(aiTextureType)index];
 }
 
-std::string& VulkanWrapper::VulkanMaterial::operator[](aiTextureType type)
-{
-	return m_Textures[type];
-}
-
-bool VulkanWrapper::VulkanMaterial::hasTexture(aiTextureType type)
+bool VulkanWrapper::VulkanMaterial::hasTexture(int type)
 {
 	return m_Textures[type].empty();
 }

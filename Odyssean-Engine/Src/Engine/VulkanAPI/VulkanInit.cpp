@@ -2,6 +2,9 @@
 
 #include "VulkanInit.h"
 
+#include "GLFW/glfw3.h"
+#include "GLFW/glfw3native.h"
+
 #include <algorithm>
 #include <iostream>
 #include <ranges>

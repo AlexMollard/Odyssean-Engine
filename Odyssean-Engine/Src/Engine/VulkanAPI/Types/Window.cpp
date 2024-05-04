@@ -1,5 +1,7 @@
 #include "pch.h"
 
+#include "GLFW/glfw3.h"
+#include "GLFW/glfw3native.h"
 #include "Window.h"
 
 void Window::Initialize(const char* windowName, int width, int height)

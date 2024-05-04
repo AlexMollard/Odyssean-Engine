@@ -1,6 +1,9 @@
 #include "pch.h"
 
 #include "Renderer2D.h"
+#include <GL/glew.h>
+
+#include <freetype/freetype.h>
 
 #include "OpenGLAPI/OpenGLWindow.h"
 #include "Texture.h"

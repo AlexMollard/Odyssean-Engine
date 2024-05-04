@@ -1,5 +1,6 @@
 #include "pch.h"
 
+#include <GL/glew.h>
 #include "ShaderOpenGL.h"
 
 #include "GLFW/glfw3.h"
@@ -136,7 +137,7 @@ unsigned int ShaderOpenGL::CompileShader(unsigned int type, const std::string& s
 	return id;
 }
 
-void ShaderOpenGL::CheckCompileErrors(GLuint shader, std::string type)
+void ShaderOpenGL::CheckCompileErrors(unsigned int shader, std::string type)
 {
 	GLint success;
 	GLchar infoLog[1024];
