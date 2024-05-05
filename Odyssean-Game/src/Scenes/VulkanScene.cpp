@@ -23,12 +23,16 @@ void VulkanScene::Enter()
 	m_KnotMesh = std::make_shared<VulkanWrapper::Mesh>(m_API.device, m_API.deviceQueue.m_PhysicalDevice, m_DescriptorManager.get());
 	m_KnotMesh->LoadModel(m_API, "../Resources/Meshes/knot.obj");
 
+	// Create the scene mesh
+	m_SceneMesh = std::make_shared<VulkanWrapper::Mesh>(m_API.device, m_API.deviceQueue.m_PhysicalDevice, m_DescriptorManager.get());
+	m_SceneMesh->LoadModel(m_API, "../Resources/Meshes/scene.gltf");
+
 	// Create the Cube mesh
 	m_CubeMesh = std::make_shared<VulkanWrapper::Mesh>(m_API.device, m_API.deviceQueue.m_PhysicalDevice, m_DescriptorManager.get());
 	m_CubeMesh->LoadModel(m_API, "../Resources/Meshes/cube.obj");
 
 	// Create the graphics pipeline
-	m_API.CreateGraphicsPipeline("../Resources/Shaders/compiled/vulkan_vert.spv", "../Resources/Shaders/compiled/vulkan_frag.spv", m_KnotMesh->GetAllDescriptorSetLayouts());
+	m_API.CreateGraphicsPipeline("../Resources/Shaders/compiled/vulkan_vert.spv", "../Resources/Shaders/compiled/vulkan_frag.spv", m_SceneMesh->GetAllDescriptorSetLayouts());
 
 	m_Renderer.SetCamera(m_Camera);
 
@@ -42,12 +46,13 @@ void VulkanScene::Exit()
 {
 	m_KnotMesh->Destroy();
 	m_CubeMesh->Destroy();
+	m_SceneMesh->Destroy();
 }
 
 void VulkanScene::Update(float deltaTime)
 {
 	// basic camera movement
-	float cameraSpeed = 2.5f * deltaTime;
+	float cameraSpeed = 10.5f * deltaTime;
 	if (InputManager::GetInstance().IsKeyHeld(Input::Keyboard::LEFT_SHIFT))
 	{
 		cameraSpeed *= 2.0f;
@@ -93,9 +98,16 @@ void VulkanScene::Draw()
 {
 	glm::mat4 model = glm::mat4(1.0f);
 	model           = glm::scale(model, glm::vec3(0.2f));
-	m_Renderer.AddMesh(*m_KnotMesh, model);
+	//m_Renderer.AddMesh(*m_KnotMesh, model);
 
 	model = glm::mat4(1.0f);
 	model = glm::translate(model, m_PointLight.position);
-	m_Renderer.AddMesh(*m_CubeMesh, model);
+	//m_Renderer.AddMesh(*m_CubeMesh, model);
+
+	// Add a simple cube
+	model = glm::mat4(1.0f);
+	model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
+	model = glm::scale(model, glm::vec3(0.5f, -0.5f, 0.5f));
+	m_Renderer.AddMesh(*m_SceneMesh, model);
+
 }

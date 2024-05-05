@@ -34,6 +34,7 @@ private:
 	std::shared_ptr<VulkanWrapper::DescriptorManager> m_DescriptorManager = nullptr;
 
 	std::shared_ptr<VulkanWrapper::Mesh> m_KnotMesh = nullptr;
+	std::shared_ptr<VulkanWrapper::Mesh> m_SceneMesh = nullptr;
 	std::shared_ptr<VulkanWrapper::Mesh> m_CubeMesh = nullptr;
 
 	node::Camera m_Camera;
