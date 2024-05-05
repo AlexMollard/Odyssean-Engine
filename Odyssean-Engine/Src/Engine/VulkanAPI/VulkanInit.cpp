@@ -116,8 +116,10 @@ void VulkanInit::CreateExtensions()
 
 void VulkanInit::GetRequiredExtensions(vk::InstanceCreateInfo& createInfo)
 {
+#ifdef _DEBUG
 	CreateExtensions();
-
+#endif
+	
 	// Get all supported extensions
 	m_SupportedExtensions = vk::enumerateInstanceExtensionProperties();
 
