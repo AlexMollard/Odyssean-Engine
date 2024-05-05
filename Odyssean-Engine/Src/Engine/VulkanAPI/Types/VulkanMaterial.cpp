@@ -1,11 +1,11 @@
 #include "pch.h"
 
 #include "VulkanMaterial.h"
-#include "assimp/material.h"
 
 #include "DeviceQueue.h"
 #include "SubMesh.h"
 #include "VkContainer.h"
+#include "assimp/material.h"
 #include <assimp/scene.h>
 #include <filesystem>
 #include <fstream>
@@ -17,13 +17,13 @@ int VulkanWrapper::VulkanMaterial::GetTextureCount()
 	return m_Textures.size();
 }
 
-void VulkanWrapper::VulkanMaterial::ProcessMaterial(aiMaterial* material, SubMesh& subMesh)
+void VulkanWrapper::VulkanMaterial::ProcessMaterial(aiMaterial* material, SubMesh& subMesh, VulkanWrapper::VkContainer& api)
 {
 	aiString name;
 	if (material->Get(AI_MATKEY_NAME, name) != AI_SUCCESS)
 	{
 		S_WARN(false, "Error retrieving material name from aiMaterial");
-		//return;
+		// return;
 	}
 	subMesh.m_material.m_Name = name.C_Str();
 
@@ -33,11 +33,16 @@ void VulkanWrapper::VulkanMaterial::ProcessMaterial(aiMaterial* material, SubMes
 	{
 		if (material->GetTexture((aiTextureType)i, 0, &path) == AI_SUCCESS)
 		{
-			subMesh.m_material.m_Textures[(aiTextureType)i] = path.C_Str();
+			// Concatenate the path with the model path ()
+			std::string modelPath                           = "../Resources/Meshes/";
+			std::string texturePath                         = path.C_Str();
+			std::string fullPath                            = modelPath.substr(0, modelPath.find_last_of("/\\") + 1) + texturePath;
+			subMesh.m_material.m_Textures[(aiTextureType)i] = fullPath;
 		}
 	}
-}
 
+	subMesh.m_material.m_DescriptorImageInfos = subMesh.m_material.GetDescriptorData(api);
+}
 
 std::string& VulkanWrapper::VulkanMaterial::operator[](int index)
 {
@@ -79,23 +84,53 @@ VulkanWrapper::VulkanMaterial VulkanWrapper::VulkanMaterial::CreateDebugMaterial
 	// Check if the textures actually exist
 	for (int i = 0; i < aiTextureType_UNKNOWN; i++)
 	{
-		if (material.m_Textures[(aiTextureType)i].empty())
+		if (!material.m_Textures[(aiTextureType)i].empty())
 			continue;
 		if (std::filesystem::exists(material.m_Textures[(aiTextureType)i]))
 			continue;
 
-		std::cout << "Texture " << material.m_Textures[(aiTextureType)i] << " does not exist. Creating a debug texture." << std::endl;
-
 		// If the texture does not exist, create a debug texture
 		switch ((aiTextureType)i)
 		{
-		case aiTextureType_DIFFUSE_ROUGHNESS: Texture::CreateDebugRoughnessTexture(material.m_Textures[(aiTextureType)i].c_str()); break;
-		case aiTextureType_METALNESS: Texture::CreateDebugMetalnessTexture(material.m_Textures[(aiTextureType)i].c_str()); break;
-		case aiTextureType_AMBIENT: Texture::CreateDebugAmbientTexture(material.m_Textures[(aiTextureType)i].c_str()); break;
-		default: break;
+		case aiTextureType_DIFFUSE_ROUGHNESS:
+		{
+			std::cout << "Texture " << material.m_Textures[(aiTextureType)i] << " does not exist. Creating a debug texture." << std::endl;
+			Texture::CreateDebugRoughnessTexture(material.m_Textures[(aiTextureType)i].c_str());
+			break;
+		}
+		case aiTextureType_METALNESS:
+		{
+			std::cout << "Texture " << material.m_Textures[(aiTextureType)i] << " does not exist. Creating a debug texture." << std::endl;
+			Texture::CreateDebugMetalnessTexture(material.m_Textures[(aiTextureType)i].c_str());
+			break;
+		}
+		case aiTextureType_AMBIENT:
+		{
+			std::cout << "Texture " << material.m_Textures[(aiTextureType)i] << " does not exist. Creating a debug texture." << std::endl;
+			Texture::CreateDebugAmbientTexture(material.m_Textures[(aiTextureType)i].c_str());
+			break;
+		}
+		default:
+		{
+			material.m_Textures[(aiTextureType)i] = "../Resources/Images/debug_roughness.jpg";
+		}
 		}
 	}
 
 	material.m_DescriptorImageInfos = material.GetDescriptorData(api);
 	return material;
+}
+
+// Returns a bitfield of missing textures
+uint16_t VulkanWrapper::VulkanMaterial::GetMissingTextures()
+{
+	uint16_t missingTextures = 0;
+
+	for (int i = 0; i < aiTextureType_UNKNOWN; i++)
+	{
+		if (m_Textures[(aiTextureType)i].empty())
+			missingTextures |= 1 << i;
+	}
+
+	return missingTextures;
 }

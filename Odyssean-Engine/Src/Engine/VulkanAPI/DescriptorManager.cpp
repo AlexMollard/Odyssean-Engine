@@ -15,7 +15,7 @@ VulkanWrapper::DescriptorManager::DescriptorManager(vk::Device device) : m_devic
 	vk::DescriptorPoolCreateInfo poolInfo;
 	poolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
 	poolInfo.pPoolSizes    = poolSizes.data();
-	poolInfo.maxSets       = 32;
+	poolInfo.maxSets       = 128 * 6;
 	poolInfo.flags         = vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet;
 
 	m_descriptorPool = m_device.createDescriptorPool(poolInfo);
@@ -119,7 +119,9 @@ void VulkanWrapper::DescriptorManager::createBaseDescriptorLayouts()
 		{ 7, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment }, // opacityMap
 		{ 8, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment }, // displacementMap
 		{ 9, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment }, // lightMap
-		{ 10, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment } // reflectionMap
+		{ 10, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment }, // reflectionMap
+		{ 11, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment }, // metallicMap
+		{ 12, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment } // roughnessMap
 	};
 
 	// Create the layout and add it to both the hash map and string map

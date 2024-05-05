@@ -7,15 +7,12 @@ namespace VulkanWrapper
 {
 struct Mesh;
 struct DeviceQueue;
+struct VkContainer;
 } // namespace VulkanWrapper
 
 struct aiScene;
 struct aiMesh;
 struct aiNode;
-namespace VulkanWrapper
-{
-struct VkContainer;
-}
 
 namespace vk
 {
@@ -26,7 +23,7 @@ class MeshHelper
 {
 public:
 	// Helper function to load a model from a file
-	static std::vector<VulkanWrapper::SubMesh> LoadModel(const std::string& filePath);
+	static std::vector<VulkanWrapper::SubMesh> LoadModel(const std::string& filePath, VulkanWrapper::VkContainer& api);
 
 	// Helper function to create a mesh from a set of submeshes
 	static void CreateMesh(VulkanWrapper::VkContainer& api, const std::vector<VulkanWrapper::SubMesh>& subMeshes, VulkanWrapper::Mesh& mesh);

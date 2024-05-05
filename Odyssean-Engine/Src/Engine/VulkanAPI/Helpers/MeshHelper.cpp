@@ -11,7 +11,7 @@
 #include <assimp/scene.h>
 #include <iostream>
 
-std::vector<VulkanWrapper::SubMesh> MeshHelper::LoadModel(const std::string& filePath)
+std::vector<VulkanWrapper::SubMesh> MeshHelper::LoadModel(const std::string& filePath, VulkanWrapper::VkContainer& api)
 {
 	Assimp::Importer importer;
 	const unsigned int flags = aiProcess_Triangulate | aiProcess_CalcTangentSpace | aiProcess_GenNormals;
@@ -34,7 +34,7 @@ std::vector<VulkanWrapper::SubMesh> MeshHelper::LoadModel(const std::string& fil
 		{
 			const auto material = scene->mMaterials[mesh->mMaterialIndex];
 			if (material)
-				VulkanWrapper::VulkanMaterial::ProcessMaterial(material, subMesh);
+				VulkanWrapper::VulkanMaterial::ProcessMaterial(material, subMesh, api);
 
 			subMeshes.emplace_back(std::move(subMesh));
 		}

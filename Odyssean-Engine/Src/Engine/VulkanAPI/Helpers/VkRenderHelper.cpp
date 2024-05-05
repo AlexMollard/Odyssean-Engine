@@ -7,6 +7,7 @@
 #include "Nodes/Camera.h"
 #include <Engine/VulkanAPI/ImGuiVulkan.h>
 #include <vector>
+#include "../Types/CommandBuffer.h"
 
 VkRenderHelper::VkRenderHelper()
 {
@@ -194,6 +195,8 @@ void VkRenderHelper::RenderMeshes()
 		spotLights.emplace_back(m_DefaultSpotLight);
 	}
 
+	vk::CommandBuffer& commandBuffer = m_API.commandBuffers.at(m_API.swapchainInfo.getCurrentFrameIndex()).get();
+
 	// This function will render all the meshes and update the descriptor sets for each mesh if needed
 	for (auto& [mesh, modelMatrix] : m_Meshes)
 	{
@@ -201,6 +204,6 @@ void VkRenderHelper::RenderMeshes()
 		UpdateDescriptorSets(mesh, modelMatrix, pointLights, directionalLights, spotLights);
 
 		// Binds descriptor sets, vertex buffer and index buffer then Draw the mesh
-		mesh.BindForDrawing(m_API.commandBuffers.at(m_API.swapchainInfo.getCurrentFrameIndex()).get(), m_API.pipelineLayout);
+		mesh.BindForDrawing(commandBuffer, m_API.pipelineLayout);
 	}
 }

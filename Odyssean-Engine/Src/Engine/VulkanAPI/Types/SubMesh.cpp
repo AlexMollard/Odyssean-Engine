@@ -1,12 +1,15 @@
+#include "pch.h"
+
 #include "SubMesh.h"
 
-#include "../../../pch.h"
-#include "../DescriptorManager.h"
+#include "Engine/VulkanAPI/DescriptorManager.h"
 #include "CommandBuffer.h"
 #include "DeviceQueue.h"
 #include "VkContainer.h"
 #include "common.h"
 #include <iostream>
+#include "assimp/material.h"
+#include "VulkanMaterial.h"
 
 std::vector<vk::VertexInputAttributeDescription> VulkanWrapper::Vertex::GetVertexAttributes()
 {
@@ -126,7 +129,7 @@ void VulkanWrapper::SubMesh::CreateDescriptorSets()
 
 	auto MVPLayout      = api.descriptorManager->getLayout("MVPLayout");
 	auto AllLightLayout = api.descriptorManager->getLayout("AllLightsLayout");
-	auto MaterialLayout = api.descriptorManager->getLayout("PBRMaterialLayout");
+	auto MaterialLayout = api.descriptorManager->getLayout("MaterialLayout");
 
 	// Vertex Shader
 	layouts.push_back(MVPLayout);
@@ -135,7 +138,18 @@ void VulkanWrapper::SubMesh::CreateDescriptorSets()
 	layouts.push_back(AllLightLayout);
 	layouts.push_back(MaterialLayout);
 
-	m_material = VulkanMaterial::CreateDebugMaterial(api);
+	if (m_material.m_Textures[aiTextureType_DIFFUSE].empty())
+	{
+		VulkanWrapper::VulkanMaterial newMaterial = VulkanMaterial::CreateDebugMaterial(api);
+
+		for (int i = 0; i < 13; i++)
+		{
+			if (m_material.m_Textures[(aiTextureType)i].empty())
+			{
+				m_material.m_Textures[(aiTextureType)i] = newMaterial[(aiTextureType)i];
+			}
+		}
+	}
 
 	// Allocate descriptor sets
 	m_descriptorSets = api.descriptorManager->allocateDescriptorSets(layouts, 1);

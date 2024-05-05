@@ -24,7 +24,7 @@ void Mesh::Destroy()
 
 vk::Result Mesh::LoadModel(VulkanWrapper::VkContainer& api, const std::string& path)
 {
-	m_subMeshes = MeshHelper::LoadModel(path);
+	m_subMeshes = MeshHelper::LoadModel(path, api);
 	MeshHelper::CreateMesh(api, m_subMeshes, *this);
 
 	return vk::Result::eSuccess;
@@ -84,7 +84,7 @@ std::vector<std::shared_ptr<VulkanWrapper::DescriptorSetLayout>> Mesh::GetAllDes
 
 	layouts.push_back(m_descriptorManager->getLayout("MVPLayout"));
 	layouts.push_back(m_descriptorManager->getLayout("AllLightsLayout"));
-	layouts.push_back(m_descriptorManager->getLayout("PBRMaterialLayout"));
+	layouts.push_back(m_descriptorManager->getLayout("MaterialLayout"));
 
 	return layouts;
 }

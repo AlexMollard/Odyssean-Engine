@@ -25,7 +25,7 @@ struct VulkanMaterial
 
 	const std::vector<const vk::DescriptorImageInfo*>& GetDescriptorData(VulkanWrapper::VkContainer& api);
 
-	static void ProcessMaterial(aiMaterial* material, SubMesh& subMesh);
+	static void ProcessMaterial(aiMaterial* material, SubMesh& subMesh, VulkanWrapper::VkContainer& api);
 
 	std::string& operator[](int index);
 
@@ -34,5 +34,8 @@ struct VulkanMaterial
 	bool hasTexture(int type);
 
 	static VulkanMaterial CreateDebugMaterial(VulkanWrapper::VkContainer& api);
+
+	// Returns a bitfield of missing textures
+	uint16_t GetMissingTextures();
 };
 } // namespace VulkanWrapper

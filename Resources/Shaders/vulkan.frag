@@ -15,43 +15,42 @@ layout(set = 1, binding = 0) buffer PointLights {
     PointLight lights[4];
 };
 
+// Bindings for textures
 layout(set = 2, binding = 0) uniform sampler2D diffuseMap;
-layout(set = 2, binding = 1) uniform sampler2D normalMap;
-layout(set = 2, binding = 2) uniform sampler2D metallicMap;
-layout(set = 2, binding = 3) uniform sampler2D roughnessMap;
+layout(set = 2, binding = 1) uniform sampler2D specularMap;
+layout(set = 2, binding = 2) uniform sampler2D normalMap;
+layout(set = 2, binding = 3) uniform sampler2D heightMap;
 layout(set = 2, binding = 4) uniform sampler2D ambientMap;
+layout(set = 2, binding = 5) uniform sampler2D emissiveMap;
+layout(set = 2, binding = 6) uniform sampler2D shininessMap;
+layout(set = 2, binding = 7) uniform sampler2D opacityMap;
+layout(set = 2, binding = 8) uniform sampler2D displacementMap;
+layout(set = 2, binding = 9) uniform sampler2D lightMap;
+layout(set = 2, binding = 10) uniform sampler2D reflectionMap;
+layout(set = 2, binding = 11) uniform sampler2D metallicMap;
+layout(set = 2, binding = 12) uniform sampler2D roughnessMap;
 
 layout(location = 0) out vec4 outColor;
 
 vec3 calculateColor(vec3 diffuseColor, vec3 ambientColor, vec3 normal, vec3 viewDirection, float roughness, float metallic) {
-    vec3 lightColor = vec3(0.0);
+    vec3 lightColor = vec3(1.0); // Initialize light color to zero
 
     for (int i = 0; i < 4; i++) {
-        // Calculate the direction from the fragment to the light source
-        vec3 lightDirection = normalize(lights[i].position - fragPosition);
-
-        // Calculate the diffuse reflection (Lambertian reflectance)
-        float diffuseFactor = max(dot(normal, lightDirection), 0.0);
-
-        // Calculate the specular reflection (Phong reflection)
-        vec3 halfway = normalize(lightDirection + viewDirection);
-        float specularFactor = pow(max(dot(normal, halfway), 0.0), 32.0);
-
-        // Combine diffuse and specular reflections with light color and intensity
-        vec3 lightContribution = lights[i].color * lights[i].intensity * (
-            diffuseFactor * (1.0 - metallic) + specularFactor * metallic
-        );
-
-        // Add the contribution of this light source to the final color
-        lightColor += lightContribution;
+        if (lights[i].intensity > 0.0) { // Check if light intensity is greater than zero
+            vec3 lightDirection = normalize(lights[i].position - fragPosition);
+            float diffuseFactor = max(dot(normal, lightDirection), 0.0);
+            vec3 halfway = normalize(lightDirection + viewDirection);
+            float specularFactor = pow(max(dot(normal, halfway), 0.0), 32.0);
+            vec3 lightContribution = lights[i].color * lights[i].intensity * (
+                diffuseFactor * (1.0 - metallic) + specularFactor * metallic
+            );
+            lightColor += lightContribution;
+        }
     }
 
-    // Combine ambient and diffuse lighting with material color
     vec3 finalColor = (ambientColor + diffuseColor * lightColor) * (1.0 - metallic);
-
     return finalColor;
 }
-
 
 void main() {
     vec3 normal = texture(normalMap, fragTexCoord).rgb;
@@ -62,7 +61,7 @@ void main() {
     vec3 diffuseColor = texture(diffuseMap, fragTexCoord).rgb;
     vec3 ambientColor = texture(ambientMap, fragTexCoord).rgb * 0.5;
     float roughness = texture(roughnessMap, fragTexCoord).r;
-    float metallic = texture(metallicMap, fragTexCoord).r;
+    float metallic = texture(metallicMap, fragTexCoord).r; // Correctly sample metallicMap
 
     vec3 finalColor = calculateColor(diffuseColor, ambientColor, N, V, roughness, metallic);
 
