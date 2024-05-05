@@ -46,22 +46,7 @@ struct SpotLight
 
 namespace VulkanWrapper
 {
-struct VkContainer;
-}
-
-// Error checking
-#define VK_CHECK_RESULT(f)                                                                                                                                                    \
-	{                                                                                                                                                                         \
-		vk::Result res = (f);                                                                                                                                                 \
-		if (res != vk::Result::eSuccess)                                                                                                                                      \
-		{                                                                                                                                                                     \
-			printf("Fatal : VkResult is %d in %s at line %d\n", res, __FILE__, __LINE__);                                                                                     \
-			assert(res == vk::Result::eSuccess);                                                                                                                              \
-		}                                                                                                                                                                     \
-	}
-
-namespace VulkanWrapper
-{
+class VkContainer;
 class DeviceQueue;
 struct Buffer
 {
@@ -96,3 +81,14 @@ struct Texture
 	static void CreateDebugAmbientTexture(const char* dir);
 };
 } // namespace VulkanWrapper
+
+// Error checking
+#define VK_CHECK_RESULT(f)                                                                                                                                                    \
+	{                                                                                                                                                                         \
+		vk::Result res = (f);                                                                                                                                                 \
+		if (res != vk::Result::eSuccess)                                                                                                                                      \
+		{                                                                                                                                                                     \
+			printf("Fatal : VkResult is %d in %s at line %d\n", res, __FILE__, __LINE__);                                                                                     \
+			assert(res == vk::Result::eSuccess);                                                                                                                              \
+		}                                                                                                                                                                     \
+	}

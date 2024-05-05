@@ -6,7 +6,7 @@
 
 namespace VulkanWrapper
 {
-struct VkContainer;
+class VkContainer;
 struct Mesh;
 } // namespace VulkanWrapper
 

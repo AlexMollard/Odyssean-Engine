@@ -9,11 +9,7 @@ struct aiMesh;
 namespace VulkanWrapper
 {
 class DescriptorManager;
-}
-
-namespace VulkanWrapper
-{
-struct VkContainer;
+class VkContainer;
 
 // Define struct for mesh
 struct Mesh

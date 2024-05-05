@@ -2,23 +2,24 @@
 
 #include "Texture.h"
 
-#include "SOIL2/SOIL2.h"
+//! TODO just use the single file for soil instead of vcpkg
+//#include "SOIL2/SOIL2.h"
 #include "gl/glew.h"
 #include <GLFW/glfw3.h>
 
 Texture::Texture(std::string dir)
 {
-	/* load an image file directly as a new OpenGL texture */
-	GLuint tex_2d =
-	    SOIL_load_OGL_texture(dir.c_str(), SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_MIPMAPS | SOIL_FLAG_INVERT_Y | SOIL_FLAG_NTSC_SAFE_RGB | SOIL_FLAG_COMPRESS_TO_DXT);
+// 	/* load an image file directly as a new OpenGL texture */
+// 	GLuint tex_2d =
+// 	    SOIL_load_OGL_texture(dir.c_str(), SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_MIPMAPS | SOIL_FLAG_INVERT_Y | SOIL_FLAG_NTSC_SAFE_RGB | SOIL_FLAG_COMPRESS_TO_DXT);
+// 
+// 	/* check for an error during the load process */
+// 	if (0 == tex_2d)
+// 	{
+// 		printf("SOIL loading error: '%s'\n", SOIL_last_result());
+// 	}
 
-	/* check for an error during the load process */
-	if (0 == tex_2d)
-	{
-		printf("SOIL loading error: '%s'\n", SOIL_last_result());
-	}
-
-	m_TextureID = tex_2d;
+	m_TextureID = 0;
 }
 
 Texture::Texture(unsigned int* id) : m_TextureID(*id) {}

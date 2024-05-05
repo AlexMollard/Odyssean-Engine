@@ -3,7 +3,7 @@
 #include <iostream>
 #include <unordered_set>
 
-struct GLFWwindow;
+class GLFWwindow;
 
 const static bool s_Debug = false;
 

@@ -8,7 +8,7 @@
 namespace VulkanWrapper
 {
 struct Mesh;
-struct VkContainer;
+class VkContainer;
 class DescriptorManager;
 } // namespace VulkanWrapper
 

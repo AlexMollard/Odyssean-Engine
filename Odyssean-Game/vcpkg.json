@@ -1,5 +1,5 @@
 {
-  "name": "odyssean-engine",
+  "name": "odyssean-game",
   "version-string": "1.0.0",
   "dependencies": [
     "vulkan",
@@ -22,5 +22,6 @@
         "docking-experimental"
       ]
     }
+
   ]
 }

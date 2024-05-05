@@ -41,8 +41,7 @@ Odyssean-Engine/cmake-build-debug/
 
 #vcpkg
 vcpkg/
-Odyssean-Engine/vcpkg_installed
-Game/vcpkg_installed
+vcpkg_files
 
 
 # Visual Studio 2015/2017 cache/options directory
