@@ -2,7 +2,6 @@
 
 #include "VulkanAPI/Helpers/VkRenderHelper.h"
 
-#include "Engine/VulkanAPI/Types/VkContainer.h"
 #include "Engine/VulkanAPI/Types/common.h"
 
 void Renderer::OpenGLImpl::Draw() const
@@ -14,11 +13,14 @@ void Renderer::OpenGLImpl::Draw() const
 	// Unbind the buffers and shaders
 }
 
-void Renderer::OpenGLImpl::CleanUp() const {}
+void Renderer::OpenGLImpl::CleanUp() const 
+{
+	// OpenGl not yet set up
+}
 
 void Renderer::VulkanImpl::InitRenderer()
 {
-	m_RenderHelper = new VkRenderHelper;
+	m_RenderHelper = std::make_unique<VkRenderHelper>();
 }
 
 void Renderer::VulkanImpl::Draw() const
@@ -31,25 +33,22 @@ void Renderer::VulkanImpl::AddMesh(const VulkanWrapper::Mesh& mesh, const glm::m
 	m_RenderHelper->AddMesh(mesh, model);
 }
 
-void Renderer::VulkanImpl::AddDirLight(const DirectionalLight& light) const
+void Renderer::VulkanImpl::AddDirLight(const DirectionalLight* light) const
 {
 	// Cast light to void* and pass it to the render helper
-	auto* lightPtr = (void*)&light;
-	m_RenderHelper->AddLight(LIGHT_TYPE::DIRECTIONAL, lightPtr);
+	m_RenderHelper->AddLight(LIGHT_TYPE::DIRECTIONAL, static_cast<const BaseLight*>(light));
 }
 
-void Renderer::VulkanImpl::AddPointLight(const PointLight& light) const
+void Renderer::VulkanImpl::AddPointLight(const PointLight* light) const
 {
 	// Cast light to void* and pass it to the render helper
-	auto* lightPtr = (void*)&light;
-	m_RenderHelper->AddLight(LIGHT_TYPE::POINT, lightPtr);
+	m_RenderHelper->AddLight(LIGHT_TYPE::POINT, static_cast<const BaseLight*>(light));
 }
 
-void Renderer::VulkanImpl::AddSpotLight(const SpotLight& light) const
+void Renderer::VulkanImpl::AddSpotLight(const SpotLight* light) const
 {
 	// Cast light to void* and pass it to the render helper
-	auto* lightPtr = (void*)&light;
-	m_RenderHelper->AddLight(LIGHT_TYPE::SPOT, lightPtr);
+	m_RenderHelper->AddLight(LIGHT_TYPE::SPOT, static_cast<const BaseLight*>(light));
 }
 
 void Renderer::VulkanImpl::SetCamera(node::Camera& camera)
@@ -61,7 +60,6 @@ void Renderer::VulkanImpl::CleanUp() const
 {
 	m_RenderHelper->ClearMeshes();
 	m_RenderHelper->ClearLights();
-	delete m_RenderHelper;
 }
 
 void Renderer::DirectXImpl::Draw() const
@@ -74,4 +72,7 @@ void Renderer::DirectXImpl::Draw() const
 	S_ASSERT(false, "DirectX is not yet supported")
 }
 
-void Renderer::DirectXImpl::CleanUp() const {}
+void Renderer::DirectXImpl::CleanUp() const 
+{
+	// DirectX not yet set up
+}

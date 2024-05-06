@@ -36,10 +36,11 @@ void VulkanScene::Enter()
 
 	m_Renderer.SetCamera(m_Camera);
 
-	m_PointLight.color = glm::vec3(0.2f, 1.0f, 0.3f);
+	// Sun warm light
+	m_PointLight.color = glm::vec3(1.0f, 0.8f, 0.6f);
 	m_PointLight.position   = glm::vec3(0.0f, 0.0f, 0.0f);
 	m_PointLight.intensity = 1.0f;
-	m_Renderer.AddPointLight(m_PointLight);
+	m_Renderer.AddPointLight(&m_PointLight);
 }
 
 void VulkanScene::Exit()

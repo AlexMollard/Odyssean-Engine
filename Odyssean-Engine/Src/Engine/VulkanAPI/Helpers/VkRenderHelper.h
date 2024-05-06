@@ -28,7 +28,7 @@ public:
 	void AddMesh(const VulkanWrapper::Mesh& mesh, const glm::mat4& model);
 
 	// Lights
-	void AddLight(LIGHT_TYPE type, void* light);
+	void AddLight(LIGHT_TYPE type, const BaseLight* light);
 	void ClearLights();
 
 	// Camera

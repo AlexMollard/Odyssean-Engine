@@ -13,35 +13,48 @@ constexpr int MAX_POINT_LIGHTS       = 4;
 constexpr int MAX_DIRECTIONAL_LIGHTS = 4;
 constexpr int MAX_SPOT_LIGHTS        = 4;
 
-// The lights must align to a total of 32 bytes (color + position + intensity = 12 + 12 + 4 = 28 bytes) so we add 4 bytes of padding
-struct PointLight
+struct BaseLight
 {
-	glm::vec3 color    = glm::vec3(0.0f, 0.0f, 1.0f);
+	glm::vec3 color = glm::vec3(0.0f, 0.0f, 1.0f);
+};
+
+struct PointLight : public BaseLight
+{
 	glm::vec3 position = glm::vec3(0.0f);
 	float intensity    = 1.0f;
 
 	PointLight() = default;
-	PointLight(const glm::vec3& color, const glm::vec3& position, float intensity) noexcept : color(color), position(position), intensity(intensity) {}
+	PointLight(glm::vec3 position, glm::vec3 color, float intensity) : position(position), intensity(intensity)
+	{
+		this->color = color;
+	}
 };
 
-struct DirectionalLight
+struct DirectionalLight : public BaseLight
 {
-	alignas(16) glm::vec3 color;
-	alignas(16) glm::vec3 direction;
-	alignas(4) float intensity;
+	glm::vec3 direction;
+	float intensity;
 
-	DirectionalLight() : color(glm::vec3(4444.0f)), direction(glm::vec3(4444.0f)), intensity(0.0f) {}
+	DirectionalLight() = default;
+	DirectionalLight(glm::vec3 direction, glm::vec3 color, float intensity) : direction(direction), intensity(intensity)
+	{
+		this->color = color;
+	}
 };
 
-struct SpotLight
+struct SpotLight : public BaseLight
 {
-	alignas(16) glm::vec3 color;
-	alignas(16) glm::vec3 position;
-	alignas(16) glm::vec3 direction;
-	alignas(4) float intensity;
-	alignas(4) float cutoff;
+	glm::vec3 position;
+	glm::vec3 direction;
+	float intensity;
+	float cutoff;
 
-	SpotLight() : color(glm::vec3(4444.0f)), position(glm::vec3(4444.0f)), direction(glm::vec3(4444.0f)), intensity(0.0f), cutoff(4444.0f) {}
+	SpotLight() = default;
+	SpotLight(glm::vec3 position, glm::vec3 direction, glm::vec3 color, float intensity, float cutoff)
+		: position(position), direction(direction), intensity(intensity), cutoff(cutoff)
+	{
+		this->color = color;
+	}
 };
 
 namespace VulkanWrapper

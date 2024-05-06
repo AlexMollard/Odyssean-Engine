@@ -126,9 +126,9 @@ void VkRenderHelper::AddMesh(const VulkanWrapper::Mesh& mesh, const glm::mat4& m
 	m_Meshes.emplace_back(mesh, model);
 }
 
-void VkRenderHelper::AddLight(LIGHT_TYPE type, void* light)
+void VkRenderHelper::AddLight(LIGHT_TYPE type, const BaseLight* light)
 {
-	m_Lights.push_back(std::tuple(type, light));
+	m_Lights.push_back(std::tuple(type, static_cast<void*>(&light)));
 }
 
 void VkRenderHelper::ClearLights()

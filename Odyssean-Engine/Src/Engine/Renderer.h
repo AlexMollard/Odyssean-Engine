@@ -1,8 +1,9 @@
 #pragma once
-#include "Engine/VulkanAPI/Helpers/VkRenderHelper.h"
 #include "glm/fwd.hpp"
 #include <Engine/ErrorHandling.h>
 #include <memory>
+
+#include "Engine/VulkanAPI/Helpers/VkRenderHelper.h"
 
 namespace VulkanWrapper
 {
@@ -25,22 +26,24 @@ public:
 		DIRECTX
 	};
 
-	struct Impl
+	struct ImplBase
 	{
-		virtual void Draw() const = 0;
+		virtual void Draw() const    = 0;
 		virtual void CleanUp() const = 0;
+		virtual ~ImplBase()          = default;
 	};
 
-	struct OpenGLImpl : public Impl
+	struct OpenGLImpl : public ImplBase
 	{
+		~OpenGLImpl() final = default;
+
 		void Draw() const override;
 		void CleanUp() const override;
 	};
 
-	struct VulkanImpl : public Impl
+	struct VulkanImpl : public ImplBase
 	{
-		// Creates the m_RenderHelper
-		virtual ~VulkanImpl() = default;
+		~VulkanImpl() final = default;
 
 		void InitRenderer();
 
@@ -48,46 +51,62 @@ public:
 
 		void AddMesh(const VulkanWrapper::Mesh& mesh, const glm::mat4& model) const;
 
-		void AddDirLight(const DirectionalLight& light) const;
-		void AddPointLight(const PointLight& light) const;
-		void AddSpotLight(const SpotLight& light) const;
+		void AddDirLight(const DirectionalLight* light) const;
+		void AddPointLight(const PointLight* light) const;
+		void AddSpotLight(const SpotLight* light) const;
 
 		void SetCamera(node::Camera& camera);
 
 		void CleanUp() const override;
+
 	private:
-		VkRenderHelper* m_RenderHelper = nullptr;
+		std::unique_ptr<VkRenderHelper> m_RenderHelper;
 	};
 
-	struct DirectXImpl : public Impl
+	struct DirectXImpl : public ImplBase
 	{
+		~DirectXImpl() final = default;
+
 		void Draw() const override;
 		void CleanUp() const override;
 	};
 
-	// Renderer class starts here
-
-	explicit Renderer(API api) : current_api(api)
+	explicit Renderer(API api)
 	{
-		switch (current_api)
+		switch (api)
 		{
-		case API::OPENGL: impl = std::make_unique<OpenGLImpl>(); break;
-		case API::VULKAN: impl = std::make_unique<VulkanImpl>(); break;
-		case API::DIRECTX: impl = std::make_unique<DirectXImpl>(); break;
+		case API::OPENGL:
+		{
+			m_impl = std::make_unique<OpenGLImpl>();
+			break;
 		}
+		case API::VULKAN:
+		{
+			m_impl = std::make_unique<VulkanImpl>();
+			break;
+		}
+		case API::DIRECTX:
+		{
+			m_impl = std::make_unique<DirectXImpl>();
+			break;
+		}
+
+		default:
+		{
+			S_ASSERT(false, "You didnt pass a valid API");
+		}
+		};
 	}
 
 	void Draw() const
 	{
-		impl->Draw();
+		m_impl->Draw();
 	}
 
-	std::unique_ptr<Impl>& GetImpl()
+	std::unique_ptr<ImplBase>& GetImpl()
 	{
-		return impl;
+		return m_impl;
 	};
 
-private:
-	API current_api;
-	std::unique_ptr<Impl> impl;
+	std::unique_ptr<ImplBase> m_impl;
 };
