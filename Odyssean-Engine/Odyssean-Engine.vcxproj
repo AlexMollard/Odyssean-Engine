@@ -164,6 +164,7 @@
   <ItemGroup>
     <ClInclude Include="Src\Engine\InputManager.h" />
     <ClInclude Include="Src\Engine\Renderer.h" />
+    <ClInclude Include="Src\Engine\UtilisationQuery.h" />
     <ClInclude Include="Src\Engine\VulkanAPI\Types\DescriptorSetLayout.h" />
     <ClInclude Include="Src\Engine\VulkanAPI\Types\DescriptorLayoutCache.h" />
     <ClInclude Include="Src\Engine\VulkanAPI\Types\BindingData.h" />
@@ -216,6 +217,7 @@
   <ItemGroup>
     <ClCompile Include="Src\Engine\InputManager.cpp" />
     <ClCompile Include="Src\Engine\Renderer.cpp" />
+    <ClCompile Include="Src\Engine\UtilisationQuery.cpp" />
     <ClCompile Include="Src\Engine\VulkanAPI\Types\DescriptorSetLayout.cpp" />
     <ClCompile Include="Src\Engine\VulkanAPI\Types\DescriptorLayoutCache.cpp" />
     <ClCompile Include="Src\Engine\VulkanAPI\Types\BindingData.cpp" />

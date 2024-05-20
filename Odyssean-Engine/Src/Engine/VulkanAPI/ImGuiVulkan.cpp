@@ -3,7 +3,6 @@
 #include "ImGuiVulkan.h"
 
 #include "GLFW/glfw3.h"
-#include "GLFW/glfw3native.h"
 
 // Include the ImGui
 #define GLFW_INCLUDE_NONE
@@ -14,6 +13,87 @@
 #include "imgui_impl_vulkan.h"
 
 #include "Engine/ImGuiLayer.h"
+
+#ifdef _WIN32
+#include "Engine/UtilisationQuery.h"
+
+double GetCpuUtilisation()
+{
+	return UtilisationQuery::cpuUtilisation.GetUtilisation();
+}
+
+double GetGpuUtilisation()
+{
+	return UtilisationQuery::gpuUtilisation.GetUtilisation();
+}
+
+double GetPhysicalMemoryUtilisation()
+{
+	return UtilisationQuery::physicalMemory.GetUtilisation();
+}
+
+double GetVirtualMemoryUtilisation()
+{
+	return UtilisationQuery::virtualMemory.GetUtilisation();
+}
+
+double GetDiskReadTimeUtilisation()
+{
+	return UtilisationQuery::diskReadTime.GetUtilisation();
+}
+
+double GetDiskWriteTimeUtilisation()
+{
+	return UtilisationQuery::diskWriteTime.GetUtilisation();
+}
+
+double GetNetworkBytesSentUtilisation()
+{
+	return UtilisationQuery::networkBytesSent.GetUtilisation();
+}
+
+double GetNetworkBytesReceivedUtilisation()
+{
+	return UtilisationQuery::networkBytesReceived.GetUtilisation();
+}
+
+#else // Probably Linux (not supported just yet)
+double GetCpuUtilisation()
+{
+	return 0.0;
+}
+double GetGpuUtilisation()
+{
+	return 0.0;
+}
+double GetPhysicalMemoryUtilisation()
+{
+	return 0.0;
+}
+double GetVirtualMemoryUtilisation()
+{
+	return 0.0;
+}
+double GetDiskReadTimeUtilisation()
+{
+	return 0.0;
+}
+double GetDiskWriteTimeUtilisation()
+{
+	return 0.0;
+}
+double GetNetworkBytesSentUtilisation()
+{
+	return 0.0;
+}
+double GetNetworkBytesReceivedUtilisation()
+{
+	return 0.0;
+}
+#endif
+
+static double frameTimesMin = FLT_MAX;
+static double frameTimesMax = FLT_MIN;
 
 int ImGuiVulkan::SetUpImgui(VulkanWrapper::VkContainer& vkContainer)
 {
@@ -270,6 +350,94 @@ void ImGuiVulkan::SetPlatformIO(VulkanWrapper::VkContainer& vkContainer)
 	};
 }
 
+void UpdateFrameTimes(double currentTime, const float frameTimes[90])
+{
+	frameTimesMin = FLT_MAX;
+	frameTimesMax = FLT_MIN;
+
+	for (int i = 0; i < 90; i++)
+	{
+		if (frameTimes[i] < frameTimesMin)
+		{
+			frameTimesMin = frameTimes[i];
+		}
+		if (frameTimes[i] > frameTimesMax)
+		{
+			frameTimesMax = frameTimes[i];
+		}
+	}
+
+	if (currentTime < frameTimesMin)
+	{
+		frameTimesMin = currentTime;
+	}
+	if (currentTime > frameTimesMax)
+	{
+		frameTimesMax = currentTime;
+	}
+}
+
+void DrawMyGui()
+{
+	// Application Stats
+	ImGui::Begin("Stats");
+
+	// FPS Section
+	float frameTime = 1.0f / ImGui::GetIO().Framerate; // Calculate frame time based on actual framerate
+
+	// Update frame time values
+	static float fpsValues[90] = { 0.0f };
+	static int values_offset   = 0;
+	fpsValues[values_offset]   = frameTime;
+	values_offset              = (values_offset + 1) % IM_ARRAYSIZE(fpsValues);
+
+	// Update frame times
+	UpdateFrameTimes(frameTime, fpsValues);
+
+	// Display frame time
+	ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", frameTime, ImGui::GetIO().Framerate);
+
+	// Display min and max frame times
+	ImGui::Text("Min: %.3f ms/frame", frameTimesMin);
+	ImGui::SameLine();
+	ImGui::Text("Max: %.3f ms/frame", frameTimesMax);
+
+	// Display frame time graph
+	ImGui::PlotLines("Frame Times", fpsValues, IM_ARRAYSIZE(fpsValues), values_offset, "", 0.0f, 0.03f, ImVec2(0, 80));
+
+	// Separator for better visual organization
+	ImGui::Separator();
+
+	// CPU Utilization
+	ImGui::Text("CPU Utilization: %.2f%%", GetCpuUtilisation());
+
+	// GPU Utilization
+	ImGui::Text("GPU Utilization: %.2f%%", GetGpuUtilisation());
+
+	// Physical Memory Utilization
+	ImGui::Text("Physical Memory Utilization: %.2f%%", GetPhysicalMemoryUtilisation());
+
+	// Virtual Memory Utilization
+	ImGui::Text("Virtual Memory Utilization: %.2f MB", GetVirtualMemoryUtilisation() / (1024 * 1024));
+
+	// Separator for better visual organization
+	ImGui::Separator();
+
+	// Disk Utilization
+	ImGui::Text("Disk Read Time Utilization: %.2f%%", GetDiskReadTimeUtilisation());
+	ImGui::Text("Disk Write Time Utilization: %.2f%%", GetDiskWriteTimeUtilisation());
+
+	// Separator for better visual organization
+	ImGui::Separator();
+
+	// Network Utilization
+	ImGui::Text("Network Bytes Sent: %.2f KB/s", GetNetworkBytesSentUtilisation() / 1024);
+	ImGui::Text("Network Bytes Received: %.2f KB/s", GetNetworkBytesReceivedUtilisation() / 1024);
+
+	// End Stats
+	ImGui::End();
+}
+
 void ImGuiVulkan::NewFrame(VulkanWrapper::VkContainer& vkContainer)
 {
 	// Start the Dear ImGui frame
@@ -304,8 +472,7 @@ void ImGuiVulkan::NewFrame(VulkanWrapper::VkContainer& vkContainer)
 	ImGuiID dockspaceId = ImGui::GetID("MainDockspace");
 	ImGui::DockSpace(dockspaceId, ImVec2(0.0f, 0.0f), dockspaceFlags);
 
-	// Demo Window
-	ImGui::ShowDemoWindow();
+	DrawMyGui();
 
 	// End Docking
 	ImGui::End();
