@@ -43,7 +43,7 @@ void OpenGLEngine::Initialize(const char* windowName, int width, int height)
 
 	m_close = false;
 
-	pool = new BS::thread_pool(4);
+	pool = new BS::thread_pool<>(4);
 
 	// Create FBO
 	glGenFramebuffers(1, &m_fbo);

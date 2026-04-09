@@ -24,14 +24,19 @@ flecs::entity* ECS::CreateQuad(const glm::vec3& position, const glm::vec2& size,
 	s_IDIncrementor++;
 	std::string entityName   = name ? name : std::format("Quad: {}", s_IDIncrementor);
 	flecs::entity quadEntity = Instance()->CreateEntity();
-	quadEntity.set(
-	    [&position, &size, &color, &entityName](node::Quad& quad, node::Transform& transform, node::Tag& tag)
-	    {
-		    transform.SetPosition(position);
-		    quad.SetSize(size);
-		    quad.SetColor(color);
-		    tag.SetName(entityName.c_str());
-	    });
+	node::Transform transform;
+	transform.SetPosition(position);
+	quadEntity.set<node::Transform>(transform);
+
+	node::Quad quad;
+	quad.SetSize(size);
+	quad.SetColor(color);
+	quadEntity.set<node::Quad>(quad);
+
+	node::Tag tag;
+	tag.SetName(entityName.c_str());
+	quadEntity.set<node::Tag>(tag);
+
 	quadEntity.set_name(entityName.c_str());
 	return quadEntity.get_ref<flecs::entity>().get();
 }
@@ -41,14 +46,19 @@ flecs::entity* ECS::CreateText(const std::string& inText, const glm::vec3& posit
 	s_IDIncrementor++;
 	std::string entityName   = std::format("Text: {}", s_IDIncrementor);
 	flecs::entity textEntity = Instance()->CreateEntity();
-	textEntity.set(
-	    [&position, &color, &inText, &entityName](node::Text& text, node::Transform& transform, node::Tag& tag)
-	    {
-		    transform.SetPosition(position);
-		    text.SetColor(color);
-		    text.SetText(inText);
-		    tag.SetName(entityName.c_str());
-	    });
+	node::Transform transform;
+	transform.SetPosition(position);
+	textEntity.set<node::Transform>(transform);
+
+	node::Text text;
+	text.SetColor(color);
+	text.SetText(inText);
+	textEntity.set<node::Text>(text);
+
+	node::Tag tag;
+	tag.SetName(entityName.c_str());
+	textEntity.set<node::Tag>(tag);
+
 	textEntity.set_name(entityName.c_str());
 	return textEntity.get_ref<flecs::entity>().get();
 }
@@ -72,14 +82,13 @@ void ECS::GetNodeInspectorFunction(const flecs::entity& entity)
 void ECS::Init()
 {
 	m_World.import <flecs::units>();
-	m_World.import <flecs::monitor>();
 	m_World.set<flecs::Rest>({});
 	m_RootEntity = m_World.entity();
 	m_RootEntity.add<node::Transform>();
 	m_RootEntity.set_name("RootNode");
 }
 
-void ECS::Update(const BS::thread_pool& pool)
+void ECS::Update(const BS::thread_pool<>& pool)
 {
 	// Update the ECS
 	m_World.progress();

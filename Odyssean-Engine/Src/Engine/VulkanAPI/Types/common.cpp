@@ -17,6 +17,82 @@
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb_image_write.h"
 
+#include <filesystem>
+
+namespace
+{
+std::filesystem::path ResolveTexturePath(const char* rawPath)
+{
+	namespace fs = std::filesystem;
+
+	fs::path input(rawPath);
+	std::error_code ec;
+
+	if (input.is_absolute() && fs::exists(input, ec))
+	{
+		return input;
+	}
+
+	if (fs::exists(input, ec))
+	{
+		return fs::absolute(input, ec).lexically_normal();
+	}
+
+	const std::string inputString = input.generic_string();
+	const size_t resourcesPos     = inputString.find("Resources/");
+
+	fs::path cursor = fs::current_path(ec);
+	if (ec)
+	{
+		return input;
+	}
+
+	if (resourcesPos != std::string::npos)
+	{
+		const fs::path resourcesTail(inputString.substr(resourcesPos));
+		while (true)
+		{
+			const fs::path candidate = (cursor / resourcesTail).lexically_normal();
+			if (fs::exists(candidate, ec))
+			{
+				return candidate;
+			}
+
+			if (!cursor.has_parent_path() || cursor == cursor.parent_path())
+			{
+				break;
+			}
+
+			cursor = cursor.parent_path();
+		}
+	}
+
+	cursor = fs::current_path(ec);
+	if (ec)
+	{
+		return input;
+	}
+
+	while (true)
+	{
+		const fs::path candidate = (cursor / input).lexically_normal();
+		if (fs::exists(candidate, ec))
+		{
+			return candidate;
+		}
+
+		if (!cursor.has_parent_path() || cursor == cursor.parent_path())
+		{
+			break;
+		}
+
+		cursor = cursor.parent_path();
+	}
+
+	return input;
+}
+} // namespace
+
 namespace VulkanWrapper
 {
 void VulkanWrapper::Texture::Create(VulkanWrapper::VkContainer& api, vk::Queue queue, const void* data, uint32_t width, uint32_t height)
@@ -145,19 +221,22 @@ void VulkanWrapper::Texture::Create(VulkanWrapper::VkContainer& api, vk::Queue q
 
 VulkanWrapper::Texture* VulkanWrapper::Texture::Load(VulkanWrapper::VkContainer& api, vk::Queue queue, const char* dir)
 {
+	const std::filesystem::path resolvedPath = ResolveTexturePath(dir);
+	const std::string resolvedPathString     = resolvedPath.string();
+
 	// Check if the std::map texture cache on api already contains this texture
-	if (api.textureCache.find(dir) != api.textureCache.end())
+	if (api.textureCache.find(resolvedPathString) != api.textureCache.end())
 	{
-		return api.textureCache[dir];
+		return api.textureCache[resolvedPathString];
 	}
 
 	int width, height, channels;
 
-	stbi_uc* pixels = stbi_load(dir, &width, &height, &channels, STBI_rgb_alpha);
+	stbi_uc* pixels = stbi_load(resolvedPathString.c_str(), &width, &height, &channels, STBI_rgb_alpha);
 
 	if (!pixels)
 	{
-		throw std::runtime_error("Failed to load texture image!");
+		throw std::runtime_error(std::format("Failed to load texture image: {}", resolvedPathString));
 	}
 
 	auto texture = new Texture();
@@ -165,7 +244,7 @@ VulkanWrapper::Texture* VulkanWrapper::Texture::Load(VulkanWrapper::VkContainer&
 
 	stbi_image_free(pixels);
 
-	api.textureCache[dir] = texture;
+	api.textureCache[resolvedPathString] = texture;
 
 	return texture;
 }

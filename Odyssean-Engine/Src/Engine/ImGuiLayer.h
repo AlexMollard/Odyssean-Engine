@@ -19,7 +19,7 @@ public:
 	void ShowHierarchyWindow(bool* p_open) const;
 	void ShowInspectorWindow(bool* p_open, flecs::entity entity) const;
 	void ShowProfilerWindow(bool* p_open) const;
-	void NewFrame(BS::thread_pool& pool); // before rendering (where you would call imgui::NewFrame)
+	void NewFrame(BS::thread_pool<>& pool); // before rendering (where you would call imgui::NewFrame)
 	void UpdateViewPorts() const;
 
 private:

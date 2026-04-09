@@ -58,7 +58,7 @@ void TestingScene::Draw()
 {
 	auto const& world = ECS::GetWorldStatic();
 
-	flecs::filter<node::Quad, node::Transform> f = world.filter<node::Quad, node::Transform>();
-	f.each([](node::Quad const& q, node::Transform const& t)
-	       { Renderer2D::DrawQuad(t.GetPosition(), q.GetSize() * t.GetScale(), q.GetColor(), q.GetAnchorPoint(), t.GetRotation(), 0); });
+	auto query = world.query<node::Quad, node::Transform>();
+	query.each([](node::Quad const& q, node::Transform const& t)
+	           { Renderer2D::DrawQuad(t.GetPosition(), q.GetSize() * t.GetScale(), q.GetColor(), q.GetAnchorPoint(), t.GetRotation(), 0); });
 }

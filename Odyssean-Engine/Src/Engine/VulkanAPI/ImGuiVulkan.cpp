@@ -156,6 +156,9 @@ int ImGuiVulkan::SetUpImgui(VulkanWrapper::VkContainer& vkContainer)
 		initInfo.Allocator                 = nullptr;
 		initInfo.MinImageCount             = 2;
 		initInfo.ImageCount                = vkContainer.swapchainInfo.m_ImageCount;
+		initInfo.PipelineInfoMain.RenderPass = vkContainer.renderPassFrameBuffers.m_RenderPass;
+		initInfo.PipelineInfoMain.Subpass    = 0;
+		initInfo.PipelineInfoMain.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
 
 		// vk result check function
 		initInfo.CheckVkResultFn = [](VkResult err)
@@ -169,7 +172,7 @@ int ImGuiVulkan::SetUpImgui(VulkanWrapper::VkContainer& vkContainer)
 		// Install handlers
 		ImGuiVulkan::SetPlatformIO(vkContainer);
 
-		ImGui_ImplVulkan_Init(&initInfo, vkContainer.renderPassFrameBuffers.m_RenderPass);
+		ImGui_ImplVulkan_Init(&initInfo);
 
 		io.Fonts->AddFontFromFileTTF("../Resources/Fonts/FiraCode-Regular.ttf", 16.0f);
 

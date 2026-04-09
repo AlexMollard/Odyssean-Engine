@@ -84,7 +84,7 @@ VulkanWrapper::VulkanMaterial VulkanWrapper::VulkanMaterial::CreateDebugMaterial
 	// Check if the textures actually exist
 	for (int i = 0; i < aiTextureType_UNKNOWN; i++)
 	{
-		if (!material.m_Textures[(aiTextureType)i].empty())
+		if (material.m_Textures[(aiTextureType)i].empty())
 			continue;
 		if (std::filesystem::exists(material.m_Textures[(aiTextureType)i]))
 			continue;

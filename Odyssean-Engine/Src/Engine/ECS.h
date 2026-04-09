@@ -2,13 +2,9 @@
 #include "pch.h"
 
 #include "Nodes.h"
+#include "BS_thread_pool.hpp"
 #include "flecs.h"
 #include <thread>
-
-namespace BS
-{
-	class thread_pool;
-}
 
 // Create the singleton ECS class
 class ECS
@@ -28,7 +24,7 @@ public:
 	void Init();
 
 	// Update the ECS
-	void Update(const BS::thread_pool& pool);
+	void Update(const BS::thread_pool<>& pool);
 
 	// Destroy the ECS
 	void Destroy();

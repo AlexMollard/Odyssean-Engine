@@ -39,7 +39,7 @@ private:
 	OpenGLRenderer m_renderer;
 	ImGuiLayer m_ImguiLayer;
 
-	BS::thread_pool* pool = nullptr;
+	BS::thread_pool<>* pool = nullptr;
 
 	// FBO
 	unsigned int m_fbo;

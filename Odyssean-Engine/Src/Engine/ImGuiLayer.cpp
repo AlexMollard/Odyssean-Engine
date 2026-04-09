@@ -259,7 +259,7 @@ void ImGuiLayer::ShowProfilerWindow(bool* p_open) const
 	ImGui::End();
 }
 
-void ImGuiLayer::NewFrame(BS::thread_pool& pool)
+void ImGuiLayer::NewFrame(BS::thread_pool<>& pool)
 {
 	static bool showProfiler     = true;
 	static bool showHierarchy    = true;
